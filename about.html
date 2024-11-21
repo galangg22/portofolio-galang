@@ -3,190 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Amazing Portfolio - About Me</title>
+    <title>About Me - John Doe</title>
+    <link rel="stylesheet" href="styles.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
-        
-        :root {
-            --primary-color: #4a00e0;
-            --secondary-color: #8e2de2;
-            --text-color: #333;
-            --bg-color: #f4f4f4;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            color: var(--text-color);
-            background-color: var(--bg-color);
-            overflow-x: hidden;
-        }
-
-        header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 1rem 0;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        nav ul {
-            list-style-type: none;
-            padding: 0;
+        .about-section {
             display: flex;
-            justify-content: center;
-        }
-
-        nav ul li {
-            margin: 0 15px;
-        }
-
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        nav ul li a:hover {
-            color: #ffd700;
-            transform: scale(1.1);
-        }
-
-        main {
-            padding: 120px 20px 20px;
-            max-width: 800px;
-            margin: 0 auto;
-            animation: fadeIn 1s ease-out;
-        }
-
-        h1 {
-            color: var(--primary-color);
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .profile-container {
-            display: flex;
-            flex-direction: column;
+            flex-wrap: wrap;
             align-items: center;
-            margin-bottom: 30px;
+            gap: 40px;
+            margin-top: 40px;
         }
 
-        .profile-image {
-            width: 200px;
-            height: 200px;
+        .profile-photo {
+            width: 300px;
+            height: 300px;
             border-radius: 50%;
             object-fit: cover;
-            border: 5px solid var(--primary-color);
-            animation: float 3s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(255, 77, 90, 0.5);
         }
 
-        .skills {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 20px;
+        .about-content {
+            flex: 1;
+            min-width: 300px;
         }
 
-        .skill {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 5px 15px;
-            margin: 5px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
+        @media (max-width: 768px) {
+            .about-section {
+                flex-direction: column;
+                text-align: center;
+            }
 
-        .skill:hover {
-            background-color: var(--secondary-color);
-            transform: scale(1.1);
-        }
-
-        p {
-            text-align: justify;
-            margin-bottom: 15px;
-        }
-
-        footer {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            text-align: center;
-            padding: 20px 0;
-            position: relative;
-            bottom: 0;
-            width: 100%;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
+            .profile-photo {
+                width: 200px;
+                height: 200px;
+            }
         }
     </style>
 </head>
 <body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="projects.html">Projects</a></li>
-                <li><a href="contact.html">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <main>
+    <button class="menu-toggle">☰</button>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="skills.html">Skills</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </nav>
+    <div class="container">
         <h1>About Me</h1>
-        <div class="profile-container">
-            <img src="https://via.placeholder.com/200" alt="Your Name" class="profile-image">
-            <div class="skills">
-                <span class="skill">HTML</span>
-                <span class="skill">CSS</span>
-                <span class="skill">JavaScript</span>
-                <span class="skill">React</span>
-                <span class="skill">Node.js</span>
+        <section class="about-section">
+            <img src="https://source.unsplash.com/300x300/?portrait" alt="John Doe" class="profile-photo">
+            <div class="about-content">
+                <p>Hello! I'm John Doe, a passionate web developer and designer with over 5 years of experience in creating beautiful and functional websites. I specialize in front-end development and have a keen eye for design, allowing me to bridge the gap between aesthetics and functionality.</p>
+                <p>When I'm not coding, you can find me exploring new technologies, contributing to open-source projects, or enjoying a good cup of coffee while sketching new UI ideas.</p>
+                <a href="contact.html" class="button">Get in Touch</a>
             </div>
-        </div>
-        <p>Hello! I'm a passionate web developer with a keen eye for design and a love for creating intuitive, user-friendly websites. With 5 years of experience in front-end development, I specialize in crafting responsive and accessible web applications that not only look great but also provide an excellent user experience.</p>
-        <p>My journey in web development began during my computer science studies at XYZ University. Since then, I've worked on a variety of projects, from small business websites to large-scale web applications. I'm always eager to learn new technologies and stay up-to-date with the latest web development trends.</p>
-        <p>When I'm not coding, you can find me hiking in the mountains, experimenting with new recipes in the kitchen, or contributing to open-source projects. I believe in the power of technology to make a positive impact, and I strive to create web solutions that are not only functional but also accessible and inclusive.</p>
-    </main>
-
-    <footer>
-        <p>&copy; 2024 My Amazing Portfolio. All rights reserved.</p>
-    </footer>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', (event) => {
-            const nav = document.querySelector('nav');
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 50) {
-                    nav.style.background = 'rgba(74, 0, 224, 0.9)';
-                } else {
-                    nav.style.background = 'transparent';
-                }
-            });
-
-            const skills = document.querySelectorAll('.skill');
-            skills.forEach((skill, index) => {
-                skill.style.animation = `fadeIn 0.5s ease-out ${index * 0.1}s forwards`;
-                skill.style.opacity = '0';
-            });
-        });
-    </script>
+        </section>
+    </div>
+    <script src="script.js"></script>
+    <script src="transitions.js"></script>
 </body>
 </html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Skills - John Doe</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .skills-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .skill-category {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .skill-category:hover {
+            transform: translateY(-5px);
+        }
+
+        .skill-category h2 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #ff4d5a;
+        }
+
+        .skill-bar {
+            background-color: rgba(255, 255, 255, 0.1);
+            height: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .skill-progress {
+            height: 100%;
+            background-color: #ff4d5a;
+            width: 0;
+            transition: width 1s ease;
+        }
+
+        .skill-name {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .skills-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="menu-toggle">☰</button>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="projects.html">Projects</a></li>
+            <li><a href="skills.html">Skills</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <h1>My Skills</h1>
+        <div class="skills-container">
+            <div class="skill-category">
+                <h2>Front-end Development</h2>
+                <div class="skill-name">
+                    <span>HTML5</span>
+                    <span>95%</span>
+                </div>
+                <div class="skill-bar">
+                    <div class="skill-progress" data-progress="95"></div>
+                </div>
+                <div class="skill-name">
+                    <span>CSS3</span>
+                    <span>90%</span>
+                </div>
+                <div class="skill-bar">
+                    <div class="skill-progress" data-progress="90"></div>
+                </div>
+                <div class="skill-name">
+                    <span>JavaScript</span>
+                    <span>85%</span>
+                </div>
+                <div class="skill-bar">
+                    <div class="skill-progress" data-progress="85"></div>
+                </div>
+            </div>
+            <div class="skill-category">
+                <h2>Back-end Development</h2>
+                <div class="skill-name">
+                    <span>Node.js</span>
+                    <span>80%</span>
+                </div>
+                <div class="skill-bar">
+                    <div class="skill-progress" data-progress="80"></div>
+                </div>
+                <div class="skill-name">
+                    <span>Express.js</span>
+                    <span>75%</span>
+                </div>
+                <div class="skill-bar">
+                    <div class="skill-progress" data-progress="75"></div>
+                </div>
+                <div class="skill-name">
+                    <span>MongoDB</span>
+                    <span>70%</span>
+                </div>
+                <div class="skill-bar">
+                    <div class="skill-progress" data-progress="70"></div>
+                </div>
+            </div>
+            <div class="skill-category">
+                <h2>Design</h2>
+                <div class="skill-name">
+                    <span>UI/UX Design</span>
+                    <span>85%</span>
+                </div>
+                <div class="skill-bar">
+                    <div class="skill-progress" data-progress="85"></div>
+                </div>
+                <div class="skill-name">
+                    <span>Adobe Photoshop</span>
+                    <span>80%</span>
+                </div>
+                <div class="skill-bar">
+                    <div class="skill-progress" data-progress="80"></div>
+                </div>
+                <div class="skill-name">
+                    <span>Figma</span>
+                    <span>75%</span>
+                </div>
+                <div class="skill-bar">
+                    <div class="skill-progress" data-progress="75"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <script src="transitions.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const skillBars = document.querySelectorAll('.skill-progress');
+            skillBars.forEach(bar => {
+                const progress = bar.getAttribute('data-progress');
+                setTimeout(() => {
+                    bar.style.width = `${progress}%`;
+                }, 500);
+            });
+        });
+    </script>
+</body>
+</html>

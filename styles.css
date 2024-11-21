@@ -1,0 +1,135 @@
+/* Base styles */
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #0a0a0a;
+    color: #ffffff;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    transition: margin-left 0.3s ease;
+}
+
+/* Navigation styles */
+nav {
+    background-color: rgba(20, 20, 20, 0.9);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 200px;
+    height: 100vh;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 20px 0;
+    margin: 0;
+}
+
+nav ul li {
+    margin: 10px 0;
+}
+
+nav ul li a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: bold;
+    display: block;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+}
+
+nav ul li a:hover {
+    background-color: #ff4d5a;
+    transform: translateX(10px);
+}
+
+.menu-toggle {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1001;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Typography */
+h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+p {
+    margin-bottom: 15px;
+}
+
+/* Buttons */
+.button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #ff4d5a;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.button:hover {
+    background-color: #ff6b76;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(255, 77, 90, 0.4);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .container {
+        margin-left: 0;
+        padding: 10px;
+    }
+
+    nav {
+        transform: translateX(-100%);
+    }
+
+    nav.active {
+        transform: translateX(0);
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Page transition effect */
+body {
+    transition: opacity 0.3s ease-in-out;
+}
+
+.fade-out {
+    opacity: 0;
+}
