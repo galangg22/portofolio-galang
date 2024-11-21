@@ -15,16 +15,25 @@ body, html {
     transition: margin-left 0.3s ease;
 }
 
+.container.shifted {
+    margin-left: 200px;
+}
+
 /* Navigation styles */
 nav {
     background-color: rgba(20, 20, 20, 0.9);
     position: fixed;
     top: 0;
-    left: 0;
+    left: -200px;
     width: 200px;
     height: 100vh;
     z-index: 1000;
     transition: transform 0.3s ease;
+    transform: translateX(-200px);
+}
+
+nav.active {
+    transform: translateX(200px);
 }
 
 nav ul {
@@ -51,8 +60,8 @@ nav ul li a:hover {
     transform: translateX(10px);
 }
 
+/* Menu toggle button */
 .menu-toggle {
-    display: none;
     position: fixed;
     top: 20px;
     left: 20px;
@@ -62,6 +71,11 @@ nav ul li a:hover {
     color: white;
     font-size: 24px;
     cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.menu-toggle.active {
+    transform: translateX(200px);
 }
 
 /* Typography */
@@ -100,20 +114,7 @@ p {
 /* Responsive styles */
 @media (max-width: 768px) {
     .container {
-        margin-left: 0;
         padding: 10px;
-    }
-
-    nav {
-        transform: translateX(-100%);
-    }
-
-    nav.active {
-        transform: translateX(0);
-    }
-
-    .menu-toggle {
-        display: block;
     }
 
     h1 {
@@ -125,11 +126,46 @@ p {
     }
 }
 
-/* Page transition effect */
-body {
-    transition: opacity 0.3s ease-in-out;
+/* Animasi untuk transisi halaman */
+.fade-out {
+    animation: fadeOutComplex 0.5s ease forwards;
 }
 
-.fade-out {
-    opacity: 0;
+.fade-in {
+    animation: fadeInComplex 0.5s ease forwards;
 }
+
+@keyframes fadeOutComplex {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+        filter: blur(0px);
+        background-color: rgba(255, 77, 90, 0);
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.95);
+        filter: blur(8px);
+        background-color: rgba(255, 77, 90, 0.3);
+        box-shadow: 0 0 30px rgba(255, 255, 255, 0);
+    }
+}
+
+@keyframes fadeInComplex {
+    0% {
+        opacity: 0;
+        transform: scale(1.05);
+        filter: blur(8px);
+        background-color: rgba(0, 204, 255, 0.3);
+        box-shadow: 0 0 30px rgba(255, 255, 255, 0);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+        filter: blur(0px);
+        background-color: rgba(0, 204, 255, 0);
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    }
+}
+

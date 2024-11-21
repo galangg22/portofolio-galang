@@ -88,6 +88,33 @@
             background-color: #ff6b76;
         }
     </style>
+  <style>
+    .social-icon {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        color: #ffffff;
+        text-decoration: none;
+        transition: transform 0.3s ease, filter 0.3s ease;
+    }
+
+    .social-icon:hover {
+        transform: translateX(10px);
+    }
+
+    .social-icon img {
+        width: 30px;
+        height: 30px;
+        margin-right: 10px;
+        filter: brightness(0) invert(1); /* Make icons black */
+        transition: filter 0.3s ease;
+    }
+
+    .social-icon:hover img {
+        filter: none; /* Return to default color on hover */
+    }
+</style>
+    
 </head>
 <body>
     <button class="menu-toggle">☰</button>
