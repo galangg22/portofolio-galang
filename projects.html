@@ -150,9 +150,180 @@
         font-size: 0.9rem;
     }
 }
+.carousel-container {
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        max-width: 90%;
+        margin: auto;
+    }
 
+    .carousel {
+        display: flex;
+        overflow: hidden;
+        width: 100%;
+        height: auto;
+        max-height: 70vh;
+        transition: transform 0.5s ease-in-out;
+        visibility: visible;
+        opacity: 1;
+        z-index: 10;
+    }
 
+    .carousel-item {
+        flex: 0 0 100%;
+        width: 100%;
+        height: auto;
+        max-height: 70vh;
+        object-fit: contain;
+    }
 
+    .carousel-prev, .carousel-next {
+        background-color: rgba(0, 0, 0, 0.6);
+        color: white;
+        border: none;
+        font-size: 2rem;
+        cursor: pointer;
+        padding: 10px;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 1000;
+        display: block; /* Ensure buttons are always visible */
+    }
+
+    .carousel-prev {
+        left: 10px;
+    }
+
+    .carousel-next {
+        right: 10px;
+    }
+
+    .carousel-prev:hover, .carousel-next:hover {
+        background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .carousel-container {
+            max-width: 100%;
+        }
+
+        .carousel {
+            max-height: 50vh;
+        }
+
+        .carousel-item {
+            max-height: 50vh;
+        }
+
+        .carousel-prev, .carousel-next {
+            font-size: 1.5rem;
+            padding: 8px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .carousel-prev, .carousel-next {
+            font-size: 1.2rem;
+            padding: 6px;
+        }
+    }
+nav a {
+    color: #fff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+nav a:hover {
+    color: #ff4d5a;
+}
+nav a {
+    color: #fff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+nav a:hover {
+    color: #ff4d5a;
+}
+/* Untuk layar yang lebih kecil dari 768px */
+@media (max-width: 768px) {
+    /* Pastikan grid memiliki 1 kolom untuk ruang lebih */
+    .projects-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .project-card {
+        margin: 0 auto;
+    }
+
+    .project-image {
+        height: auto; /* Sesuaikan tinggi gambar agar tidak terlalu besar */
+        max-height: 180px; /* Batas tinggi gambar */
+    }
+
+    .project-info {
+        padding: 15px; /* Kurangi padding untuk ruang kecil */
+    }
+
+    .project-title {
+        font-size: 1.2rem; /* Sesuaikan ukuran teks */
+    }
+
+    .project-description {
+        font-size: 0.9rem;
+    }
+
+    /* Modal styling */
+    .modal-content {
+        width: 90%; /* Kurangi lebar modal */
+        max-height: 85%; /* Batasi tinggi modal */
+    }
+
+    .modal-info {
+        font-size: 0.9rem;
+        padding: 10px; /* Kurangi padding modal */
+    }
+
+    .carousel-container {
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .carousel img, .carousel video {
+        max-height: 50vh; /* Kurangi tinggi maksimal */
+    }
+
+    /* Tombol carousel */
+    .carousel-prev, .carousel-next {
+        font-size: 1.5rem; /* Kurangi ukuran tombol */
+        padding: 8px;
+    }
+}
+
+/* Untuk layar yang lebih kecil dari 480px */
+@media (max-width: 480px) {
+    .project-title {
+        font-size: 1rem; /* Perkecil ukuran teks untuk layar kecil */
+    }
+
+    .project-description {
+        font-size: 0.8rem; /* Sesuaikan ukuran deskripsi */
+    }
+
+    .carousel-prev, .carousel-next {
+        font-size: 1.2rem; /* Sesuaikan ukuran tombol carousel */
+    }
+
+    .close {
+        font-size: 25px; /* Kurangi ukuran tombol close */
+    }
+}
     </style>
 </head>
 <body>
@@ -192,10 +363,10 @@
                 </div>
             </div>
             <div class="project-card" data-project-id="4">
-                <img src="/placeholder.svg?height=200&width=300" alt="Portfolio Website" class="project-image">
+                <img src="image/TOKO TUNAI 2 FIXX.png" alt="toko tunai" class="project-image">
                 <div class="project-info">
-                    <h2 class="project-title">Portfolio Website</h2>
-                    <p class="project-description">A personal portfolio website showcasing my projects and skills.</p>
+                    <h2 class="project-title">Design logo</h2>
+                    <p class="project-description">Sebuah logo untuk toserba.</p>
                 </div>
             </div>
             <div class="project-card" data-project-id="5">
@@ -212,9 +383,13 @@
     <div id="projectModal" class="modal">
         <span class="close">&times;</span>
         <div class="modal-content">
-            <img src="" alt="" id="modalImage" class="modal-image">
-            <video src="" id="modalVideo" class="modal-video" controls style="display: none;"></video>
-            <button id="expandButton" class="modal-button" style="display: none;">Perluas</button>
+            <div class="carousel-container">
+                <button class="carousel-prev">&lt;</button>
+                <div class="carousel">
+                    <!-- Slide items will be dynamically added here -->
+                </div>
+                <button class="carousel-next">&gt;</button>
+            </div>
             <div class="modal-info">
                 <h2 id="modalTitle"></h2>
                 <p id="modalDescription"></p>
@@ -224,116 +399,169 @@
     <script src="script.js"></script>
     <script src="transitions.js"></script>
     <script>
- document.addEventListener('DOMContentLoaded', () => {
-    const projectCards = document.querySelectorAll('.project-card');
-    const modal = document.getElementById('projectModal');
-    const modalImage = document.getElementById('modalImage');
-    const modalVideo = document.getElementById('modalVideo');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalDescription = document.getElementById('modalDescription');
-    const closeBtn = document.querySelector('.close');
-    const expandButton = document.getElementById('expandButton');
-
+document.addEventListener('DOMContentLoaded', () => {
+    // Project data
     const projects = [
         {
             id: 1,
             title: "E-commerce Website",
-            description: "A fully responsive e-commerce platform built with HTML, CSS, and JavaScript. Features include product listings, shopping cart functionality, and a checkout process.",
-            image: "/placeholder.svg?height=600&width=800",
+            description: "A fully responsive e-commerce platform built with HTML, CSS, and JavaScript.",
+            files: ["/placeholder.svg?height=600&width=800", "/placeholder.svg?height=600&width=800"]
         },
         {
             id: 2,
             title: "Weather App",
-            description: "A real-time weather application using HTML, CSS, and JavaScript with OpenWeatherMap API. Users can search for weather information by city name or use geolocation.",
-            image: "/placeholder.svg?height=600&width=800",
+            description: "A real-time weather application using OpenWeatherMap API.",
+            files: ["/placeholder.svg?height=600&width=800"]
         },
         {
             id: 3,
             title: "Task Management System",
-            description: "A collaborative task management tool with real-time updates using HTML, CSS, and JavaScript. Features include task creation, assignment, due dates, and status tracking.",
-            image: "image/gambar galang 2.jpg",
+            description: "A collaborative task management tool with real-time updates.",
+            files: ["image/gambar galang 2.jpg", "image/TOKO TUNAI BGDARK fixx.png"]
         },
         {
             id: 4,
-            title: "Portfolio Website",
-            description: "A personal portfolio website showcasing my projects and skills. Built with HTML, CSS, and JavaScript, featuring responsive design and smooth animations.",
-            image: "/placeholder.svg?height=600&width=800",
+            title: "Design logo TOKO TUNAi",
+            description: "logo untuk toserba yang menghadirkan elemen keranjang yang identik dengan toko, lalu warna hijau yag identik dengan uang",
+            files: ["image/TOKO TUNAI 2 FIXX.png", "image/TOKO TUNAI BGDARK fixx.png","image/TOKO TUNAI BGDARK mockup fix.png", "image/TOKO TUNAI mockup.png"]
         },
-        {
+        {  
             id: 5,
             title: "Pelatihan Tenaga Kerja",
-            description: "video pelatihan transmigran dinas tenaga kerja.",
-            video: "image/Video WhatsApp 2024-11-22 pukul 14.25.52_0287febc.mp4",
-        },
+            description: "Video pelatihan transmigran dinas tenaga kerja.",
+            files: ["image/Logo Disnaker.png", "image/Video WhatsApp 2024-11-22 pukul 14.25.52_0287febc.mp4"]
+        }
     ];
 
+    // DOM elements
+    const projectCards = document.querySelectorAll('.project-card');
+    const modal = document.getElementById('projectModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDescription = document.getElementById('modalDescription');
+    const carousel = document.querySelector('.carousel');
+    const prevButton = document.querySelector('.carousel-prev');
+    const nextButton = document.querySelector('.carousel-next');
+    const closeBtn = document.querySelector('.close');
+
+    let currentIndex = 0;
+    let currentProject = null;
+
+    // Function to display a specific slide
+    const showSlide = () => {
+            if (!currentProject) return;
+            const items = carousel.querySelectorAll('.carousel-item');
+            items.forEach((item, index) => {
+                item.style.display = index === currentIndex ? 'block' : 'none';
+            });
+        };
+
+    // Function to load carousel with project files
+    const loadCarousel = (files) => {
+            carousel.innerHTML = "";
+            files.forEach((file, index) => {
+                let element;
+                if (file.endsWith('.mp4')) {
+                    element = document.createElement('video');
+                    element.src = file;
+                    element.controls = true;
+                    element.playsInline = true;
+                    element.muted = true;
+                    element.loop = true;
+                    element.autoplay = true;
+                } else {
+                    element = document.createElement('img');
+                    element.src = file;
+                    element.alt = "Project Media";
+                }
+                element.classList.add('carousel-item');
+                carousel.appendChild(element);
+            });
+            currentIndex = 0;
+            showSlide();
+        };
+
+    // Event listener for project cards
     projectCards.forEach(card => {
         card.addEventListener('click', () => {
             const projectId = parseInt(card.getAttribute('data-project-id'));
-            const project = projects.find(p => p.id === projectId);
-
-            if (project) {
-                modalTitle.textContent = project.title;
-                modalDescription.textContent = project.description;
-
-                if (project.video) {
-                    modalVideo.src = project.video;
-                    modalVideo.style.display = 'block';
-                    modalImage.style.display = 'none';
-                    expandButton.style.display = 'inline-block'; // Tampilkan tombol "Perluas"
-                } else {
-                    modalImage.src = project.image;
-                    modalImage.alt = project.title;
-                    modalImage.style.display = 'block';
-                    modalVideo.style.display = 'none';
-                    expandButton.style.display = 'none'; // Sembunyikan tombol "Perluas"
-                }
-
+            currentProject = projects.find(p => p.id === projectId);
+            if (currentProject) {
+                modalTitle.textContent = currentProject.title;
+                modalDescription.textContent = currentProject.description;
+                loadCarousel(currentProject.files);
                 modal.style.display = 'block';
-                modal.classList.add('fade-in');
             }
         });
     });
 
+    // Event listener for close button
     closeBtn.addEventListener('click', () => {
         modal.style.display = 'none';
-        modalVideo.pause();
+        const videos = carousel.querySelectorAll('video');
+        videos.forEach(video => video.pause());
+        currentProject = null;
     });
 
+    // Event listener for previous button
+    prevButton.addEventListener('click', () => {
+        if (currentProject) {
+            currentIndex = (currentIndex - 1 + currentProject.files.length) % currentProject.files.length;
+            showSlide();
+        }
+    });
+
+    // Event listener for next button
+    nextButton.addEventListener('click', () => {
+        if (currentProject) {
+            currentIndex = (currentIndex + 1) % currentProject.files.length;
+            showSlide();
+        }
+    });
+
+    // Event listener to close modal when clicking outside
     window.addEventListener('click', (event) => {
         if (event.target === modal) {
             modal.style.display = 'none';
-            modalVideo.pause();
+            const videos = carousel.querySelectorAll('video');
+            videos.forEach(video => video.pause());
+            currentProject = null;
         }
     });
 
-    // Event listener untuk tombol "Perluas"
-    expandButton.addEventListener('click', () => {
-        if (modalVideo.requestFullscreen) {
-            modalVideo.requestFullscreen();
-        } else if (modalVideo.webkitRequestFullscreen) {
-            modalVideo.webkitRequestFullscreen(); // Safari
-        } else if (modalVideo.msRequestFullscreen) {
-            modalVideo.msRequestFullscreen(); // Edge
+    // Event listener to close modal with escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.style.display === 'block') {
+            modal.style.display = 'none';
+            const videos = carousel.querySelectorAll('video');
+            videos.forEach(video => video.pause());
+            currentProject = null;
         }
     });
 
-    // Animate project cards on scroll
-    const animateOnScroll = () => {
-        projectCards.forEach(card => {
-            const cardTop = card.getBoundingClientRect().top;
-            const windowHeight = window.innerHeight;
-            if (cardTop < windowHeight * 0.75) {
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }
-        });
+    // Touch events for mobile swipe
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    carousel.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, false);
+
+    carousel.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, false);
+
+    const handleSwipe = () => {
+        if (touchEndX < touchStartX) {
+            // Swipe left, go to next slide
+            nextButton.click();
+        } else if (touchEndX > touchStartX) {
+            // Swipe right, go to previous slide
+            prevButton.click();
+        }
     };
-
-    window.addEventListener('scroll', animateOnScroll);
-    animateOnScroll(); // Initial check on page load
 });
-
     </script>
 </body>
 </html>

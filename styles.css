@@ -16,9 +16,13 @@ body, html {
 }
 
 .container.shifted {
-    margin-left: 200px;
+    transform: translateX(200px);
 }
-
+@media (max-width: 768px) {
+    .container.shifted {
+        transform: translateX(0);
+    }
+}
 /* Navigation styles */
 nav {
     background-color: rgba(20, 20, 20, 0.9);
