@@ -1318,6 +1318,27 @@
 
         window.addEventListener('scroll', optimizedScrollHandler);
     });
+    // Tambahkan fungsi untuk menangani tombol "hire me" pada layar kecil
+function handleHireMeButton() {
+    const hireMeButtons = document.querySelectorAll('.primary-btn');
+    
+    hireMeButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            if (window.innerWidth <= 768) { // Untuk layar mobile
+                e.preventDefault();
+                document.querySelector('#contact').scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+}
+
+// Panggil fungsi saat dokumen dimuat
+handleHireMeButton();
+
+// Tambahkan event listener untuk resize untuk memastikan fungsi tetap aktif
+window.addEventListener('resize', handleHireMeButton);
 
         </script>
 </body>
