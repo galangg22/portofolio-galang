@@ -1,26 +1,42 @@
 @import "tailwindcss";
 
+/* Mendaftarkan warna custom ke Tailwind v4 */
+@theme {
+  --color-bg-dark: #0a0a0a;
+  --color-card-bg: #111111;
+  --color-primary: #8a2be2; /* Ungu gelap */
+  --color-secondary: #4b0082;
+  --color-accent: #4fffa3; /* Hijau Neon khas Hacker */
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Animasi untuk background text gradient */
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.text-glow {
+  text-shadow: 0 0 20px rgba(79, 255, 163, 0.5);
+}
+
+/* Menyembunyikan scrollbar tapi tetap bisa scroll (untuk filter gallery) */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
