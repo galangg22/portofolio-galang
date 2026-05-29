@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://galang-arrauf.com/sitemap.xml
+
+User-agent: *
+Allow: /
+
+# Specific crawl delays
+Crawl-delay: 1

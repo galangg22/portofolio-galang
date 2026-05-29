@@ -26,7 +26,7 @@ const GALLERY_DATA = [
     id: 3,
     title: "ThriftyFinds Identity",
     category: "design",
-    image: "/image/thumbnail/download.jpg",
+    image: "/image/TOKO TUNAI MOCKUP FIXX.png",
     desc: "Desain logo dan palet warna untuk platform e-commerce thrift."
   },
   {

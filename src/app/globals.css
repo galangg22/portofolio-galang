@@ -14,11 +14,178 @@
   --foreground: #ededed;
 }
 
+/* Light Mode Colors */
+html.light {
+  --background: #f8f9fa;
+  --foreground: #1a1a1a;
+  color-scheme: light;
+}
+
+html.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  color-scheme: dark;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Light mode backgrounds */
+html.light {
+  --bg-dark: #f8f9fa;
+  --card-bg: #ffffff;
+  --text-primary: #1a1a1a;
+  --text-secondary: #555555;
+  --border-color: #d4d4d4;
+}
+
+/* Dark mode backgrounds (default) */
+html.dark {
+  --bg-dark: #0a0a0a;
+  --card-bg: #111111;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --border-color: #333333;
+}
+
+/* Apply light mode styles */
+html.light {
+  background: #f8f9fa !important;
+}
+
+html.light main {
+  background: #f8f9fa !important;
+}
+
+html.light section {
+  background-color: transparent;
+}
+
+html.light .bg-bg-dark {
+  background-color: #f8f9fa;
+}
+
+html.light .bg-card-bg {
+  background-color: #ffffff;
+  border-color: #d4d4d4;
+}
+
+html.light .text-white {
+  color: #1a1a1a;
+}
+
+html.light .text-gray-300 {
+  color: #444444;
+}
+
+html.light .text-gray-400 {
+  color: #555555;
+}
+
+html.light .text-gray-500 {
+  color: #777777;
+}
+
+html.light .text-gray-600 {
+  color: #888888;
+}
+
+html.light .border-white {
+  border-color: #d4d4d4;
+}
+
+html.light .bg-white {
+  background-color: #ffffff;
+}
+
+html.light .bg-white\/5 {
+  background-color: rgba(26, 26, 26, 0.08);
+}
+
+html.light .bg-white\/10 {
+  background-color: rgba(26, 26, 26, 0.12);
+}
+
+html.light .bg-white\/20 {
+  background-color: rgba(26, 26, 26, 0.15);
+}
+
+html.light .bg-black\/5 {
+  background-color: rgba(26, 26, 26, 0.05);
+}
+
+html.light .bg-black\/10 {
+  background-color: rgba(26, 26, 26, 0.1);
+}
+
+html.light .bg-black\/20 {
+  background-color: rgba(26, 26, 26, 0.15);
+}
+
+html.light .border-white\/5 {
+  border-color: rgba(26, 26, 26, 0.1);
+}
+
+html.light .border-white\/10 {
+  border-color: rgba(26, 26, 26, 0.15);
+}
+
+html.light .border-white\/20 {
+  border-color: rgba(26, 26, 26, 0.2);
+}
+
+html.light .text-accent {
+  color: #8a2be2;
+}
+
+html.light .text-primary {
+  color: #8a2be2;
+}
+
+html.light h1, 
+html.light h2, 
+html.light h3, 
+html.light h4, 
+html.light h5, 
+html.light h6 {
+  color: #1a1a1a;
+}
+
+html.light .hero-text {
+  color: #1a1a1a;
+}
+
+html.light .section-title {
+  color: #1a1a1a;
+}
+
+html.light .text-glow {
+  text-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
+}
+
+html.light .ri-star-fill {
+  color: #ffc107;
+}
+
+html.light p {
+  color: #555555;
+}
+
+html.light a {
+  color: #8a2be2;
+}
+
+html.light a:hover {
+  color: #a935ff;
 }
 
 /* Animasi untuk background text gradient */
@@ -28,8 +195,22 @@ body {
   100% { background-position: 0% 50%; }
 }
 
+/* Glow text effect */
 .text-glow {
   text-shadow: 0 0 20px rgba(79, 255, 163, 0.5);
+}
+
+/* Modal entrance animation */
+@keyframes scaleInCenter {
+  0%   { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1);   opacity: 1; }
+}
+.scale-in-center {
+  animation: scaleInCenter 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+html.light .text-glow {
+  text-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
 }
 
 /* Menyembunyikan scrollbar tapi tetap bisa scroll (untuk filter gallery) */
@@ -39,4 +220,64 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* ============================================================
+   HOVER CERDAS: Hanya aktif di perangkat dengan pointer/kursor
+   Di mobile (touch-only), efek hover diabaikan sepenuhnya.
+   Gunakan class .card-hover-border dan .btn-hover di JSX.
+   ============================================================ */
+@media (hover: hover) and (pointer: fine) {
+  .card-hover-border:hover {
+    border-color: rgba(79, 255, 163, 0.3);
+  }
+
+  .btn-hover:hover {
+    background-color: #4fffa3;
+    color: #0a0a0a;
+  }
+}
+
+/* ============================================================
+   LIGHT MODE — Kontras Fix
+   ============================================================ */
+
+/* Contact section card background dan teks di light mode */
+html.light .bg-card-bg\/50 {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(26, 26, 26, 0.15) !important;
+}
+
+/* Input dan textarea di contact form */
+html.light input,
+html.light textarea {
+  color: #1a1a1a !important;
+  background-color: rgba(26, 26, 26, 0.06) !important;
+  border-color: rgba(26, 26, 26, 0.2) !important;
+}
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #888 !important;
+}
+
+/* Project card judul di light mode — pastikan terbaca */
+html.light .project-card h3 {
+  color: #111111 !important;
+}
+html.light .project-card p {
+  color: #555555 !important;
+}
+html.light .project-card .bg-white\/5 {
+  background-color: rgba(26, 26, 26, 0.1) !important;
+  color: #1a1a1a !important;
+}
+
+/* Send message button di light mode */
+html.light form button[type="submit"] {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+html.light form button[type="submit"]:hover {
+  background-color: #4fffa3;
+  color: #0a0a0a;
 }

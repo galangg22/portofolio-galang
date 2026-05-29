@@ -1,0 +1,27 @@
+{
+  "name": "Galang Arrauf - Portfolio",
+  "short_name": "Galang",
+  "description": "Backend Developer & Creative Enthusiast Portfolio",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#4fffa3",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["portfolio", "technology", "development"],
+  "screenshots": [
+    {
+      "src": "/image/screenshot1.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "orientation": "portrait-primary"
+}
