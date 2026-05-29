@@ -119,6 +119,14 @@ const navItems = [
   { id: "contact", label: "Contact", svg: <svg className="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg> }
 ];
 
+// Social links: ambil dari env, fallback ke default, dan pastikan ada protokol.
+const withHttps = (url) => (url && !/^https?:\/\//.test(url) ? `https://${url}` : url);
+const SOCIAL = {
+  github: withHttps(process.env.NEXT_PUBLIC_GITHUB_URL || "https://github.com/galangg22"),
+  linkedin: withHttps(process.env.NEXT_PUBLIC_LINKEDIN_URL || "https://www.linkedin.com/in/galang-pramudito/"),
+  email: process.env.NEXT_PUBLIC_EMAIL || "galangarrauf22@gmail.com",
+};
+
 export default function Home() {
   const [activeSection, setActiveSection] = useState("home");
   const [isIslandHovered, setIsIslandHovered] = useState(false);
@@ -442,9 +450,9 @@ export default function Home() {
       {/* FOOTER */}
       <footer className="py-10 text-center border-t border-white/5">
         <div className="flex justify-center gap-8 mb-8">
-            <a href={process.env.NEXT_PUBLIC_GITHUB_URL} target="_blank" rel="noopener noreferrer" aria-label="GitHub Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-github-fill"></i></a>
-            <a href={process.env.NEXT_PUBLIC_LINKEDIN_URL} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-linkedin-fill"></i></a>
-            <a href={`mailto:${process.env.NEXT_PUBLIC_EMAIL}`} aria-label="Email Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-mail-line"></i></a>
+            <a href={SOCIAL.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-github-fill"></i></a>
+            <a href={SOCIAL.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-linkedin-fill"></i></a>
+            <a href={`mailto:${SOCIAL.email}`} aria-label="Email Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-mail-line"></i></a>
         </div>
         <p className="text-gray-500 text-[10px] font-medium tracking-[0.3em] uppercase">© 2026 Galang Arrauf Pramudito • Built with Next.js</p>
       </footer>
