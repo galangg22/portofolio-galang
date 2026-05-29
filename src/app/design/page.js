@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
 // ==========================================
 // 📂 DATA GALLERY (Desain & 7 Video Drive)
@@ -90,10 +91,28 @@ const GALLERY_DATA = [
 export default function DesignGallery() {
   const [filter, setFilter] = useState("all");
   const [selectedVideo, setSelectedVideo] = useState(null);
+  const [gallery, setGallery] = useState(GALLERY_DATA);
 
-  const filteredData = filter === "all" 
-    ? GALLERY_DATA 
-    : GALLERY_DATA.filter(item => item.category === filter);
+  // Hydrate designs dari Supabase bila aktif (video kini punya halaman sendiri /video,
+  // namun data video lama tetap tampil sebagai fallback di sini).
+  useEffect(() => {
+    if (!supabase) return;
+    supabase.from("designs").select("*").order("sort_order").then(({ data }) => {
+      if (data && data.length) {
+        setGallery(data.map((d) => ({
+          id: d.id,
+          title: d.title,
+          category: d.category || "design",
+          image: d.image_url,
+          desc: d.description,
+        })));
+      }
+    });
+  }, []);
+
+  const filteredData = filter === "all"
+    ? gallery
+    : gallery.filter(item => item.category === filter);
 
   return (
     <main className="min-h-screen bg-bg-dark text-white p-4 sm:p-8 md:p-16 relative overflow-x-hidden">

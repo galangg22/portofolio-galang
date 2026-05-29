@@ -4,7 +4,7 @@ export default function robots() {
       {
         userAgent: '*',
         allow: '/',
-        disallow: '/api/',
+        disallow: ['/api/', '/admin/'],
       },
     ],
     sitemap: 'https://galang-arrauf.com/sitemap.xml',

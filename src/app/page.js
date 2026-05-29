@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { supabase } from "@/lib/supabase";
 
 // ==========================================
 // 📂 DATA SECTION (Database Proyek Kamu)
@@ -123,8 +124,41 @@ export default function Home() {
   const [isIslandHovered, setIsIslandHovered] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [isCvModalOpen, setIsCvModalOpen] = useState(false); // 👈 TAMBAHKAN INI
+  const [skills, setSkills] = useState(SKILLS_DATA);
+  const [projects, setProjects] = useState(DEV_PROJECTS);
   const mainRef = useRef(null);
-  
+
+  // Hydrate dari Supabase bila aktif; jika kosong/gagal, tetap pakai data statis.
+  useEffect(() => {
+    if (!supabase) return;
+    supabase.from("skills").select("*").order("sort_order").then(({ data }) => {
+      if (data && data.length) setSkills(data);
+    });
+    supabase
+      .from("projects")
+      .select("*")
+      .neq("status", "private")
+      .order("featured", { ascending: false })
+      .order("sort_order")
+      .then(({ data }) => {
+        if (data && data.length) {
+          setProjects(
+            data.map((p) => ({
+              title: p.title,
+              image: p.thumbnail_url || null,
+              gradient: p.thumbnail_url ? null : "from-emerald-900 via-green-800 to-teal-900",
+              icon: p.thumbnail_url ? null : "ri-code-s-slash-line",
+              tags: p.tags || [],
+              desc: p.description,
+              link: p.demo_url || p.github_url || "#",
+              actionText: p.demo_url ? "Live Demo" : "GitHub Repo",
+              actionIcon: p.demo_url ? "ri-external-link-line" : "ri-github-fill",
+            }))
+          );
+        }
+      });
+  }, []);
+
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -171,6 +205,7 @@ export default function Home() {
 
   const scrollToSection = (e, targetId) => {
     e.preventDefault();
+    e.stopPropagation(); // cegah klik link menutup lalu memicu toggle island lagi (mobile)
     const el = document.getElementById(targetId);
     if (el) el.scrollIntoView({ behavior: "smooth" });
     setIsIslandHovered(false); 
@@ -191,6 +226,7 @@ export default function Home() {
         <div 
           onMouseEnter={() => setIsIslandHovered(true)}
           onMouseLeave={() => setIsIslandHovered(false)}
+          onClick={() => setIsIslandHovered((v) => !v)}
           className={`bg-black pointer-events-auto cursor-pointer relative flex items-center justify-center overflow-visible transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
             isIslandHovered 
               ? 'w-[320px] md:w-[420px] h-[72px] rounded-[36px] border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.8)]' 
@@ -276,7 +312,7 @@ export default function Home() {
         <div className="max-w-5xl mx-auto">
           <h2 className="section-title text-4xl font-bold mb-12 uppercase tracking-tighter">Tech Arsenal</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {SKILLS_DATA.map((skill, idx) => (
+            {skills.map((skill, idx) => (
               <div key={idx} className={`bento-card group rounded-3xl bg-card-bg border border-white/10 p-8 transition-all hover:border-white/20 ${skill.span}`}>
                 <div className={`text-3xl mb-6 bg-gradient-to-br ${skill.color} bg-clip-text text-transparent`}><i className={skill.icon}></i></div>
                 <h3 className="text-xl font-bold mb-6 text-white">{skill.category}</h3>
@@ -294,11 +330,11 @@ export default function Home() {
         <div className="max-w-5xl mx-auto">
           <h2 className="section-title text-4xl font-bold mb-12 uppercase tracking-tighter">Featured Development</h2>
           <div className="grid md:grid-cols-2 gap-8 mb-24">
-            {DEV_PROJECTS.map((project, idx) => (
+            {projects.map((project, idx) => (
               <div key={idx} className="project-card group bg-card-bg rounded-3xl overflow-hidden border border-white/10 flex flex-col transition-all duration-500 shadow-xl card-hover-border">
                 <div className="relative h-56">
                   {project.image ? (
-                    <Image src={project.image} alt={project.title} fill sizes="50vw" className="object-cover" />
+                    <Image src={project.image} alt={project.title} fill sizes="50vw" className="object-cover" priority={projects.findIndex(p => p.image) === idx} />
                   ) : (
                     <div className={`w-full h-full bg-gradient-to-br ${project.gradient} flex items-center justify-center`}>
                       <i className={`${project.icon} text-6xl text-white/30`}></i>
@@ -388,7 +424,7 @@ export default function Home() {
       <section id="contact" className="py-24 px-6 relative z-10">
         <div className="max-w-4xl mx-auto bg-card-bg/50 backdrop-blur-xl border border-white/10 rounded-[40px] p-10 md:p-16 relative overflow-hidden">
           <div className="text-center mb-12">
-            <h2 className="section-title text-4xl md:text-5xl font-bold mb-4 uppercase">Let's Connect</h2>
+            <h2 className="section-title text-4xl md:text-5xl font-bold mb-4 uppercase">Let&apos;s Connect</h2>
             <p className="text-gray-400">Punya tawaran kerja atau ide kolaborasi?</p>
           </div>
           <form action="https://formspree.io/f/meoqzdan" method="POST" className="space-y-4">
@@ -406,9 +442,9 @@ export default function Home() {
       {/* FOOTER */}
       <footer className="py-10 text-center border-t border-white/5">
         <div className="flex justify-center gap-8 mb-8">
-            <a href="https://github.com/galangg22" target="_blank" rel="noopener noreferrer" aria-label="GitHub Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-github-fill"></i></a>
-            <a href="https://linkedin.com/in/galang-arrauf" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-linkedin-fill"></i></a>
-            <a href="mailto:glangarraf@gmail.com" aria-label="Email Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-mail-line"></i></a>
+            <a href={process.env.NEXT_PUBLIC_GITHUB_URL} target="_blank" rel="noopener noreferrer" aria-label="GitHub Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-github-fill"></i></a>
+            <a href={process.env.NEXT_PUBLIC_LINKEDIN_URL} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-linkedin-fill"></i></a>
+            <a href={`mailto:${process.env.NEXT_PUBLIC_EMAIL}`} aria-label="Email Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-mail-line"></i></a>
         </div>
         <p className="text-gray-500 text-[10px] font-medium tracking-[0.3em] uppercase">© 2026 Galang Arrauf Pramudito • Built with Next.js</p>
       </footer>
