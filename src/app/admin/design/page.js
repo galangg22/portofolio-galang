@@ -7,13 +7,20 @@ export default function AdminDesign() {
     <CrudManager
       table="designs"
       title="Design Gallery"
+      columns={['title', 'category', 'featured', 'sort_order']}
       fields={[
-        { key: 'title', label: 'Title', type: 'text' },
-        { key: 'category', label: 'Category', type: 'text' },
-        { key: 'image_url', label: 'Image', type: 'image' },
-        { key: 'description', label: 'Description', type: 'textarea' },
-        { key: 'sort_order', label: 'Sort Order', type: 'number' },
+        { key: 'title', label: 'Judul', type: 'text', required: true },
+        { key: 'category', label: 'Kategori', type: 'text' },
+        { key: 'cover_image_url', label: 'Cover Image (tampil di grid homepage)', type: 'image' },
+        { key: 'description', label: 'Deskripsi', type: 'textarea' },
+        { key: 'featured', label: 'Featured', type: 'checkbox' },
+        { key: 'sort_order', label: 'Urutan', type: 'number' },
       ]}
+      relatedImages={{
+        table: 'design_images',
+        fk: 'design_id',
+        hasCaption: false,
+      }}
     />
   );
 }

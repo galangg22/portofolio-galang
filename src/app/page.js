@@ -44,51 +44,69 @@ const SKILLS_DATA = [
 const DEV_PROJECTS = [
   {
     title: "Bot WA Reminder Absensi",
+    type: "bot",
     image: null,
     gradient: "from-emerald-900 via-green-800 to-teal-900",
     icon: "ri-whatsapp-line",
     tags: ["Node.js", "Baileys API", "Automation"],
     desc: "Sistem automasi backend untuk memonitor jadwal dan mengirimkan pengingat absensi secara otomatis via WhatsApp.",
-    link: "https://github.com/galangg22/bot-presensi",
-    actionText: "GitHub Repo",
-    actionIcon: "ri-github-fill"
+    github_url: "https://github.com/galangg22/bot-presensi",
   },
   {
     title: "Sistem Web TPQ Al-Hikmah",
+    type: "web",
     image: null,
     gradient: "from-blue-900 via-indigo-800 to-purple-900",
     icon: "ri-graduation-cap-line",
     tags: ["Web Dev", "HTML", "CSS"],
     desc: "Platform sistem informasi manajemen untuk digitalisasi administrasi santri dan guru di TPQ Al-Hikmah.",
-    link: "https://github.com/galangg22/alhikmah",
-    actionText: "GitHub Repo",
-    actionIcon: "ri-github-fill"
+    github_url: "https://github.com/galangg22/alhikmah",
   },
   {
     title: "ThriftyFinds E-Commerce",
+    type: "web",
     image: "/image/TOKO TUNAI BGDARK mockup fix.png",
     gradient: null,
     icon: null,
     tags: ["React/Next.js", "Tailwind", "E-Commerce"],
     desc: "Katalog e-commerce modern untuk produk thrifting dengan UI/UX intuitif dan performa pencarian cepat.",
-    link: "https://github.com/galangg22/thriftyfinds",
-    actionText: "Live Demo",
-    actionIcon: "ri-external-link-line"
+    demo_url: "https://github.com/galangg22/thriftyfinds",
   },
   {
     title: "HeartHorizon / Online Class",
+    type: "web",
     image: "/image/Photo by Pankaj Patel on Unsplash.jpg",
     gradient: null,
     icon: null,
     tags: ["LMS", "Fullstack", "Database"],
     desc: "Aplikasi e-learning interaktif untuk manajemen materi kelas online, penugasan, dan interaksi pembelajaran.",
-    link: "https://github.com/galangg22/hearthorizon",
-    actionText: "GitHub Repo",
-    actionIcon: "ri-github-fill"
+    github_url: "https://github.com/galangg22/hearthorizon",
   }
 ];
 
-// Cuma ambil 2 untuk showcase di Home
+// Tombol aksi project berdasarkan tipe.
+const projectActions = (p) => {
+  const btn = [];
+  if (p.type === "android") {
+    if (p.play_store_url) btn.push({ link: p.play_store_url, text: "Play Store", icon: "ri-google-play-fill" });
+    if (p.apk_url) btn.push({ link: p.apk_url, text: "Download APK", icon: "ri-download-2-line" });
+    if (p.github_url) btn.push({ link: p.github_url, text: "GitHub", icon: "ri-github-fill" });
+  } else if (p.type === "bot") {
+    if (p.github_url) btn.push({ link: p.github_url, text: "GitHub", icon: "ri-github-fill" });
+  } else {
+    if (p.demo_url) btn.push({ link: p.demo_url, text: "Live Demo", icon: "ri-external-link-line" });
+    if (p.github_url) btn.push({ link: p.github_url, text: "GitHub", icon: "ri-github-fill" });
+  }
+  return btn;
+};
+
+const PROJECT_GROUPS = [
+  { type: "web", label: "Web & Fullstack" },
+  { type: "bot", label: "Bot & Automation" },
+  { type: "android", label: "Android Apps" },
+];
+
+// Fallback Visual Works (dipakai bila Supabase off).
 const FEATURED_CREATIVE = [
   {
     id: 1,
@@ -134,6 +152,10 @@ export default function Home() {
   const [isCvModalOpen, setIsCvModalOpen] = useState(false); // 👈 TAMBAHKAN INI
   const [skills, setSkills] = useState(SKILLS_DATA);
   const [projects, setProjects] = useState(DEV_PROJECTS);
+  const [projectImages, setProjectImages] = useState({}); // project_id -> [images]
+  const [featuredDesigns, setFeaturedDesigns] = useState([]);
+  const [featuredVideos, setFeaturedVideos] = useState([]);
+  const [lightbox, setLightbox] = useState(null); // { images, index }
   const mainRef = useRef(null);
 
   // Hydrate dari Supabase bila aktif; jika kosong/gagal, tetap pakai data statis.
@@ -146,25 +168,36 @@ export default function Home() {
       .from("projects")
       .select("*")
       .neq("status", "private")
-      .order("featured", { ascending: false })
       .order("sort_order")
-      .then(({ data }) => {
-        if (data && data.length) {
-          setProjects(
-            data.map((p) => ({
-              title: p.title,
-              image: p.thumbnail_url || null,
-              gradient: p.thumbnail_url ? null : "from-emerald-900 via-green-800 to-teal-900",
-              icon: p.thumbnail_url ? null : "ri-code-s-slash-line",
-              tags: p.tags || [],
-              desc: p.description,
-              link: p.demo_url || p.github_url || "#",
-              actionText: p.demo_url ? "Live Demo" : "GitHub Repo",
-              actionIcon: p.demo_url ? "ri-external-link-line" : "ri-github-fill",
-            }))
-          );
+      .order("created_at", { ascending: false })
+      .then(async ({ data }) => {
+        if (!data || !data.length) return;
+        setProjects(data.map((p) => ({
+          ...p,
+          image: p.thumbnail_url || null,
+          gradient: p.thumbnail_url ? null : "from-emerald-900 via-green-800 to-teal-900",
+          icon: p.thumbnail_url ? null : "ri-code-s-slash-line",
+          tags: p.tags || [],
+          desc: p.description,
+        })));
+        const androidIds = data.filter((p) => p.type === "android").map((p) => p.id);
+        if (androidIds.length) {
+          const { data: imgs } = await supabase
+            .from("project_images").select("*").in("project_id", androidIds).order("sort_order");
+          if (imgs) {
+            setProjectImages(imgs.reduce((acc, im) => {
+              (acc[im.project_id] ||= []).push(im);
+              return acc;
+            }, {}));
+          }
         }
       });
+    supabase.from("designs").select("*").eq("featured", true)
+      .order("sort_order").order("created_at", { ascending: false })
+      .then(({ data }) => { if (data && data.length) setFeaturedDesigns(data); });
+    supabase.from("videos").select("*").eq("featured", true)
+      .order("sort_order").order("created_at", { ascending: false })
+      .then(({ data }) => { if (data && data.length) setFeaturedVideos(data); });
   }, []);
 
 
@@ -218,6 +251,20 @@ export default function Home() {
     if (el) el.scrollIntoView({ behavior: "smooth" });
     setIsIslandHovered(false); 
   };
+
+  // Visual Works: gabungan featured designs + videos dari Supabase, fallback ke statis.
+  const visualWorks = (featuredDesigns.length || featuredVideos.length)
+    ? [
+        ...featuredDesigns.map((d) => ({
+          id: `d-${d.id}`, title: d.title, category: "Design",
+          image: d.cover_image_url, desc: d.description, type: "image",
+        })),
+        ...featuredVideos.map((v) => ({
+          id: `v-${v.id}`, title: v.title, category: "Video",
+          image: v.thumbnail_url, desc: v.description, type: "video", videoUrl: v.video_url,
+        })),
+      ]
+    : FEATURED_CREATIVE;
 
   return (
     
@@ -337,56 +384,89 @@ export default function Home() {
       <section id="projects" className="py-24 px-6">
         <div className="max-w-5xl mx-auto">
           <h2 className="section-title text-4xl font-bold mb-12 uppercase tracking-tighter">Featured Development</h2>
-          <div className="grid md:grid-cols-2 gap-8 mb-24">
-            {projects.map((project, idx) => (
-              <div key={idx} className="project-card group bg-card-bg rounded-3xl overflow-hidden border border-white/10 flex flex-col transition-all duration-500 shadow-xl card-hover-border">
-                <div className="relative h-56">
-                  {project.image ? (
-                    <Image src={project.image} alt={project.title} fill sizes="50vw" className="object-cover" priority={projects.findIndex(p => p.image) === idx} />
-                  ) : (
-                    <div className={`w-full h-full bg-gradient-to-br ${project.gradient} flex items-center justify-center`}>
-                      <i className={`${project.icon} text-6xl text-white/30`}></i>
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-bg-dark/90 to-transparent"></div>
-                  <div className="absolute top-4 left-4 flex gap-2">
-                    {project.tags.map(tag => <span key={tag} className="px-3 py-1 bg-black/70 backdrop-blur-md border border-white/10 rounded-full text-[10px] text-white font-bold uppercase">{tag}</span>)}
-                  </div>
-                </div>
-                <div className="p-8 flex flex-col flex-1">
-                  <h3 className="text-2xl font-bold mb-3 text-white">{project.title}</h3>
-                  <p className="text-gray-400 text-sm mb-8 flex-1 leading-relaxed">{project.desc}</p>
-                  <a href={project.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 text-white font-bold text-sm bg-white/5 w-fit px-6 py-3 rounded-xl active:scale-95 transition-all btn-hover">
-                    <i className={project.actionIcon + " text-xl"}></i> {project.actionText}
-                  </a>
+
+          {PROJECT_GROUPS.map((group) => {
+            const items = projects.filter((p) => (p.type || "web") === group.type);
+            if (!items.length) return null;
+            return (
+              <div key={group.type} className="mb-20">
+                <h3 className="text-sm font-bold uppercase tracking-[0.3em] text-accent mb-8">{group.label}</h3>
+                <div className="grid md:grid-cols-2 gap-8">
+                  {items.map((project, idx) => {
+                    const shots = projectImages[project.id] || [];
+                    return (
+                      <div key={project.id || idx} className="project-card group bg-card-bg rounded-3xl overflow-hidden border border-white/10 flex flex-col transition-all duration-500 shadow-xl card-hover-border">
+                        <div className="relative h-56">
+                          {project.image ? (
+                            <Image src={project.image} alt={project.title} fill sizes="50vw" className="object-cover" />
+                          ) : (
+                            <div className={`w-full h-full bg-gradient-to-br ${project.gradient} flex items-center justify-center`}>
+                              <i className={`${project.icon} text-6xl text-white/30`}></i>
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-bg-dark/90 to-transparent"></div>
+                          <div className="absolute top-4 left-4 flex gap-2 flex-wrap">
+                            {project.tags.map(tag => <span key={tag} className="px-3 py-1 bg-black/70 backdrop-blur-md border border-white/10 rounded-full text-[10px] text-white font-bold uppercase">{tag}</span>)}
+                          </div>
+                        </div>
+                        <div className="p-8 flex flex-col flex-1">
+                          <h3 className="text-2xl font-bold mb-3 text-white">{project.title}</h3>
+                          <p className="text-gray-400 text-sm mb-6 flex-1 leading-relaxed">{project.desc}</p>
+
+                          {/* Android screenshots */}
+                          {project.type === "android" && shots.length > 0 && (
+                            <div className="flex gap-3 overflow-x-auto pb-4 mb-6 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                              {shots.map((s, i) => (
+                                <button key={s.id} onClick={() => setLightbox({ images: shots, index: i })}
+                                  className="relative shrink-0 snap-start w-28 sm:w-32 h-56 sm:h-64 rounded-xl overflow-hidden border border-white/10 bg-black/40">
+                                  <Image src={s.image_url} alt={s.caption || project.title} fill sizes="(max-width:640px) 112px, 128px" className="object-contain" />
+                                </button>
+                              ))}
+                            </div>
+                          )}
+
+                          <div className="flex flex-wrap gap-3">
+                            {projectActions(project).map((a) => (
+                              <a key={a.text} href={a.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 text-white font-bold text-sm bg-white/5 w-fit px-6 py-3 rounded-xl active:scale-95 transition-all btn-hover">
+                                <i className={a.icon + " text-xl"}></i> {a.text}
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-            ))}
-          </div>
+            );
+          })}
 
-          {/* CREATIVE SHOWCASE LITE (ONLY 2 ITEMS) */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
+          {/* CREATIVE SHOWCASE LITE */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6 mt-4">
             <div>
               <h2 className="section-title text-4xl font-bold mb-3 uppercase tracking-tighter">Visual Works</h2>
               <p className="text-gray-400 text-sm max-w-md">Hanya cuplikan kecil. Lihat koleksi lengkap desain & video di galeri.</p>
             </div>
-            <Link href="/design" className="px-6 py-3 bg-accent text-bg-dark font-black uppercase text-xs tracking-widest rounded-xl hover:scale-105 transition-transform flex items-center gap-2 shadow-lg shadow-accent/20">
-               Full Gallery <i className="ri-arrow-right-line"></i>
-            </Link>
+            <div className="flex gap-3">
+              <Link href="/design" className="px-6 py-3 bg-accent text-bg-dark font-black uppercase text-xs tracking-widest rounded-xl hover:scale-105 transition-transform flex items-center gap-2 shadow-lg shadow-accent/20">
+                 Design <i className="ri-arrow-right-line"></i>
+              </Link>
+              <Link href="/video" className="px-6 py-3 border border-white/20 text-white font-black uppercase text-xs tracking-widest rounded-xl hover:bg-white/10 transition-colors flex items-center gap-2">
+                 Video <i className="ri-arrow-right-line"></i>
+              </Link>
+            </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {FEATURED_CREATIVE.map((item) => (
+            {visualWorks.map((item) => (
               <div 
                 key={item.id} 
                 onClick={() => item.type === "video" ? setSelectedVideo(item.videoUrl) : null}
                 className={`creative-card relative aspect-[4/5] rounded-3xl overflow-hidden border border-white/10 shadow-2xl ${item.type === "video" ? "cursor-pointer" : ""}`}
               >
-                {/* Gambar selalu full warna, tanpa efek grayscale/scale hover */}
-                <Image src={item.image} alt={item.title} fill sizes="50vw" className="object-cover" />
+                {item.image && <Image src={item.image} alt={item.title} fill sizes="50vw" className="object-cover" />}
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
                 
-                {/* Tombol play selalu terlihat di video (bukan hanya saat hover) */}
                 {item.type === "video" && (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="w-16 h-16 rounded-full bg-accent/90 flex items-center justify-center shadow-[0_0_20px_rgba(79,255,163,0.5)] active:scale-90 transition-transform">
@@ -395,7 +475,6 @@ export default function Home() {
                   </div>
                 )}
 
-                {/* Teks info selalu tampil (tidak butuh hover) */}
                 <div className="absolute bottom-0 p-6">
                   <span className="text-[10px] font-bold text-accent uppercase tracking-widest mb-2 block">{item.category}</span>
                   <h4 className="text-white font-bold text-lg mb-1">{item.title}</h4>
@@ -406,6 +485,35 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* 📸 SCREENSHOT LIGHTBOX 📸 */}
+      {lightbox && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-10">
+          <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" onClick={() => setLightbox(null)}></div>
+          <button onClick={() => setLightbox(null)} className="fixed top-4 right-4 w-10 h-10 bg-white/10 hover:bg-red-500 text-white rounded-full flex items-center justify-center z-[10001] transition-all active:scale-90">
+            <i className="ri-close-line text-2xl"></i>
+          </button>
+          <button onClick={() => setLightbox((l) => ({ ...l, index: (l.index - 1 + l.images.length) % l.images.length }))}
+            className="fixed left-4 w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center z-[10001]">
+            <i className="ri-arrow-left-s-line text-2xl"></i>
+          </button>
+          <button onClick={() => setLightbox((l) => ({ ...l, index: (l.index + 1) % l.images.length }))}
+            className="fixed right-4 w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center z-[10001]">
+            <i className="ri-arrow-right-s-line text-2xl"></i>
+          </button>
+          <div className="relative z-[10000] max-w-4xl w-full text-center">
+            <div className="relative w-full h-[70vh] mx-auto">
+              <Image src={lightbox.images[lightbox.index].image_url} alt={lightbox.images[lightbox.index].caption || ""} fill sizes="(max-width:768px) 100vw, 80vw" className="object-contain" />
+            </div>
+            {lightbox.images[lightbox.index].caption && (
+              <h4 className="text-white font-bold text-lg mt-4">{lightbox.images[lightbox.index].caption}</h4>
+            )}
+            {lightbox.images[lightbox.index].description && (
+              <p className="text-gray-400 text-sm mt-1">{lightbox.images[lightbox.index].description}</p>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* 🎬 VIDEO MODAL OVERLAY 🎬 */}
       {selectedVideo && (

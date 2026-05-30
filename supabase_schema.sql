@@ -1,0 +1,199 @@
+-- ============================================================
+-- Portofolang — Supabase Schema (Final)
+-- Jalankan di Supabase → SQL Editor
+-- ============================================================
+
+
+-- ============================================================
+-- HELPER: auto-update updated_at
+-- ============================================================
+create or replace function update_updated_at()
+returns trigger as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$ language plpgsql;
+
+
+-- ============================================================
+-- TABLE: projects
+-- Web, bot, android — satu tabel, dibedakan by `type`
+-- ============================================================
+create table public.projects (
+  id             uuid primary key default gen_random_uuid(),
+  title          text not null,
+  description    text,
+  tags           text[] default '{}',
+  type           text default 'web' check (type in ('web', 'bot', 'android', 'other')),
+  thumbnail_url  text,
+  github_url     text,
+  demo_url       text,           -- untuk web: live demo URL
+  play_store_url text,           -- untuk android: Play Store URL (opsional)
+  apk_url        text,           -- untuk android: download APK langsung
+  status         text default 'completed' check (status in ('completed', 'wip', 'private')),
+  featured       boolean default false,
+  sort_order     integer default 0,
+  created_at     timestamptz default now(),
+  updated_at     timestamptz default now()
+);
+
+create trigger trg_projects_updated_at
+  before update on public.projects
+  for each row execute function update_updated_at();
+
+
+-- ============================================================
+-- TABLE: project_images
+-- Annotated screenshots — dipakai untuk Android apps
+-- (bisa dipakai untuk tipe project lain juga kalau nanti perlu)
+-- ============================================================
+create table public.project_images (
+  id          uuid primary key default gen_random_uuid(),
+  project_id  uuid not null references public.projects(id) on delete cascade,
+  image_url   text not null,
+  caption     text,              -- judul singkat, mis. "Halaman Pembayaran"
+  description text,              -- deskripsi panjang, mis. "Mendukung GoPay, OVO, QRIS..."
+  sort_order  integer default 0,
+  created_at  timestamptz default now()
+);
+
+
+-- ============================================================
+-- TABLE: designs
+-- Satu row = satu project design
+-- ============================================================
+create table public.designs (
+  id             uuid primary key default gen_random_uuid(),
+  title          text not null,
+  category       text default 'design',
+  cover_image_url text,          -- gambar cover yang tampil di grid homepage
+  description    text,
+  sort_order     integer default 0,
+  featured       boolean default false,
+  created_at     timestamptz default now(),
+  updated_at     timestamptz default now()
+);
+
+create trigger trg_designs_updated_at
+  before update on public.designs
+  for each row execute function update_updated_at();
+
+
+-- ============================================================
+-- TABLE: design_images
+-- Simple gallery per project design (no caption needed)
+-- ============================================================
+create table public.design_images (
+  id          uuid primary key default gen_random_uuid(),
+  design_id   uuid not null references public.designs(id) on delete cascade,
+  image_url   text not null,
+  sort_order  integer default 0,
+  created_at  timestamptz default now()
+);
+
+
+-- ============================================================
+-- TABLE: videos
+-- ============================================================
+create table public.videos (
+  id             uuid primary key default gen_random_uuid(),
+  title          text not null,
+  thumbnail_url  text,
+  video_url      text not null,
+  platform       text default 'youtube' check (platform in ('youtube', 'drive', 'vimeo')),
+  description    text,
+  featured       boolean default false,
+  sort_order     integer default 0,
+  created_at     timestamptz default now(),
+  updated_at     timestamptz default now()
+);
+
+create trigger trg_videos_updated_at
+  before update on public.videos
+  for each row execute function update_updated_at();
+
+
+-- ============================================================
+-- TABLE: skills
+-- ============================================================
+create table public.skills (
+  id          uuid primary key default gen_random_uuid(),
+  category    text not null,
+  icon        text,
+  items       text[] default '{}',
+  span        text default 'col-span-1',
+  color       text,
+  sort_order  integer default 0,
+  created_at  timestamptz default now(),
+  updated_at  timestamptz default now()
+);
+
+create trigger trg_skills_updated_at
+  before update on public.skills
+  for each row execute function update_updated_at();
+
+
+-- ============================================================
+-- RLS: read publik, write hanya via service_role
+-- ============================================================
+alter table public.projects       enable row level security;
+alter table public.project_images enable row level security;
+alter table public.designs        enable row level security;
+alter table public.design_images  enable row level security;
+alter table public.videos         enable row level security;
+alter table public.skills         enable row level security;
+
+create policy "public read projects"       on public.projects       for select using (true);
+create policy "public read project_images" on public.project_images for select using (true);
+create policy "public read designs"        on public.designs        for select using (true);
+create policy "public read design_images"  on public.design_images  for select using (true);
+create policy "public read videos"         on public.videos         for select using (true);
+create policy "public read skills"         on public.skills         for select using (true);
+
+
+-- ============================================================
+-- SEED: projects
+-- thumbnail_url dikosongkan — isi via admin panel setelah deploy
+-- ============================================================
+insert into public.projects (title, description, tags, type, github_url, status, featured, sort_order) values
+  (
+    'Bot WA Reminder Absensi',
+    'Sistem automasi backend untuk memonitor jadwal dan mengirimkan pengingat absensi secara otomatis via WhatsApp.',
+    '{"Node.js","Baileys API","Automation"}',
+    'bot',
+    'https://github.com/galangg22/bot-presensi',
+    'completed',
+    true,
+    1
+  ),
+  (
+    'Sistem Web TPQ Al-Hikmah',
+    'Platform sistem informasi manajemen untuk digitalisasi administrasi santri dan guru.',
+    '{"Web Dev","HTML","CSS"}',
+    'web',
+    'https://github.com/galangg22/alhikmah',
+    'completed',
+    false,
+    4
+  ),
+  (
+    'ThriftyFinds E-Commerce',
+    'Katalog e-commerce modern untuk produk thrifting.',
+    '{"React/Next.js","Tailwind","E-Commerce"}',
+    'web',
+    'https://github.com/galangg22/thriftyfinds',
+    'completed',
+    true,
+    2
+  ),
+  (
+    'HeartHorizon / Online Class',
+    'Aplikasi e-learning interaktif.',
+    '{"LMS","Fullstack","Database"}',
+    'web',
+    'https://github.com/galangg22/hearthorizon',
+    'completed',
+    false,
+    3
+  );

@@ -2,7 +2,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 import { isAdminAuthenticated } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 
-const TABLES = ['projects', 'designs', 'videos', 'skills'];
+const TABLES = ['projects', 'project_images', 'designs', 'design_images', 'videos', 'skills'];
 
 function guard(table) {
   if (!TABLES.includes(table)) return NextResponse.json({ error: 'Invalid table' }, { status: 400 });
@@ -14,11 +14,17 @@ async function authed() {
   return isAdminAuthenticated();
 }
 
-export async function GET(_req, { params }) {
+export async function GET(req, { params }) {
   const { table } = await params;
   const bad = guard(table);
   if (bad) return bad;
-  const { data, error } = await supabaseAdmin.from(table).select('*').order('sort_order');
+  const { searchParams } = new URL(req.url);
+  let query = supabaseAdmin.from(table).select('*').order('sort_order').order('created_at', { ascending: false });
+  for (const key of ['project_id', 'design_id', 'id']) {
+    const v = searchParams.get(key);
+    if (v) query = query.eq(key, v);
+  }
+  const { data, error } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
 }

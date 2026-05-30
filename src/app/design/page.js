@@ -92,27 +92,41 @@ export default function DesignGallery() {
   const [filter, setFilter] = useState("all");
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [gallery, setGallery] = useState(GALLERY_DATA);
+  const [lightbox, setLightbox] = useState(null); // { images: [url], index, title }
 
-  // Hydrate designs dari Supabase bila aktif (video kini punya halaman sendiri /video,
-  // namun data video lama tetap tampil sebagai fallback di sini).
+  // Hydrate designs + galeri gambar dari Supabase bila aktif.
   useEffect(() => {
     if (!supabase) return;
-    supabase.from("designs").select("*").order("sort_order").then(({ data }) => {
-      if (data && data.length) {
-        setGallery(data.map((d) => ({
-          id: d.id,
-          title: d.title,
-          category: d.category || "design",
-          image: d.image_url,
-          desc: d.description,
-        })));
-      }
-    });
+    (async () => {
+      const { data: designs } = await supabase
+        .from("designs").select("*")
+        .order("sort_order").order("created_at", { ascending: false });
+      if (!designs || !designs.length) return;
+      const { data: imgs } = await supabase
+        .from("design_images").select("*").order("sort_order");
+      const byDesign = (imgs || []).reduce((acc, im) => {
+        (acc[im.design_id] ||= []).push(im.image_url);
+        return acc;
+      }, {});
+      setGallery(designs.map((d) => ({
+        id: d.id,
+        title: d.title,
+        category: d.category || "design",
+        image: d.cover_image_url,
+        desc: d.description,
+        images: byDesign[d.id] || (d.cover_image_url ? [d.cover_image_url] : []),
+      })));
+    })();
   }, []);
 
   const filteredData = filter === "all"
     ? gallery
     : gallery.filter(item => item.category === filter);
+
+  const openItem = (item) => {
+    if (item.category === "video") { setSelectedVideo(item.videoUrl); return; }
+    if (item.images && item.images.length) setLightbox({ images: item.images, index: 0, title: item.title });
+  };
 
   return (
     <main className="min-h-screen bg-bg-dark text-white p-4 sm:p-8 md:p-16 relative overflow-x-hidden">
@@ -162,7 +176,7 @@ export default function DesignGallery() {
           <div 
             key={item.id} 
             className="break-inside-avoid mb-6 group relative rounded-[20px] md:rounded-[24px] overflow-hidden bg-[#111] border border-white/5 hover:border-white/20 transition-all duration-500 cursor-pointer"
-            onClick={() => item.category === "video" ? setSelectedVideo(item.videoUrl) : null}
+            onClick={() => openItem(item)}
           >
             <div className="relative w-full overflow-hidden aspect-auto bg-black">
               <Image 
@@ -220,6 +234,37 @@ export default function DesignGallery() {
               webkitallowfullscreen="true"
               mozallowfullscreen="true"
             ></iframe>
+          </div>
+        </div>
+      )}
+
+      {/* 🖼️ DESIGN LIGHTBOX (slideshow design_images) 🖼️ */}
+      {lightbox && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-10">
+          <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" onClick={() => setLightbox(null)}></div>
+          <button onClick={() => setLightbox(null)}
+            className="fixed top-4 right-4 md:top-8 md:right-8 w-10 h-10 md:w-12 md:h-12 bg-white/10 backdrop-blur-md hover:bg-red-500 text-white rounded-full flex items-center justify-center z-[300] transition-all active:scale-90 border border-white/20">
+            <i className="ri-close-line text-xl md:text-2xl"></i>
+          </button>
+          {lightbox.images.length > 1 && (
+            <>
+              <button onClick={() => setLightbox((l) => ({ ...l, index: (l.index - 1 + l.images.length) % l.images.length }))}
+                className="fixed left-4 w-10 h-10 md:w-12 md:h-12 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center z-[300]">
+                <i className="ri-arrow-left-s-line text-2xl"></i>
+              </button>
+              <button onClick={() => setLightbox((l) => ({ ...l, index: (l.index + 1) % l.images.length }))}
+                className="fixed right-4 w-10 h-10 md:w-12 md:h-12 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center z-[300]">
+                <i className="ri-arrow-right-s-line text-2xl"></i>
+              </button>
+            </>
+          )}
+          <div className="relative z-10 max-w-5xl w-full text-center">
+            <div className="relative w-full max-h-[78vh] aspect-[4/3]">
+              <Image src={lightbox.images[lightbox.index]} alt={lightbox.title} fill sizes="100vw" className="object-contain" />
+            </div>
+            <p className="text-white font-bold mt-4">{lightbox.title}
+              {lightbox.images.length > 1 && <span className="text-gray-400 font-normal text-sm"> · {lightbox.index + 1}/{lightbox.images.length}</span>}
+            </p>
           </div>
         </div>
       )}

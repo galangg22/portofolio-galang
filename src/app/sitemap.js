@@ -14,5 +14,11 @@ export default function sitemap() {
       priority: 0.9,
       changeFrequency: 'monthly',
     },
+    {
+      url: `${baseUrl}/video`,
+      lastModified: new Date().toISOString(),
+      priority: 0.8,
+      changeFrequency: 'monthly',
+    },
   ];
 }

@@ -23,6 +23,10 @@ function getEmbedUrl(videoUrl, platform) {
       const id = videoUrl.match(/\/d\/([^/]+)/)?.[1];
       return id ? `https://drive.google.com/file/d/${id}/preview` : videoUrl;
     }
+    if (platform === 'vimeo') {
+      const id = videoUrl.split('/').pop();
+      return `https://player.vimeo.com/video/${id}`;
+    }
   } catch {
     return videoUrl;
   }
@@ -35,7 +39,7 @@ export default function VideoGallery() {
 
   useEffect(() => {
     if (!supabase) return;
-    supabase.from('videos').select('*').order('sort_order').then(({ data }) => {
+    supabase.from('videos').select('*').order('sort_order').order('created_at', { ascending: false }).then(({ data }) => {
       if (data && data.length) setVideos(data);
     });
   }, []);

@@ -7,13 +7,15 @@ export default function AdminVideo() {
     <CrudManager
       table="videos"
       title="Video Gallery"
+      columns={['title', 'platform', 'featured', 'sort_order']}
       fields={[
-        { key: 'title', label: 'Title', type: 'text' },
-        { key: 'video_url', label: 'Video URL', type: 'text' },
+        { key: 'title', label: 'Judul', type: 'text', required: true },
+        { key: 'video_url', label: 'URL Video', type: 'url', required: true },
         { key: 'platform', label: 'Platform', type: 'select', options: ['youtube', 'drive', 'vimeo'] },
         { key: 'thumbnail_url', label: 'Thumbnail', type: 'image' },
-        { key: 'description', label: 'Description', type: 'textarea' },
-        { key: 'sort_order', label: 'Sort Order', type: 'number' },
+        { key: 'description', label: 'Deskripsi', type: 'textarea' },
+        { key: 'featured', label: 'Featured', type: 'checkbox' },
+        { key: 'sort_order', label: 'Urutan', type: 'number' },
       ]}
     />
   );
