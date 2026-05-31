@@ -39,7 +39,7 @@ export default function AdminLogin() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-4 bg-accent text-bg-dark font-black uppercase tracking-widest rounded-xl disabled:opacity-50"
+          className="w-full py-4 bg-accent text-white font-black uppercase tracking-widest rounded-xl disabled:opacity-50"
         >
           {loading ? '...' : 'Masuk'}
         </button>

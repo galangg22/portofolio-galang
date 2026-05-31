@@ -4,9 +4,10 @@
 @theme {
   --color-bg-dark: #0a0a0a;
   --color-card-bg: #111111;
-  --color-primary: #8a2be2; /* Ungu gelap */
-  --color-secondary: #4b0082;
-  --color-accent: #4fffa3; /* Hijau Neon khas Hacker */
+  --color-primary: #6366f1; /* Indigo */
+  --color-secondary: #4f46e5;
+  --color-accent: #8b5cf6; /* Violet */
+  --font-display: var(--font-serif), Georgia, serif;
 }
 
 :root {
@@ -144,11 +145,11 @@ html.light .border-white\/20 {
 }
 
 html.light .text-accent {
-  color: #8a2be2;
+  color: #6366f1;
 }
 
 html.light .text-primary {
-  color: #8a2be2;
+  color: #6366f1;
 }
 
 html.light h1, 
@@ -169,7 +170,7 @@ html.light .section-title {
 }
 
 html.light .text-glow {
-  text-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
+  text-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
 }
 
 html.light .ri-star-fill {
@@ -181,11 +182,11 @@ html.light p {
 }
 
 html.light a {
-  color: #8a2be2;
+  color: #6366f1;
 }
 
 html.light a:hover {
-  color: #a935ff;
+  color: #4f46e5;
 }
 
 /* Animasi untuk background text gradient */
@@ -195,9 +196,13 @@ html.light a:hover {
   100% { background-position: 0% 50%; }
 }
 
+.font-display {
+  font-family: var(--font-display);
+}
+
 /* Glow text effect */
 .text-glow {
-  text-shadow: 0 0 20px rgba(79, 255, 163, 0.5);
+  text-shadow: 0 0 24px rgba(139, 92, 246, 0.4);
 }
 
 /* Modal entrance animation */
@@ -229,12 +234,12 @@ html.light .text-glow {
    ============================================================ */
 @media (hover: hover) and (pointer: fine) {
   .card-hover-border:hover {
-    border-color: rgba(79, 255, 163, 0.3);
+    border-color: rgba(139, 92, 246, 0.3);
   }
 
   .btn-hover:hover {
-    background-color: #4fffa3;
-    color: #0a0a0a;
+    background-color: #8b5cf6;
+    color: #ffffff;
   }
 }
 
@@ -278,6 +283,6 @@ html.light form button[type="submit"] {
   color: #ffffff;
 }
 html.light form button[type="submit"]:hover {
-  background-color: #4fffa3;
-  color: #0a0a0a;
+  background-color: #8b5cf6;
+  color: #ffffff;
 }

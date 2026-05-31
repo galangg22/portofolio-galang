@@ -20,5 +20,11 @@ export default function sitemap() {
       priority: 0.8,
       changeFrequency: 'monthly',
     },
+    {
+      url: `${baseUrl}/certificates`,
+      lastModified: new Date().toISOString(),
+      priority: 0.7,
+      changeFrequency: 'monthly',
+    },
   ];
 }

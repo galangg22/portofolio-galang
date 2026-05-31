@@ -197,3 +197,45 @@ insert into public.projects (title, description, tags, type, github_url, status,
     false,
     3
   );
+
+
+-- ============================================================
+-- TABLE: certificates
+-- ============================================================
+create table public.certificates (
+  id          uuid primary key default gen_random_uuid(),
+  title       text not null,
+  issuer      text not null,               -- "Google", "Dicoding", "BSSN", dll
+  issue_date  date,                        -- nullable — sertif webinar sering tidak ada tanggal
+  image_url   text,                        -- foto/scan sertifikat (dari Storage)
+  verify_url  text,                        -- nullable — link verifikasi resmi kalau ada
+  description text,                        -- konteks singkat, opsional
+  featured    boolean default false,       -- tampil di homepage section Certifications
+  sort_order  integer default 0,
+  created_at  timestamptz default now(),
+  updated_at  timestamptz default now()
+);
+
+create trigger trg_certificates_updated_at
+  before update on public.certificates
+  for each row execute function update_updated_at();
+
+alter table public.certificates enable row level security;
+create policy "public read certificates" on public.certificates for select using (true);
+
+
+-- ============================================================
+-- TABLE: certificate_images
+-- Halaman tambahan sertifikat (halaman 2, 3, dst)
+-- Halaman 1 tetap di certificates.image_url
+-- ============================================================
+create table public.certificate_images (
+  id              uuid primary key default gen_random_uuid(),
+  certificate_id  uuid not null references public.certificates(id) on delete cascade,
+  image_url       text not null,
+  sort_order      integer default 0,   -- urutan halaman (2, 3, dst)
+  created_at      timestamptz default now()
+);
+
+alter table public.certificate_images enable row level security;
+create policy "public read certificate_images" on public.certificate_images for select using (true);

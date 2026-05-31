@@ -2,7 +2,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 import { isAdminAuthenticated } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 
-const TABLES = ['projects', 'project_images', 'designs', 'design_images', 'videos', 'skills'];
+const TABLES = ['projects', 'project_images', 'designs', 'design_images', 'videos', 'skills', 'certificates', 'certificate_images'];
 
 function guard(table) {
   if (!TABLES.includes(table)) return NextResponse.json({ error: 'Invalid table' }, { status: 400 });
@@ -20,7 +20,7 @@ export async function GET(req, { params }) {
   if (bad) return bad;
   const { searchParams } = new URL(req.url);
   let query = supabaseAdmin.from(table).select('*').order('sort_order').order('created_at', { ascending: false });
-  for (const key of ['project_id', 'design_id', 'id']) {
+  for (const key of ['project_id', 'design_id', 'certificate_id', 'id']) {
     const v = searchParams.get(key);
     if (v) query = query.eq(key, v);
   }

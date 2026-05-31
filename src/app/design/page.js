@@ -161,7 +161,7 @@ export default function DesignGallery() {
             onClick={() => setFilter(cat)}
             className={`snap-start shrink-0 px-5 md:px-6 py-2.5 rounded-full border text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
               filter === cat 
-              ? "bg-accent text-bg-dark border-accent" 
+              ? "bg-accent text-white border-accent" 
               : "border-white/10 text-gray-500 hover:border-white/30 hover:text-white bg-white/5"
             }`}
           >

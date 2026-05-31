@@ -48,8 +48,8 @@ export default function VideoGallery() {
     <main className="min-h-screen bg-bg-dark text-white p-4 sm:p-8 md:p-16">
       <div className="max-w-6xl mx-auto">
         <Link href="/" className="text-accent text-sm uppercase tracking-widest mb-8 inline-block">← Back to Home</Link>
-        <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold mb-10 tracking-tighter uppercase">
-          Video <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-emerald-400">Showcase</span>
+        <h1 className="font-display text-4xl md:text-6xl font-normal mb-10 tracking-tight">
+          Video <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Showcase</span>
         </h1>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -7,6 +7,7 @@ const CARDS = [
   { href: '/admin/projects', label: 'Dev Projects', icon: 'ri-code-s-slash-line' },
   { href: '/admin/design', label: 'Design Gallery', icon: 'ri-palette-line' },
   { href: '/admin/video', label: 'Video Gallery', icon: 'ri-video-line' },
+  { href: '/admin/certificates', label: 'Certificates', icon: 'ri-award-line' },
 ];
 
 export default function AdminDashboard() {

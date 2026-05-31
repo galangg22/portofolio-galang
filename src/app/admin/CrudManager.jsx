@@ -164,9 +164,10 @@ export default function CrudManager({ table, title, fields, columns = ['title'],
     if (res.ok) load();
   };
 
-  const uploadImage = async (k, file) => {
+  const uploadImage = async (k, file, bucket) => {
     const fd = new FormData();
     fd.append('file', file);
+    if (bucket) fd.append('bucket', bucket);
     const res = await fetch('/api/upload', { method: 'POST', body: fd });
     if (res.ok) { const { url } = await res.json(); setField(k, url); }
     else setMsg('Upload gagal.');
@@ -206,6 +207,22 @@ export default function CrudManager({ table, title, fields, columns = ['title'],
                     <input type="file" accept="image/*" onChange={(e) => e.target.files[0] && uploadImage(f.key, e.target.files[0])} />
                   )}
                 </div>
+              ) : f.type === 'pdf' ? (
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <input type="text" placeholder="Paste URL PDF / storage.googleapis.com" value={form[f.key] ?? ''} onChange={(e) => setField(f.key, e.target.value)} className={inputCls} />
+                    {form[f.key] && (
+                      <a href={form[f.key]} target="_blank" rel="noopener noreferrer"
+                        className="shrink-0 px-4 flex items-center bg-white/5 border border-white/10 rounded-xl text-accent" aria-label="Buka link">
+                        <i className="ri-external-link-line"></i>
+                      </a>
+                    )}
+                  </div>
+                  <label className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm cursor-pointer w-fit">
+                    <i className="ri-upload-2-line"></i> Upload PDF
+                    <input type="file" accept="application/pdf" className="hidden" onChange={(e) => e.target.files[0] && uploadImage(f.key, e.target.files[0], 'certificates')} />
+                  </label>
+                </div>
               ) : f.type === 'url' ? (
                 <div className="flex gap-2">
                   <input type="text" value={form[f.key] ?? ''} onChange={(e) => setField(f.key, e.target.value)} className={inputCls} />
@@ -217,7 +234,7 @@ export default function CrudManager({ table, title, fields, columns = ['title'],
                   )}
                 </div>
               ) : (
-                <input type={f.type === 'number' ? 'number' : 'text'} value={form[f.key] ?? ''}
+                <input type={f.type === 'number' ? 'number' : f.type === 'date' ? 'date' : 'text'} value={form[f.key] ?? ''}
                   onChange={(e) => setField(f.key, e.target.value)} className={inputCls} />
               )}
             </div>

@@ -7,7 +7,7 @@ Dokumen ini adalah panduan implementasi lengkap untuk Claude Code atau siapapun 
 ## Konteks Project
 
 Portfolio website untuk **Galang Arrauf Pramudito** (Backend Developer & Creative Enthusiast).
-- Live: https://galang-arrauf.com
+- Live: https://portofolang.vercel.app
 - Stack: Next.js 16.2.4, React 19.2.4, Tailwind CSS v4, Supabase, GSAP
 
 Arsitektur lengkap ada di `ARCHITECTURE.md`. Baca itu dulu sebelum lanjut.
@@ -604,7 +604,7 @@ Tambahkan `/admin` ke disallow:
 export default function robots() {
   return {
     rules: { userAgent: '*', allow: '/', disallow: ['/api/', '/admin/'] },
-    sitemap: 'https://galang-arrauf.com/sitemap.xml',
+    sitemap: 'https://portofolang.vercel.app/sitemap.xml',
   }
 }
 ```
@@ -616,9 +616,9 @@ Tambahkan `/video`:
 ```js
 export default function sitemap() {
   return [
-    { url: 'https://galang-arrauf.com',        lastModified: new Date(), priority: 1 },
-    { url: 'https://galang-arrauf.com/design', lastModified: new Date(), priority: 0.9 },
-    { url: 'https://galang-arrauf.com/video',  lastModified: new Date(), priority: 0.8 },
+    { url: 'https://portofolang.vercel.app',        lastModified: new Date(), priority: 1 },
+    { url: 'https://portofolang.vercel.app/design', lastModified: new Date(), priority: 0.9 },
+    { url: 'https://portofolang.vercel.app/video',  lastModified: new Date(), priority: 0.8 },
   ]
 }
 ```
@@ -691,3 +691,586 @@ export default function sitemap() {
 ---
 
 *Dokumen ini dibuat Mei 2026. Update bila ada perubahan arsitektur atau penambahan fitur.*
+
+---
+
+## Tambahan Fitur: Certificates
+
+### Tabel Supabase (sudah ada di `supabase_schema.sql`)
+
+Jalankan di Supabase SQL Editor — cukup bagian `certificates` saja karena tabel lain sudah ada:
+
+```sql
+create table public.certificates (
+  id          uuid primary key default gen_random_uuid(),
+  title       text not null,
+  issuer      text not null,
+  issue_date  date,           -- nullable: sertif webinar tidak selalu ada tanggal
+  image_url   text,           -- foto/scan sertifikat dari Storage
+  verify_url  text,           -- nullable: link verifikasi resmi (kalau ada)
+  description text,
+  featured    boolean default false,
+  sort_order  integer default 0,
+  created_at  timestamptz default now(),
+  updated_at  timestamptz default now()
+);
+
+create trigger trg_certificates_updated_at
+  before update on public.certificates
+  for each row execute function update_updated_at();
+
+alter table public.certificates enable row level security;
+create policy "public read certificates" on public.certificates for select using (true);
+```
+
+### Update Whitelist API
+
+Di `src/app/api/admin/[table]/route.js`, tambah `'certificates'` ke array WHITELIST:
+
+```js
+const WHITELIST = ['projects', 'project_images', 'designs', 'design_images', 'videos', 'skills', 'certificates']
+```
+
+### Halaman Publik: `/certificates`
+
+Buat `src/app/certificates/page.js`.
+
+Behavior:
+- Fetch semua certificates dari Supabase: `.order('sort_order').order('created_at', { ascending: false })`
+- Tidak ada fallback statis — kalau kosong tampil pesan "Belum ada sertifikat"
+- Layout: grid 2-col (mobile 1-col), tiap card berisi:
+  - Gambar sertifikat (dari `image_url`) — klik → modal zoom fullscreen
+  - Judul (`title`)
+  - Penerbit (`issuer`) dengan icon `ri-award-line`
+  - Tanggal (`issue_date`) — kalau null, tidak ditampilkan sama sekali
+  - Deskripsi singkat (`description`) — kalau ada
+  - Tombol "Verifikasi" → buka `verify_url` di tab baru — kalau `verify_url` null, tombol tidak muncul
+
+Modal zoom:
+- Background overlay gelap
+- Gambar ditampilkan besar (max 90vw x 90vh)
+- Tombol close (X) di pojok kanan atas
+- Klik overlay juga menutup modal
+
+### Homepage: Section Certifications
+
+Di `src/app/page.js`, tambah section baru setelah section Video Works dan sebelum Contact:
+
+```
+├── Certifications  (featured = true, dari tabel certificates)
+│   └── Grid horizontal scroll atau grid 3-col
+│   └── Klik gambar → modal zoom
+│   └── Tombol "Lihat Semua" → /certificates
+```
+
+Fetch di useEffect yang sudah ada, tambah:
+```js
+const { data: certData } = await supabase
+  .from('certificates')
+  .select('*')
+  .eq('featured', true)
+  .order('sort_order')
+  .order('created_at', { ascending: false })
+setFeaturedCerts(certData ?? [])
+```
+
+Tampilan per card di homepage (lebih compact dari halaman /certificates):
+- Gambar sertifikat — klik → modal zoom
+- Judul + issuer
+- Tanggal (kalau ada)
+- Tombol "Verifikasi" (kalau ada verify_url)
+
+### Admin Panel: `/admin/certificates`
+
+Buat `src/app/admin/certificates/page.js` menggunakan `CrudManager` yang sudah ada.
+
+Field config:
+```js
+const fields = [
+  { key: 'title',       label: 'Judul Sertifikat',  type: 'text',     required: true },
+  { key: 'issuer',      label: 'Penerbit',           type: 'text',     required: true },
+  { key: 'issue_date',  label: 'Tanggal Terbit',     type: 'text',     // input date, nullable
+    placeholder: 'Kosongkan jika tidak ada tanggal' },
+  { key: 'image_url',   label: 'Gambar Sertifikat',  type: 'image' },
+  { key: 'verify_url',  label: 'Link Verifikasi',    type: 'url',
+    placeholder: 'Kosongkan jika tidak ada link verifikasi' },
+  { key: 'description', label: 'Deskripsi',          type: 'textarea' },
+  { key: 'featured',    label: 'Featured di Homepage', type: 'checkbox' },
+  { key: 'sort_order',  label: 'Urutan',             type: 'number' },
+]
+```
+
+Kolom tabel list:
+```js
+const columns = ['title', 'issuer', 'issue_date', 'featured', 'sort_order']
+```
+
+Tambahkan link ke `/admin/certificates` di dashboard `/admin/page.js`.
+
+### Update `sitemap.js`
+
+```js
+export default function sitemap() {
+  return [
+    { url: 'https://galang-arrauf.com',                    lastModified: new Date(), priority: 1   },
+    { url: 'https://galang-arrauf.com/design',             lastModified: new Date(), priority: 0.9 },
+    { url: 'https://galang-arrauf.com/video',              lastModified: new Date(), priority: 0.8 },
+    { url: 'https://galang-arrauf.com/certificates',       lastModified: new Date(), priority: 0.7 },
+  ]
+}
+```
+
+### Update `robots.js`
+
+Tidak ada perubahan — `/certificates` boleh diindex.
+
+### Referensi Cepat (tambahan)
+
+| Kebutuhan | File/Route |
+|-----------|------------|
+| Tambah sertifikat | `/admin/certificates` |
+| Lihat semua sertifikat publik | `/certificates` |
+| Schema tabel | `supabase_schema.sql` — bagian certificates |
+
+---
+
+## Tambahan Fitur: Multi-halaman Sertifikat
+
+Sertifikat bisa punya lebih dari 1 halaman. Halaman pertama tetap di `certificates.image_url` (cover/grid). Halaman tambahan disimpan di tabel `certificate_images`.
+
+### Tabel Baru: `certificate_images`
+
+Jalankan di Supabase SQL Editor:
+
+```sql
+create table public.certificate_images (
+  id              uuid primary key default gen_random_uuid(),
+  certificate_id  uuid not null references public.certificates(id) on delete cascade,
+  image_url       text not null,
+  sort_order      integer default 0,
+  created_at      timestamptz default now()
+);
+
+alter table public.certificate_images enable row level security;
+create policy "public read certificate_images" on public.certificate_images for select using (true);
+```
+
+### Update Whitelist API
+
+```js
+const WHITELIST = [
+  'projects', 'project_images',
+  'designs', 'design_images',
+  'videos', 'skills',
+  'certificates', 'certificate_images'  // tambah ini
+]
+```
+
+### Admin Panel: Section Halaman Tambahan
+
+Di `/admin/certificates/page.js`, setelah form utama sertifikat tersimpan dan punya `id`, tampilkan section **"Halaman Tambahan"** menggunakan `RelatedImages` yang sudah ada (sama persis dengan `design_images` — tanpa caption, hanya gambar + urutan + hapus).
+
+Config RelatedImages:
+```js
+{
+  table: 'certificate_images',
+  foreignKey: 'certificate_id',
+  hasCaption: false,
+  label: 'Halaman Tambahan',
+  addLabel: '+ Tambah Halaman',
+}
+```
+
+> Catatan untuk admin: `image_url` di form utama = halaman 1 (cover).
+> Halaman 2, 3, dst di-upload di section "Halaman Tambahan" di bawahnya.
+> Label ini harus jelas di UI agar tidak bingung.
+
+### Modal Slideshow di Halaman Publik
+
+Di `/certificates` dan section homepage, saat gambar sertifikat diklik:
+
+1. Fetch `certificate_images` berdasarkan `certificate_id`
+2. Gabungkan: `[certificates.image_url, ...certificate_images.image_url]` (urut by sort_order)
+3. Tampilkan sebagai slideshow modal:
+   - Tombol prev/next (atau swipe di mobile)
+   - Indikator halaman: "1 / 3"
+   - Kalau hanya 1 gambar (tidak ada certificate_images), tidak perlu prev/next
+
+```js
+// Contoh logika fetch saat modal dibuka
+async function openModal(cert) {
+  const { data: extraPages } = await supabase
+    .from('certificate_images')
+    .select('image_url')
+    .eq('certificate_id', cert.id)
+    .order('sort_order')
+
+  const allPages = [
+    cert.image_url,
+    ...(extraPages?.map(p => p.image_url) ?? [])
+  ].filter(Boolean)
+
+  setModalImages(allPages)
+  setModalOpen(true)
+}
+```
+
+---
+
+## Update Fitur Certificates — PDF Embed via GDrive
+
+Menggantikan pendekatan slideshow gambar. Sertifikat ditampilkan sebagai embed PDF langsung dari Google Drive di dalam modal.
+
+### Perubahan Pendekatan
+
+| Sebelumnya | Sekarang |
+|------------|----------|
+| Upload gambar per halaman | Upload 1 gambar cover (opsional) + link GDrive PDF |
+| Slideshow gambar | Embed PDF iframe di modal |
+| `certificate_images` dipakai | `certificate_images` tidak dipakai (bisa diabaikan) |
+
+### Flow Admin
+
+```
+1. Upload PDF ke Google Drive → set sharing "Anyone with link can view"
+2. Copy link GDrive
+3. Di /admin/certificates:
+   - Isi title, issuer, date, description
+   - image_url → upload 1 gambar cover/thumbnail (opsional, bisa kosong)
+   - verify_url → paste link GDrive PDF
+   - featured → centang kalau mau tampil di homepage
+```
+
+### Konversi GDrive Link ke Embed URL
+
+Link GDrive biasa tidak bisa langsung di-embed. Perlu dikonversi:
+
+```js
+function getGDriveEmbedUrl(url) {
+  if (!url) return null
+
+  // Format: https://drive.google.com/file/d/FILE_ID/view?usp=sharing
+  const matchFile = url.match(/\/file\/d\/([^/]+)/)
+  if (matchFile) {
+    return `https://drive.google.com/file/d/${matchFile[1]}/preview`
+  }
+
+  // Format: https://drive.google.com/open?id=FILE_ID
+  const matchOpen = url.match(/[?&]id=([^&]+)/)
+  if (matchOpen) {
+    return `https://drive.google.com/file/d/${matchOpen[1]}/preview`
+  }
+
+  // Format: https://storage.googleapis.com/... (link langsung, embed as-is)
+  if (url.includes('storage.googleapis.com')) {
+    return url
+  }
+
+  // Fallback: return as-is (link credential platform lain seperti Myskill, Dicoding)
+  return url
+}
+```
+
+> Link dari platform seperti Myskill (`storage.googleapis.com/...`) bisa langsung
+> dipakai sebagai `src` iframe tanpa konversi.
+
+### Tampilan Card di `/certificates`
+
+```
+┌─────────────────────────────┐
+│  [gambar cover / placeholder]│  ← image_url kalau ada, fallback icon ri-award-fill
+│                             │
+│  Judul Sertifikat           │
+│  Penerbit · Tanggal         │
+│  Deskripsi singkat          │
+│                             │
+│  [View Credential ↗]        │  ← tombol, buka modal
+└─────────────────────────────┘
+```
+
+Kalau `image_url` kosong, tampilkan placeholder card dengan gradient + icon `ri-award-fill` di tengah. Jangan tampilkan gambar broken.
+
+### Modal PDF Embed
+
+Saat tombol "View Credential" diklik:
+
+```
+┌──────────────────────────────────────────────┐
+│  Judul Sertifikat                        [X] │
+│  Penerbit · Tanggal                          │
+├──────────────────────────────────────────────┤
+│                                              │
+│  <iframe                                     │
+│    src={getGDriveEmbedUrl(verify_url)}       │
+│    width="100%"                              │
+│    height="500px"                            │  ← 80vh di desktop
+│    allow="autoplay"                          │
+│  />                                          │
+│                                              │
+│  Tidak bisa load? →                          │
+│  [Buka di tab baru ↗]                        │  ← fallback link
+└──────────────────────────────────────────────┘
+```
+
+- Modal width: max-w-3xl
+- iframe height: 80vh di desktop, 60vh di mobile
+- Selalu sediakan link "Buka di tab baru" sebagai fallback kalau iframe diblokir browser
+- Kalau `verify_url` kosong, tombol "View Credential" tidak ditampilkan di card
+
+### Field Admin — Label yang Diupdate
+
+```js
+const fields = [
+  { key: 'title',       label: 'Judul Sertifikat',                    type: 'text',     required: true },
+  { key: 'issuer',      label: 'Penerbit',                            type: 'text',     required: true },
+  { key: 'issue_date',  label: 'Tanggal Terbit (kosongkan jika tidak ada)', type: 'text' },
+  { key: 'image_url',   label: 'Gambar Cover (opsional)',              type: 'image' },
+  { key: 'verify_url',  label: 'Link PDF / Credential (GDrive, Myskill, Dicoding, dll)', type: 'url' },
+  { key: 'description', label: 'Deskripsi',                           type: 'textarea' },
+  { key: 'featured',    label: 'Featured di Homepage',                 type: 'checkbox' },
+  { key: 'sort_order',  label: 'Urutan',                              type: 'number' },
+]
+```
+
+### Homepage Section Certifications
+
+Sama seperti sebelumnya — tampil card featured saja. Klik "View Credential" buka modal PDF embed. Tombol "Lihat Semua" → `/certificates`.
+
+### Catatan GDrive
+
+- Pastikan file di GDrive di-set **"Anyone with the link can view"** — kalau private, iframe akan tampil error login Google
+- Link dari `storage.googleapis.com` (seperti Myskill) biasanya sudah public dan langsung bisa di-embed
+- Platform lain (Dicoding, MyEduSolve, dll) biasanya punya halaman verifikasi sendiri — `verify_url` bisa diisi link halaman verifikasi tersebut, bukan PDF langsung
+
+---
+
+## Update Fitur Certificates — react-pdf (Ganti iframe GDrive)
+
+Menggantikan pendekatan iframe embed. PDF dirender langsung sebagai canvas menggunakan `react-pdf` — tidak ada watermark, tidak perlu login Google, mobile-friendly.
+
+### Install Dependency
+
+```bash
+npm install react-pdf
+```
+
+`react-pdf` menggunakan `pdfjs-dist` di bawahnya. Perlu setup worker di `next.config.mjs`:
+
+```js
+// next.config.mjs — tambah di dalam config
+const nextConfig = {
+  // ... existing config ...
+  webpack: (config) => {
+    config.resolve.alias.canvas = false
+    return config
+  },
+}
+```
+
+Dan di komponen yang pakai `react-pdf`, set worker URL:
+
+```js
+import { pdfjs } from 'react-pdf'
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`
+```
+
+### Tambah Kolom `credential_id` di Supabase
+
+Jalankan di SQL Editor:
+
+```sql
+alter table public.certificates add column credential_id text;
+```
+
+### Update Field Admin `/admin/certificates`
+
+```js
+const fields = [
+  { key: 'title',         label: 'Judul Sertifikat',                          type: 'text',     required: true },
+  { key: 'issuer',        label: 'Penerbit',                                  type: 'text',     required: true },
+  { key: 'credential_id', label: 'Credential ID (opsional)',                  type: 'text' },
+  { key: 'issue_date',    label: 'Tanggal Terbit (kosongkan jika tidak ada)', type: 'date' },
+  { key: 'verify_url',    label: 'Link PDF Sertifikat (GDrive direct / storage.googleapis.com)', type: 'url' },
+  { key: 'description',   label: 'Deskripsi',                                 type: 'textarea' },
+  { key: 'featured',      label: 'Featured di Homepage',                      type: 'checkbox' },
+  { key: 'sort_order',    label: 'Urutan',                                    type: 'number' },
+]
+```
+
+> `image_url` dihapus dari field — tidak dipakai lagi karena PDF dirender langsung.
+> Card di grid pakai halaman pertama PDF sebagai preview (di-render via react-pdf).
+
+### Card Grid `/certificates`
+
+Setiap card merender **halaman pertama PDF** sebagai preview menggunakan `react-pdf`:
+
+```jsx
+import { Document, Page } from 'react-pdf'
+
+// Di card:
+<Document file={cert.verify_url} loading={<div className="animate-pulse bg-white/5 h-48 rounded-xl" />}>
+  <Page pageNumber={1} width={cardWidth} renderTextLayer={false} renderAnnotationLayer={false} />
+</Document>
+```
+
+- `cardWidth` = lebar card yang dihitung dari ref container (responsive)
+- `renderTextLayer={false}` dan `renderAnnotationLayer={false}` — lebih ringan, cukup visual
+- Loading state: skeleton animate-pulse
+- Error state: fallback placeholder gradient + icon `ri-award-fill`
+
+Layout card:
+```
+┌─────────────────────────────┐
+│  [PDF page 1 — canvas]      │  ← react-pdf render
+│                             │
+├─────────────────────────────┤
+│  Judul Sertifikat           │
+│  Penerbit · Tanggal         │
+│  [View Credential]          │
+└─────────────────────────────┘
+```
+
+### Modal Detail
+
+Saat "View Credential" diklik, modal menampilkan:
+
+```
+┌──────────────────────────────────────────────┐
+│  Judul Sertifikat              [Share] [X]   │
+├──────────────┬───────────────────────────────┤
+│              │  Issuer:      Dicoding         │
+│  [PDF full   │  Credential ID: XXXXX         │
+│   render     │  Credential URL: https://...  │
+│   canvas]    │  Issue Date:  17 Mei 2026     │
+│              │  Description: ...             │
+│  🔍 Tap      ├───────────────────────────────┤
+│  fullscreen  │  [View Credential ↗]          │
+│              │  [Share Link]                 │
+└──────────────┴───────────────────────────────┘
+```
+
+**Desktop:** 2 kolom — kiri PDF, kanan detail info
+**Mobile:** 1 kolom — PDF di atas, detail di bawah (stack)
+
+PDF di modal:
+```jsx
+<Document file={cert.verify_url}>
+  <Page pageNumber={currentPage} width={pdfWidth}
+    renderTextLayer={false} renderAnnotationLayer={false} />
+</Document>
+```
+
+- Kalau PDF multi-halaman, tampilkan navigasi halaman: `< 1 / 3 >`
+- `pdfWidth` = container width (responsive, pakai `useResizeObserver` atau `ResizeObserver`)
+- Klik PDF → fullscreen (buka di tab baru via `verify_url`)
+
+**Tombol Share Link** — copy URL sertifikat ke clipboard:
+```js
+navigator.clipboard.writeText(window.location.origin + '/certificates#' + cert.id)
+```
+
+### Responsivitas Mobile — Aturan Global
+
+> ⚠️ Ini berlaku untuk SELURUH project, bukan hanya certificates.
+
+**Grid:**
+- Default mobile: `grid-cols-1`
+- Tablet (sm): `grid-cols-2`
+- Desktop (lg): `grid-cols-3`
+
+**Modal:**
+- Mobile: full screen (`fixed inset-0`), scroll vertikal
+- Desktop: centered max-w-3xl, max-h-90vh, scroll di dalam
+
+**Video Embed (halaman `/video` dan homepage):**
+
+Ini yang paling krusial di mobile. Iframe video harus responsive:
+
+```jsx
+{/* Wrapper dengan aspect ratio — WAJIB untuk semua video embed */}
+<div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+  <iframe
+    src={embedUrl}
+    className="absolute inset-0 w-full h-full"
+    allowFullScreen
+    allow="autoplay; encrypted-media"
+  />
+</div>
+```
+
+`paddingBottom: '56.25%'` = rasio 16:9. Jangan pakai `height` fixed (mis. `height="500px"`) untuk video — akan overflow di mobile.
+
+Terapkan wrapper ini di:
+- `video/page.js` — modal video embed
+- `page.js` (homepage) — modal video di section Video Works
+- `certificates/page.js` — PDF embed di modal (pakai `paddingBottom: '141.4%'` untuk rasio A4)
+
+**Navbar/Dynamic Island:**
+- Mobile: pastikan touch target minimal 44x44px
+- Jangan ada elemen yang overflow horizontal di mobile (`overflow-x: hidden` di root)
+
+**Text sizing mobile:**
+- Hero h1: `text-4xl md:text-6xl` (bukan fixed text-6xl)
+- Section title: `text-2xl md:text-3xl`
+- Card title: `text-base md:text-lg`
+
+**PDF Modal di Mobile:**
+- Full screen (`fixed inset-0`)
+- PDF di atas (60vh), detail info di bawah (scroll)
+- Tombol close fixed di pojok kanan atas
+- `pdfWidth` = `window.innerWidth` di mobile
+
+### Cara Dapat Link PDF yang Bisa Di-render react-pdf
+
+`react-pdf` memerlukan URL PDF yang:
+1. Bisa diakses publik (tidak perlu login)
+2. Punya CORS header yang mengizinkan domain kamu
+
+**Yang work:**
+- `storage.googleapis.com/...` (Myskill, platform Google) — ✅ langsung
+- GDrive direct download: `https://drive.google.com/uc?export=download&id=FILE_ID` — ✅
+- Link hosting publik lain (S3, Supabase Storage) — ✅
+
+**Yang tidak work:**
+- Link GDrive biasa (`/file/d/.../view`) — ❌ CORS blocked
+- Link platform yang butuh login — ❌
+
+**Konversi GDrive link:**
+```js
+function getDirectPdfUrl(url) {
+  // https://drive.google.com/file/d/FILE_ID/view → direct download
+  const match = url.match(/\/file\/d\/([^/]+)/)
+  if (match) return `https://drive.google.com/uc?export=download&id=${match[1]}`
+  return url
+}
+```
+
+> Catatan: GDrive direct download kadang kena "virus scan" redirect untuk file besar.
+> Alternatif terbaik: upload PDF ke **Supabase Storage** bucket `certificates` (public),
+> pakai URL langsung dari sana — zero CORS issue karena domain sendiri.
+
+### Storage Bucket Tambahan (Opsional tapi Recommended)
+
+Buat bucket baru di Supabase Storage:
+- Bucket name: `certificates`
+- Public: ✅
+- Allowed MIME: `application/pdf`
+
+Upload PDF sertifikat ke sini → dapat URL langsung yang work sempurna dengan react-pdf tanpa CORS issue.
+
+Update `api/upload/route.js` untuk support upload ke bucket selain `thumbnails`:
+
+```js
+// Tambah param bucket di FormData
+const bucket = form.get('bucket') ?? 'thumbnails'
+const ALLOWED_BUCKETS = ['thumbnails', 'certificates']
+if (!ALLOWED_BUCKETS.includes(bucket)) {
+  return NextResponse.json({ error: 'Invalid bucket' }, { status: 400 })
+}
+
+const { error } = await supabaseAdmin.storage
+  .from(bucket)
+  .upload(filename, file, { contentType: file.type, upsert: false })
+```
+
+Di admin certificates, field `verify_url` bisa diisi manual (paste URL) atau upload PDF langsung ke bucket `certificates`.
