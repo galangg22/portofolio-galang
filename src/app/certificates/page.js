@@ -46,13 +46,11 @@ export default function CertificatesPage() {
       <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
         {certs.map((cert) => (
           <div key={cert.id} id={cert.id} className="group bg-card-bg border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all flex flex-col">
-            <div className="relative w-full aspect-[4/3] bg-black overflow-hidden">
-              {cert.verify_url ? (
+            <div className="relative w-full aspect-[4/3] bg-gradient-to-br from-primary/40 to-accent/30 flex items-center justify-center overflow-hidden">
+              {cert.verify_url?.endsWith('.pdf') ? (
                 <PdfThumbnail url={cert.verify_url} width={600} className="object-cover" />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-primary/40 to-accent/30 flex items-center justify-center">
-                  <i className="ri-award-fill text-6xl text-white/40"></i>
-                </div>
+                <i className="ri-award-fill text-6xl text-white/40"></i>
               )}
             </div>
             <div className="p-6 flex flex-col flex-1">
@@ -81,7 +79,13 @@ export default function CertificatesPage() {
             <div className="bg-white/5">
               <div className="relative w-full" style={{ paddingBottom: "141.4%" }}>
                 <div className="absolute inset-0 overflow-y-auto">
-                  <PdfThumbnail url={modal.verify_url} width={900} />
+                  {modal.verify_url?.endsWith('.pdf') ? (
+                    <PdfThumbnail url={modal.verify_url} width={900} />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-primary/40 to-accent/30 flex items-center justify-center">
+                      <i className="ri-award-fill text-8xl text-white/40"></i>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

@@ -15,9 +15,10 @@ export default function AdminCertificates() {
         { key: 'issue_date', label: 'Tanggal Terbit (kosongkan jika tidak ada)', type: 'date' },
         { key: 'verify_url', label: 'Link PDF', type: 'pdf' },
         { key: 'description', label: 'Deskripsi', type: 'textarea' },
-        { key: 'featured', label: 'Featured', type: 'checkbox' },
-        { key: 'sort_order', label: 'Urutan', type: 'number' },
+        { key: 'featured', label: 'Featured di Homepage (Max 3)', type: 'checkbox' },
+        { key: 'sort_order', label: 'Urutan Featured (0-2, hanya jika Featured dicentang)', type: 'number' },
       ]}
+      helpText="Centang Featured dan atur sort_order (0, 1, atau 2) untuk menampilkan di homepage. Max 3 sertifikat."
     />
   );
 }

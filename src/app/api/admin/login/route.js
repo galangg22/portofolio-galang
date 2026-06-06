@@ -1,13 +1,32 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
-// Rate limit sederhana in-memory: max 5 percobaan gagal per IP / 15 menit.
-// Cukup untuk single-instance; untuk multi-instance gunakan store eksternal (mis. Upstash).
+// ✅ OPTIMASI #2: Rate limiter dengan auto-cleanup stale entries.
+// ⚠️ CATATAN: In-memory Map hanya andal di single-instance (e.g. Node/VPS).
+// Di serverless (Vercel/Lambda), setiap cold start membuat Map baru.
+// Untuk produksi multi-instance, ganti dengan Upstash Redis:
+//   import { Ratelimit } from '@upstash/ratelimit';
+//   import { Redis } from '@upstash/redis';
+//   const ratelimit = new Ratelimit({ redis: Redis.fromEnv(), limiter: Ratelimit.slidingWindow(5, '15 m') });
+
 const WINDOW_MS = 15 * 60 * 1000;
 const MAX_ATTEMPTS = 5;
+const CLEANUP_INTERVAL_MS = 5 * 60 * 1000; // Bersihkan entri kedaluwarsa tiap 5 menit.
 const attempts = new Map(); // ip -> { count, resetAt }
 
+// Periodic cleanup agar Map tidak membengkak tanpa batas (memory leak prevention).
+let lastCleanup = Date.now();
+function cleanupStale() {
+  const now = Date.now();
+  if (now - lastCleanup < CLEANUP_INTERVAL_MS) return;
+  lastCleanup = now;
+  for (const [ip, rec] of attempts) {
+    if (now > rec.resetAt) attempts.delete(ip);
+  }
+}
+
 function checkLimit(ip) {
+  cleanupStale();
   const now = Date.now();
   const rec = attempts.get(ip);
   if (!rec || now > rec.resetAt) {

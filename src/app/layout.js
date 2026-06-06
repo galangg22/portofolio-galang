@@ -59,10 +59,11 @@ export default function RootLayout({ children }) {
         <link rel="manifest" href="/manifest.json" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        {/* Remixicon Font Library */}
+        {/* Remixicon Icon Library — fetchPriority low agar tidak memblokir LCP */}
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.1.0/remixicon.min.css"
+          fetchPriority="low"
         />
       </head>
       <body className="min-h-full flex flex-col">

@@ -108,7 +108,8 @@ function RelatedImages({ table, fk, parentId, hasCaption }) {
 //   type: text | textarea | select | checkbox | url | number | tags | image
 // columns: array key field yang ditampilkan di list (default: ['title']).
 // relatedImages (opsional): { table, fk, hasCaption?, showWhen?(form)->bool }
-export default function CrudManager({ table, title, fields, columns = ['title'], relatedImages }) {
+// helpText (opsional): teks bantuan di atas form
+export default function CrudManager({ table, title, fields, columns = ['title'], relatedImages, helpText }) {
   const [rows, setRows] = useState([]);
   const [form, setForm] = useState({});
   const [editingId, setEditingId] = useState(null);
@@ -178,6 +179,12 @@ export default function CrudManager({ table, title, fields, columns = ['title'],
       <div className="max-w-4xl mx-auto">
         <a href="/admin" className="text-accent text-sm mb-6 inline-block">← Dashboard</a>
         <h1 className="text-3xl font-bold mb-8">{title}</h1>
+
+        {helpText && (
+          <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 mb-6">
+            <p className="text-sm text-blue-300">{helpText}</p>
+          </div>
+        )}
 
         <form onSubmit={save} className="bg-card-bg border border-white/10 rounded-2xl p-6 mb-8 space-y-4">
           {visibleFields.map((f) => (

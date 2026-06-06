@@ -21,3 +21,4 @@ export async function GET() {
     return NextResponse.redirect(new URL('/cv-galang.pdf', process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'));
   }
 }
+

@@ -58,7 +58,7 @@ export default function VideoGallery() {
               className="group relative rounded-2xl overflow-hidden bg-[#111] border border-white/10 cursor-pointer">
               <div className="relative aspect-video bg-black">
                 {v.thumbnail_url && (
-                  <Image src={v.thumbnail_url} alt={v.title} fill sizes="33vw" className="object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                  <Image src={v.thumbnail_url} alt={v.title} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
                 )}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-14 h-14 rounded-full bg-accent/90 flex items-center justify-center">
