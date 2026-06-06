@@ -509,15 +509,33 @@ export default function Home() {
             <p className="text-gray-400 text-sm mb-8 leading-relaxed">Curriculum Vitae Galang Arrauf Pramudito dalam format PDF.</p>
 
             <div className="flex flex-col gap-3">
-              <a
-                href="/cv"
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => {
+                  // Tutup modal CV dan buka modal preview
+                  setIsCvModalOpen(false);
+                  // Buat modal preview baru
+                  const previewModal = document.createElement('div');
+                  previewModal.className = 'fixed inset-0 z-[10002] flex items-center justify-center p-4';
+                  previewModal.innerHTML = `
+                    <div class="absolute inset-0 bg-black/95 backdrop-blur-xl"></div>
+                    <div class="relative w-full max-w-4xl h-[90vh] bg-card-bg border border-white/10 rounded-2xl overflow-hidden flex flex-col">
+                      <div class="p-4 border-b border-white/10 flex justify-between items-center bg-black/50">
+                        <h3 class="text-white font-bold">CV - Galang Arrauf Pramudito</h3>
+                        <button onclick="this.closest('.fixed').remove()" class="w-9 h-9 bg-white/10 hover:bg-red-500 text-white rounded-full flex items-center justify-center transition-all">
+                          <i class="ri-close-line text-xl"></i>
+                        </button>
+                      </div>
+                      <iframe src="/api/cv" class="w-full flex-1 border-0"></iframe>
+                    </div>
+                  `;
+                  document.body.appendChild(previewModal);
+                  previewModal.querySelector('.absolute').addEventListener('click', () => previewModal.remove());
+                }}
                 className="w-full py-4 bg-accent text-bg-dark font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-transform text-xs inline-flex items-center justify-center gap-2"
               >
                 <i className="ri-eye-line text-base"></i>
                 Preview CV
-              </a>
+              </button>
               <a
                 href="/api/cv"
                 download="CV_Galang_Arrauf_Pramudito.pdf"
