@@ -6,7 +6,6 @@ import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { supabase } from "@/lib/supabase";
-import PdfThumbnail from "@/app/components/PdfThumbnail";
 
 // ==========================================
 // 📂 DATA SECTION (Database Proyek Kamu)
@@ -45,69 +44,51 @@ const SKILLS_DATA = [
 const DEV_PROJECTS = [
   {
     title: "Bot WA Reminder Absensi",
-    type: "bot",
     image: null,
     gradient: "from-emerald-900 via-green-800 to-teal-900",
     icon: "ri-whatsapp-line",
     tags: ["Node.js", "Baileys API", "Automation"],
     desc: "Sistem automasi backend untuk memonitor jadwal dan mengirimkan pengingat absensi secara otomatis via WhatsApp.",
-    github_url: "https://github.com/galangg22/bot-presensi",
+    link: "https://github.com/galangpramudito/bot-presensi",
+    actionText: "GitHub Repo",
+    actionIcon: "ri-github-fill"
   },
   {
     title: "Sistem Web TPQ Al-Hikmah",
-    type: "web",
     image: null,
     gradient: "from-blue-900 via-indigo-800 to-purple-900",
     icon: "ri-graduation-cap-line",
     tags: ["Web Dev", "HTML", "CSS"],
     desc: "Platform sistem informasi manajemen untuk digitalisasi administrasi santri dan guru di TPQ Al-Hikmah.",
-    github_url: "https://github.com/galangg22/alhikmah",
+    link: "https://github.com/galangpramudito/alhikmah",
+    actionText: "GitHub Repo",
+    actionIcon: "ri-github-fill"
   },
   {
     title: "ThriftyFinds E-Commerce",
-    type: "web",
     image: "/image/TOKO TUNAI BGDARK mockup fix.png",
     gradient: null,
     icon: null,
     tags: ["React/Next.js", "Tailwind", "E-Commerce"],
     desc: "Katalog e-commerce modern untuk produk thrifting dengan UI/UX intuitif dan performa pencarian cepat.",
-    demo_url: "https://github.com/galangg22/thriftyfinds",
+    link: "https://github.com/galangpramudito/thriftyfinds",
+    actionText: "Live Demo",
+    actionIcon: "ri-external-link-line"
   },
   {
     title: "HeartHorizon / Online Class",
-    type: "web",
     image: "/image/Photo by Pankaj Patel on Unsplash.jpg",
     gradient: null,
     icon: null,
     tags: ["LMS", "Fullstack", "Database"],
     desc: "Aplikasi e-learning interaktif untuk manajemen materi kelas online, penugasan, dan interaksi pembelajaran.",
-    github_url: "https://github.com/galangg22/hearthorizon",
+    link: "https://github.com/galangpramudito/hearthorizon",
+    actionText: "GitHub Repo",
+    actionIcon: "ri-github-fill"
   }
 ];
 
-// Tombol aksi project berdasarkan tipe.
-const projectActions = (p) => {
-  const btn = [];
-  if (p.type === "android") {
-    if (p.play_store_url) btn.push({ link: p.play_store_url, text: "Play Store", icon: "ri-google-play-fill" });
-    if (p.apk_url) btn.push({ link: p.apk_url, text: "Download APK", icon: "ri-download-2-line" });
-    if (p.github_url) btn.push({ link: p.github_url, text: "GitHub", icon: "ri-github-fill" });
-  } else if (p.type === "bot") {
-    if (p.github_url) btn.push({ link: p.github_url, text: "GitHub", icon: "ri-github-fill" });
-  } else {
-    if (p.demo_url) btn.push({ link: p.demo_url, text: "Live Demo", icon: "ri-external-link-line" });
-    if (p.github_url) btn.push({ link: p.github_url, text: "GitHub", icon: "ri-github-fill" });
-  }
-  return btn;
-};
-
-const PROJECT_GROUPS = [
-  { type: "web", label: "Web & Fullstack" },
-  { type: "bot", label: "Bot & Automation" },
-  { type: "android", label: "Android Apps" },
-];
-
-// Fallback Visual Works (dipakai bila Supabase off).
+// Cuma ambil 2 untuk showcase di Home
 const FEATURED_CREATIVE = [
   {
     id: 1,
@@ -138,15 +119,6 @@ const navItems = [
   { id: "contact", label: "Contact", svg: <svg className="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg> }
 ];
 
-// Social links: ambil dari env, fallback ke default, dan pastikan ada protokol.
-const withHttps = (url) => (url && !/^https?:\/\//.test(url) ? `https://${url}` : url);
-
-const SOCIAL = {
-  github: withHttps(process.env.NEXT_PUBLIC_GITHUB_URL || "https://github.com/galangg22"),
-  linkedin: withHttps(process.env.NEXT_PUBLIC_LINKEDIN_URL || "https://www.linkedin.com/in/galang-pramudito/"),
-  email: process.env.NEXT_PUBLIC_EMAIL || "galangarrauf22@gmail.com",
-};
-
 export default function Home() {
   const [activeSection, setActiveSection] = useState("home");
   const [isIslandHovered, setIsIslandHovered] = useState(false);
@@ -154,13 +126,6 @@ export default function Home() {
   const [isCvModalOpen, setIsCvModalOpen] = useState(false); // 👈 TAMBAHKAN INI
   const [skills, setSkills] = useState(SKILLS_DATA);
   const [projects, setProjects] = useState(DEV_PROJECTS);
-  const [projectImages, setProjectImages] = useState({}); // project_id -> [images]
-  const [featuredDesigns, setFeaturedDesigns] = useState([]);
-  const [featuredVideos, setFeaturedVideos] = useState([]);
-  const [featuredCerts, setFeaturedCerts] = useState([]);
-  const [certModal, setCertModal] = useState(null); // cert object
-  const [lightbox, setLightbox] = useState(null); // { images, index }
-  const [loading, setLoading] = useState(!!supabase); // skeleton saat Supabase aktif & belum hydrate
   const mainRef = useRef(null);
 
   // Hydrate dari Supabase bila aktif; jika kosong/gagal, tetap pakai data statis.
@@ -173,40 +138,25 @@ export default function Home() {
       .from("projects")
       .select("*")
       .neq("status", "private")
+      .order("featured", { ascending: false })
       .order("sort_order")
-      .order("created_at", { ascending: false })
-      .then(async ({ data }) => {
-        if (!data || !data.length) return;
-        setProjects(data.map((p) => ({
-          ...p,
-          image: p.thumbnail_url || null,
-          gradient: p.thumbnail_url ? null : "from-emerald-900 via-green-800 to-teal-900",
-          icon: p.thumbnail_url ? null : "ri-code-s-slash-line",
-          tags: p.tags || [],
-          desc: p.description,
-        })));
-        const androidIds = data.filter((p) => p.type === "android").map((p) => p.id);
-        if (androidIds.length) {
-          const { data: imgs } = await supabase
-            .from("project_images").select("*").in("project_id", androidIds).order("sort_order");
-          if (imgs) {
-            setProjectImages(imgs.reduce((acc, im) => {
-              (acc[im.project_id] ||= []).push(im);
-              return acc;
-            }, {}));
-          }
+      .then(({ data }) => {
+        if (data && data.length) {
+          setProjects(
+            data.map((p) => ({
+              title: p.title,
+              image: p.thumbnail_url || null,
+              gradient: p.thumbnail_url ? null : "from-emerald-900 via-green-800 to-teal-900",
+              icon: p.thumbnail_url ? null : "ri-code-s-slash-line",
+              tags: p.tags || [],
+              desc: p.description,
+              link: p.demo_url || p.github_url || "#",
+              actionText: p.demo_url ? "Live Demo" : "GitHub Repo",
+              actionIcon: p.demo_url ? "ri-external-link-line" : "ri-github-fill",
+            }))
+          );
         }
-      })
-      .finally(() => setLoading(false));
-    supabase.from("designs").select("*").eq("featured", true)
-      .order("sort_order").order("created_at", { ascending: false })
-      .then(({ data }) => { if (data && data.length) setFeaturedDesigns(data); });
-    supabase.from("videos").select("*").eq("featured", true)
-      .order("sort_order").order("created_at", { ascending: false })
-      .then(({ data }) => { if (data && data.length) setFeaturedVideos(data); });
-    supabase.from("certificates").select("*").eq("featured", true)
-      .order("sort_order").order("created_at", { ascending: false })
-      .then(({ data }) => setFeaturedCerts(data ?? []));
+      });
   }, []);
 
 
@@ -214,13 +164,13 @@ export default function Home() {
     gsap.registerPlugin(ScrollTrigger);
 
     let ctx = gsap.context(() => {
-      gsap.from(".hero-text", { y: 30, opacity: 0, duration: 0.6, stagger: 0.08, ease: "power2.out", delay: 0.15 });
+      gsap.from(".hero-text", { y: 50, opacity: 0, duration: 1.2, stagger: 0.2, ease: "power4.out", delay: 0.2 });
 
       gsap.utils.toArray("section").forEach((section) => {
         const title = section.querySelector(".section-title");
         if (title) {
           gsap.from(title, {
-            opacity: 0, x: -30, duration: 0.6, ease: "power2.out",
+            opacity: 0, x: -50, duration: 0.8, ease: "power3.out",
             scrollTrigger: { trigger: section, start: "top 80%" }
           });
         }
@@ -228,7 +178,7 @@ export default function Home() {
 
       gsap.utils.toArray(".bento-card, .project-card, .creative-card").forEach((el) => {
         gsap.from(el, {
-          opacity: 0, y: 30, duration: 0.6, ease: "power2.out",
+          opacity: 0, y: 50, scale: 0.95, duration: 0.7, ease: "back.out(1.2)",
           scrollTrigger: { trigger: el, start: "top 85%" },
         });
       });
@@ -261,20 +211,6 @@ export default function Home() {
     setIsIslandHovered(false); 
   };
 
-  // Visual Works: gabungan featured designs + videos dari Supabase, fallback ke statis.
-  const visualWorks = (featuredDesigns.length || featuredVideos.length)
-    ? [
-        ...featuredDesigns.map((d) => ({
-          id: `d-${d.id}`, title: d.title, category: "Design",
-          image: d.cover_image_url, desc: d.description, type: "image",
-        })),
-        ...featuredVideos.map((v) => ({
-          id: `v-${v.id}`, title: v.title, category: "Video",
-          image: v.thumbnail_url, desc: v.description, type: "video", videoUrl: v.video_url,
-        })),
-      ]
-    : FEATURED_CREATIVE;
-
   return (
     
     <main ref={mainRef} className="bg-bg-dark selection:bg-accent selection:text-bg-dark relative overflow-x-hidden">
@@ -299,7 +235,7 @@ export default function Home() {
         >
           {/* STATE 1: COLLAPSED */}
           <div className={`absolute flex items-center justify-center gap-2 transition-all duration-300 w-full h-full ${isIslandHovered ? 'opacity-0 scale-75 pointer-events-none' : 'opacity-100 scale-100 delay-150'}`}>
-            <span className="w-1.5 h-1.5 rounded-full bg-accent shadow-[0_0_8px_rgba(139,92,246,0.8)] animate-pulse"></span>
+            <span className="w-1.5 h-1.5 rounded-full bg-accent shadow-[0_0_8px_rgba(79,255,163,0.8)] animate-pulse"></span>
             <span className="text-white text-[10px] font-bold tracking-[0.2em] uppercase">Menu</span>
           </div>
 
@@ -327,14 +263,11 @@ export default function Home() {
           <div className="hero-text inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-accent text-sm font-semibold mb-8 backdrop-blur-sm">
             <span className="w-2 h-2 rounded-full bg-accent animate-ping"></span> Sidoarjo, Indonesia
           </div>
-          <h1 className="hero-text font-display text-4xl md:text-6xl font-normal tracking-tight mb-6 leading-tight">
+          <h1 className="hero-text text-5xl md:text-8xl font-extrabold tracking-tighter mb-6 leading-tight">
             Galang <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-400 to-accent text-glow">Arrauf</span>
           </h1>
-          <p className="hero-text text-xl md:text-2xl text-gray-300 font-light mb-4 max-w-2xl mx-auto leading-relaxed">
-            Saya membangun sistem backend yang reliable dan antarmuka yang intuitif — dari <span className="text-white">WhatsApp automation</span> hingga <span className="text-white">full-stack web apps</span>.
-          </p>
-          <p className="hero-text text-sm text-gray-500 mb-10">
-            Backend Developer & Creative Enthusiast · Mahasiswa D3 Teknik Informatika, PENS
+          <p className="hero-text text-xl md:text-2xl text-gray-400 font-light mb-10 max-w-2xl mx-auto">
+            Backend Developer & <span className="text-white">Creative Enthusiast</span>. Mahasiswa D3 Teknik Informatika A, PENS.
           </p>
           <div className="hero-text flex flex-wrap justify-center gap-4">
             <a href="#projects" onClick={(e) => scrollToSection(e, "projects")} className="px-8 py-4 bg-white text-bg-dark font-bold rounded-full hover:scale-105 transition-transform shadow-[0_0_30px_rgba(255,255,255,0.1)]">View Work</a>
@@ -356,7 +289,7 @@ export default function Home() {
             </div>
           </div>
           <div className="lg:col-span-7">
-            <h2 className="section-title font-display text-2xl md:text-3xl font-normal mb-6 tracking-tight">Membangun Logika,<br/><span className="text-gray-500">Menciptakan Visual.</span></h2>
+            <h2 className="section-title text-4xl md:text-5xl font-bold mb-6 tracking-tight">Membangun Logika,<br/><span className="text-gray-500">Menciptakan Visual.</span></h2>
             <p className="text-lg text-gray-300 mb-8 leading-relaxed">
               Fokus utama saya adalah <span className="text-accent font-semibold">IT Automation & Backend Arsitektur</span>. Dengan pengalaman di bidang desain dan video editing, saya membangun produk yang fungsional secara logika dan menarik secara visual.
             </p>
@@ -377,7 +310,7 @@ export default function Home() {
       {/* SKILLS */}
       <section id="skills" className="py-24 px-6 bg-black/20">
         <div className="max-w-5xl mx-auto">
-          <h2 className="section-title font-display text-2xl md:text-3xl font-normal mb-12 tracking-tight">Tech Arsenal</h2>
+          <h2 className="section-title text-4xl font-bold mb-12 uppercase tracking-tighter">Tech Arsenal</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {skills.map((skill, idx) => (
               <div key={idx} className={`bento-card group rounded-3xl bg-card-bg border border-white/10 p-8 transition-all hover:border-white/20 ${skill.span}`}>
@@ -395,112 +328,66 @@ export default function Home() {
       {/* PROJECTS DEVELOPMENT */}
       <section id="projects" className="py-24 px-6">
         <div className="max-w-5xl mx-auto">
-          <h2 className="section-title font-display text-2xl md:text-3xl font-normal mb-12 tracking-tight">Featured Development</h2>
-
-          {loading ? (
-            <div className="grid md:grid-cols-2 gap-8 mb-20">
-              {[0, 1, 2, 3].map((i) => (
-                <div key={i} className="rounded-3xl border border-white/10 bg-card-bg overflow-hidden animate-pulse">
-                  <div className="h-56 bg-white/5"></div>
-                  <div className="p-8 space-y-4">
-                    <div className="h-6 w-2/3 bg-white/10 rounded"></div>
-                    <div className="h-4 w-full bg-white/5 rounded"></div>
-                    <div className="h-4 w-4/5 bg-white/5 rounded"></div>
-                    <div className="h-10 w-32 bg-white/5 rounded-xl"></div>
+          <h2 className="section-title text-4xl font-bold mb-12 uppercase tracking-tighter">Featured Development</h2>
+          <div className="grid md:grid-cols-2 gap-8 mb-24">
+            {projects.map((project, idx) => (
+              <div key={idx} className="project-card group bg-card-bg rounded-3xl overflow-hidden border border-white/10 flex flex-col transition-all duration-500 shadow-xl card-hover-border">
+                <div className="relative h-56">
+                  {project.image ? (
+                    <Image src={project.image} alt={project.title} fill sizes="50vw" className="object-cover" />
+                  ) : (
+                    <div className={`w-full h-full bg-gradient-to-br ${project.gradient} flex items-center justify-center`}>
+                      <i className={`${project.icon} text-6xl text-white/30`}></i>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-bg-dark/90 to-transparent"></div>
+                  <div className="absolute top-4 left-4 flex gap-2">
+                    {project.tags.map(tag => <span key={tag} className="px-3 py-1 bg-black/70 backdrop-blur-md border border-white/10 rounded-full text-[10px] text-white font-bold uppercase">{tag}</span>)}
                   </div>
                 </div>
-              ))}
-            </div>
-          ) : PROJECT_GROUPS.map((group) => {
-            const items = projects.filter((p) => (p.type || "web") === group.type);
-            if (!items.length) return null;
-            return (
-              <div key={group.type} className="mb-20">
-                <h3 className="text-sm font-bold uppercase tracking-[0.3em] text-accent mb-8">{group.label}</h3>
-                <div className="grid md:grid-cols-2 gap-8">
-                  {items.map((project, idx) => {
-                    const shots = projectImages[project.id] || [];
-                    return (
-                      <div key={project.id || idx} className="project-card group bg-card-bg rounded-3xl overflow-hidden border border-white/10 flex flex-col transition-all duration-500 shadow-xl card-hover-border">
-                        <div className="relative h-56">
-                          {project.image ? (
-                            <Image src={project.image} alt={project.title} fill sizes="50vw" className="object-cover" />
-                          ) : (
-                            <div className={`w-full h-full bg-gradient-to-br ${project.gradient} flex items-center justify-center`}>
-                              <i className={`${project.icon} text-6xl text-white/30`}></i>
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-bg-dark/90 to-transparent"></div>
-                          <div className="absolute top-4 left-4 flex gap-2 flex-wrap">
-                            {project.tags.map(tag => <span key={tag} className="px-3 py-1 bg-black/70 backdrop-blur-md border border-white/10 rounded-full text-[10px] text-white font-bold uppercase">{tag}</span>)}
-                          </div>
-                        </div>
-                        <div className="p-8 flex flex-col flex-1">
-                          <h3 className="text-2xl font-bold mb-3 text-white">{project.title}</h3>
-                          <p className="text-gray-400 text-sm mb-6 flex-1 leading-relaxed">{project.desc}</p>
-
-                          {/* Android screenshots */}
-                          {project.type === "android" && shots.length > 0 && (
-                            <div className="flex gap-3 overflow-x-auto pb-4 mb-6 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                              {shots.map((s, i) => (
-                                <button key={s.id} onClick={() => setLightbox({ images: shots, index: i })}
-                                  className="relative shrink-0 snap-start w-28 sm:w-32 h-56 sm:h-64 rounded-xl overflow-hidden border border-white/10 bg-black/40">
-                                  <Image src={s.image_url} alt={s.caption || project.title} fill sizes="(max-width:640px) 112px, 128px" className="object-contain" />
-                                </button>
-                              ))}
-                            </div>
-                          )}
-
-                          <div className="flex flex-wrap gap-3">
-                            {projectActions(project).map((a) => (
-                              <a key={a.text} href={a.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 text-white font-bold text-sm bg-white/5 w-fit px-6 py-3 rounded-xl active:scale-95 transition-all btn-hover">
-                                <i className={a.icon + " text-xl"}></i> {a.text}
-                              </a>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div className="p-8 flex flex-col flex-1">
+                  <h3 className="text-2xl font-bold mb-3 text-white">{project.title}</h3>
+                  <p className="text-gray-400 text-sm mb-8 flex-1 leading-relaxed">{project.desc}</p>
+                  <a href={project.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 text-white font-bold text-sm bg-white/5 w-fit px-6 py-3 rounded-xl active:scale-95 transition-all btn-hover">
+                    <i className={project.actionIcon + " text-xl"}></i> {project.actionText}
+                  </a>
                 </div>
               </div>
-            );
-          })}
+            ))}
+          </div>
 
-          {/* CREATIVE SHOWCASE LITE */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6 mt-4">
+          {/* CREATIVE SHOWCASE LITE (ONLY 2 ITEMS) */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
             <div>
-              <h2 className="section-title font-display text-2xl md:text-3xl font-normal mb-3 tracking-tight">Visual Works</h2>
+              <h2 className="section-title text-4xl font-bold mb-3 uppercase tracking-tighter">Visual Works</h2>
               <p className="text-gray-400 text-sm max-w-md">Hanya cuplikan kecil. Lihat koleksi lengkap desain & video di galeri.</p>
             </div>
-            <div className="flex gap-3">
-              <Link href="/design" className="px-6 py-3 bg-accent text-white font-black uppercase text-xs tracking-widest rounded-xl hover:scale-105 transition-transform flex items-center gap-2 shadow-lg shadow-accent/20">
-                 Design <i className="ri-arrow-right-line"></i>
-              </Link>
-              <Link href="/video" className="px-6 py-3 border border-white/20 text-white font-black uppercase text-xs tracking-widest rounded-xl hover:bg-white/10 transition-colors flex items-center gap-2">
-                 Video <i className="ri-arrow-right-line"></i>
-              </Link>
-            </div>
+            <Link href="/design" className="px-6 py-3 bg-accent text-bg-dark font-black uppercase text-xs tracking-widest rounded-xl hover:scale-105 transition-transform flex items-center gap-2 shadow-lg shadow-accent/20">
+               Full Gallery <i className="ri-arrow-right-line"></i>
+            </Link>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {visualWorks.map((item) => (
+            {FEATURED_CREATIVE.map((item) => (
               <div 
                 key={item.id} 
                 onClick={() => item.type === "video" ? setSelectedVideo(item.videoUrl) : null}
                 className={`creative-card relative aspect-[4/5] rounded-3xl overflow-hidden border border-white/10 shadow-2xl ${item.type === "video" ? "cursor-pointer" : ""}`}
               >
-                {item.image && <Image src={item.image} alt={item.title} fill sizes="50vw" className="object-cover" />}
+                {/* Gambar selalu full warna, tanpa efek grayscale/scale hover */}
+                <Image src={item.image} alt={item.title} fill sizes="50vw" className="object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"></div>
                 
+                {/* Tombol play selalu terlihat di video (bukan hanya saat hover) */}
                 {item.type === "video" && (
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-16 h-16 rounded-full bg-accent/90 flex items-center justify-center shadow-[0_0_20px_rgba(139,92,246,0.5)] active:scale-90 transition-transform">
-                      <i className="ri-play-fill text-white text-3xl ml-1"></i>
+                    <div className="w-16 h-16 rounded-full bg-accent/90 flex items-center justify-center shadow-[0_0_20px_rgba(79,255,163,0.5)] active:scale-90 transition-transform">
+                      <i className="ri-play-fill text-bg-dark text-3xl ml-1"></i>
                     </div>
                   </div>
                 )}
 
+                {/* Teks info selalu tampil (tidak butuh hover) */}
                 <div className="absolute bottom-0 p-6">
                   <span className="text-[10px] font-bold text-accent uppercase tracking-widest mb-2 block">{item.category}</span>
                   <h4 className="text-white font-bold text-lg mb-1">{item.title}</h4>
@@ -511,35 +398,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* 📸 SCREENSHOT LIGHTBOX 📸 */}
-      {lightbox && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-10">
-          <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" onClick={() => setLightbox(null)}></div>
-          <button onClick={() => setLightbox(null)} className="fixed top-4 right-4 w-10 h-10 bg-white/10 hover:bg-red-500 text-white rounded-full flex items-center justify-center z-[10001] transition-all active:scale-90">
-            <i className="ri-close-line text-2xl"></i>
-          </button>
-          <button onClick={() => setLightbox((l) => ({ ...l, index: (l.index - 1 + l.images.length) % l.images.length }))}
-            className="fixed left-4 w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center z-[10001]">
-            <i className="ri-arrow-left-s-line text-2xl"></i>
-          </button>
-          <button onClick={() => setLightbox((l) => ({ ...l, index: (l.index + 1) % l.images.length }))}
-            className="fixed right-4 w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center z-[10001]">
-            <i className="ri-arrow-right-s-line text-2xl"></i>
-          </button>
-          <div className="relative z-[10000] max-w-4xl w-full text-center">
-            <div className="relative w-full h-[70vh] mx-auto">
-              <Image src={lightbox.images[lightbox.index].image_url} alt={lightbox.images[lightbox.index].caption || ""} fill sizes="(max-width:768px) 100vw, 80vw" className="object-contain" />
-            </div>
-            {lightbox.images[lightbox.index].caption && (
-              <h4 className="text-white font-bold text-lg mt-4">{lightbox.images[lightbox.index].caption}</h4>
-            )}
-            {lightbox.images[lightbox.index].description && (
-              <p className="text-gray-400 text-sm mt-1">{lightbox.images[lightbox.index].description}</p>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* 🎬 VIDEO MODAL OVERLAY 🎬 */}
       {selectedVideo && (
@@ -562,98 +420,20 @@ export default function Home() {
         </div>
       )}
 
-      {/* CERTIFICATIONS */}
-      {featuredCerts.length > 0 && (
-        <section id="certifications" className="py-24 px-6 relative z-10">
-          <div className="max-w-5xl mx-auto">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
-              <div>
-                <h2 className="section-title font-display text-2xl md:text-3xl font-normal mb-3 tracking-tight">Certifications</h2>
-                <p className="text-gray-400 text-sm max-w-md">Sertifikat dan pencapaian dari berbagai program & pelatihan.</p>
-              </div>
-              <Link href="/certificates" className="px-6 py-3 border border-white/20 text-white font-black uppercase text-xs tracking-widest rounded-xl hover:bg-white/10 transition-colors flex items-center gap-2 shrink-0">
-                Lihat Semua <i className="ri-arrow-right-line"></i>
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredCerts.map((cert) => (
-                <div key={cert.id} onClick={() => cert.verify_url && setCertModal(cert)} className="creative-card group bg-card-bg border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all flex flex-col cursor-pointer">
-                  <div className="relative w-full aspect-[4/3] bg-black overflow-hidden">
-                    {cert.verify_url ? (
-                      <PdfThumbnail url={cert.verify_url} width={600} className="object-cover" />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-primary/40 to-accent/30 flex items-center justify-center">
-                        <i className="ri-award-fill text-5xl text-white/40"></i>
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-5 flex flex-col flex-1">
-                    <h4 className="font-bold text-white mb-1">{cert.title}</h4>
-                    <p className="text-xs text-gray-400 flex items-center gap-2"><i className="ri-award-line text-accent"></i> {cert.issuer}{cert.issue_date ? ` · ${cert.issue_date}` : ""}</p>
-                    {cert.verify_url && (
-                      <span className="inline-flex items-center gap-2 w-fit text-xs font-bold text-white bg-white/5 border border-white/10 px-4 py-2 rounded-lg group-hover:border-accent/40 transition-colors mt-4">
-                        View Credential <i className="ri-external-link-line"></i>
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* 🏅 CERTIFICATE PDF MODAL 🏅 */}
-      {certModal && (
-        <div className="fixed inset-0 z-[9999] flex md:items-center md:justify-center md:p-10">
-          <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" onClick={() => setCertModal(null)}></div>
-          <div className="relative z-[10000] w-full md:max-w-4xl bg-card-bg md:border border-white/10 md:rounded-2xl overflow-y-auto md:max-h-[90vh] grid md:grid-cols-2">
-            <button onClick={() => setCertModal(null)} className="fixed md:absolute top-4 right-4 w-9 h-9 bg-white/10 hover:bg-red-500 text-white rounded-full flex items-center justify-center z-[10001] transition-all active:scale-90">
-              <i className="ri-close-line text-xl"></i>
-            </button>
-            <div className="bg-white/5">
-              <div className="relative w-full" style={{ paddingBottom: "141.4%" }}>
-                <div className="absolute inset-0 overflow-y-auto">
-                  <PdfThumbnail url={certModal.verify_url} width={900} />
-                </div>
-              </div>
-            </div>
-            <div className="p-6 flex flex-col">
-              <h4 className="font-bold text-xl text-white mb-4 pr-10">{certModal.title}</h4>
-              <dl className="space-y-3 text-sm flex-1">
-                <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Penerbit</dt><dd className="text-white">{certModal.issuer}</dd></div>
-                {certModal.credential_id && <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Credential ID</dt><dd className="text-white break-all">{certModal.credential_id}</dd></div>}
-                {certModal.issue_date && <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Tanggal Terbit</dt><dd className="text-white">{certModal.issue_date}</dd></div>}
-                {certModal.description && <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Deskripsi</dt><dd className="text-gray-300 leading-relaxed">{certModal.description}</dd></div>}
-              </dl>
-              <a href={certModal.verify_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 w-fit text-sm font-bold text-white bg-accent px-5 py-2.5 rounded-xl hover:scale-105 transition-transform mt-6">
-                View Credential <i className="ri-external-link-line"></i>
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* CONTACT */}
       <section id="contact" className="py-24 px-6 relative z-10">
-        <div className="max-w-5xl mx-auto bg-card-bg/50 backdrop-blur-xl border border-white/10 rounded-[40px] p-10 md:p-16 relative overflow-hidden grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 border border-accent/20 text-accent text-xs font-semibold mb-6">
-              <span className="w-2 h-2 rounded-full bg-accent animate-pulse"></span> Available for collaboration
-            </div>
-            <h2 className="section-title font-display text-2xl md:text-3xl font-normal mb-4 tracking-tight">Let&apos;s Connect</h2>
-            <p className="text-gray-400 mb-8 leading-relaxed">Punya tawaran kerja atau ide kolaborasi? Kirim pesan, atau temukan saya di:</p>
-            <div className="flex gap-4">
-              <a href={SOCIAL.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub Galang Arrauf" className="w-12 h-12 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-gray-300 hover:text-white hover:border-accent/40 text-xl transition-colors"><i className="ri-github-fill"></i></a>
-              <a href={SOCIAL.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Galang Arrauf" className="w-12 h-12 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-gray-300 hover:text-white hover:border-accent/40 text-xl transition-colors"><i className="ri-linkedin-fill"></i></a>
-              <a href={`mailto:${SOCIAL.email}`} aria-label="Email Galang Arrauf" className="w-12 h-12 flex items-center justify-center rounded-xl bg-white/5 border border-white/10 text-gray-300 hover:text-white hover:border-accent/40 text-xl transition-colors"><i className="ri-mail-line"></i></a>
-            </div>
+        <div className="max-w-4xl mx-auto bg-card-bg/50 backdrop-blur-xl border border-white/10 rounded-[40px] p-10 md:p-16 relative overflow-hidden">
+          <div className="text-center mb-12">
+            <h2 className="section-title text-4xl md:text-5xl font-bold mb-4 uppercase">Let&apos;s Connect</h2>
+            <p className="text-gray-400">Punya tawaran kerja atau ide kolaborasi?</p>
           </div>
           <form action="https://formspree.io/f/meoqzdan" method="POST" className="space-y-4">
-            <input type="text" name="name" placeholder="Nama Lengkap" required className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:border-accent transition-colors" />
-            <input type="email" name="email" placeholder="Email Valid" required className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:border-accent transition-colors" />
+            <div className="grid md:grid-cols-2 gap-4">
+              <input type="text" name="name" placeholder="Nama Lengkap" required className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:border-accent transition-colors" />
+              <input type="email" name="email" placeholder="Email Valid" required className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:border-accent transition-colors" />
+            </div>
             <textarea name="message" rows="4" placeholder="Pesan Anda..." required className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:border-accent transition-colors resize-none"></textarea>
-            <button type="submit" className="w-full py-5 bg-white text-bg-dark font-black uppercase tracking-widest rounded-2xl hover:bg-accent hover:text-white transition-all active:scale-95 shadow-xl">Send Message</button>
+            <button type="submit" className="w-full py-5 bg-white text-bg-dark font-black uppercase tracking-widest rounded-2xl hover:bg-accent transition-all active:scale-95 shadow-xl">Send Message</button>
           </form>
         </div>
       </section>
@@ -662,9 +442,9 @@ export default function Home() {
       {/* FOOTER */}
       <footer className="py-10 text-center border-t border-white/5">
         <div className="flex justify-center gap-8 mb-8">
-            <a href={SOCIAL.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-github-fill"></i></a>
-            <a href={SOCIAL.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-linkedin-fill"></i></a>
-            <a href={`mailto:${SOCIAL.email}`} aria-label="Email Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-mail-line"></i></a>
+            <a href="https://github.com/galangpramudito" target="_blank" rel="noopener noreferrer" aria-label="GitHub Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-github-fill"></i></a>
+            <a href= "https://www.linkedin.com/in/galang-arrauf-pramudito/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-linkedin-fill"></i></a>
+            <a href="mailto:glangarraf@gmail.com" aria-label="Email Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-mail-line"></i></a>
         </div>
         <p className="text-gray-500 text-[10px] font-medium tracking-[0.3em] uppercase">© 2026 Galang Arrauf Pramudito • Built with Next.js</p>
       </footer>
@@ -683,7 +463,7 @@ export default function Home() {
               <a 
                 href="/api/cv" 
                 target="_blank" 
-                className="w-full py-4 bg-accent text-white font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-transform text-xs"
+                className="w-full py-4 bg-accent text-bg-dark font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-transform text-xs"
                 onClick={() => setIsCvModalOpen(false)}
               >
                 Buka CV

@@ -1,17 +1,20 @@
 # Arsitektur Project — Portofolang
 
 > Portfolio website untuk **Galang Arrauf Pramudito** (Backend Developer & Creative Enthusiast).
-> Live: https://galang-arrauf.com
+> Live: https://portofolang.vercel.app
 
 ---
 
 ## 1. Gambaran Umum
 
-Portofolang adalah aplikasi web portfolio berbasis **Next.js 16 (App Router)**. Arsitekturnya **hybrid**: konten dikelola lewat **Supabase (CMS + Postgres)** dengan **admin panel** di `/admin`, namun bila env Supabase tidak diset, seluruh halaman publik **fallback otomatis ke data statis** (konstanta in-code). Halaman interaktif dirender sebagai **Client Components**, sementara endpoint server (auth, upload, CRUD, CV) memakai **Route Handlers**.
+Portofolang adalah aplikasi web portfolio berbasis **Next.js 16 (App Router)**. Arsitekturnya **hybrid**: konten dikelola lewat **Supabase (CMS + Postgres)** dengan **admin panel** di `/admin`, namun bila env Supabase tidak diset, seluruh halaman publik **fallback otomatis ke data statis** (konstanta in-code).
+
+Halaman utama adalah **one single page** — semua section (hero, about, skills, projects, design, video, contact) ada dalam satu halaman scroll. Halaman `/design` dan `/video` tersedia sebagai halaman terpisah untuk menampilkan semua konten bila di homepage hanya featured yang ditampilkan.
 
 Filosofi desain:
 - **CMS opsional, fallback aman** → bisa jalan tanpa backend; aktifkan Supabase untuk kelola konten tanpa edit kode.
-- **Progressive enhancement** → mobile-first, PWA-ready, SEO-first.
+- **One single page** → semua section dalam satu halaman, navigasi via scroll.
+- **Featured-first** → homepage menampilkan konten featured; halaman terpisah untuk semua konten.
 - **Server-only secrets** → service-role key & admin password tidak pernah ke client.
 
 ---
@@ -31,7 +34,7 @@ Filosofi desain:
 | Compiler | babel-plugin-react-compiler | 1.0.0 | React Compiler (auto-memo) |
 | Lint | ESLint + eslint-config-next | 9 / 16.2.4 | Code quality |
 
-Integrasi eksternal: **Supabase** (database, storage, CMS), **Formspree** (form kontak), **Google Drive/YouTube/Vimeo** (embed video), **Remixicon CDN** (ikon).
+Integrasi eksternal: **Supabase** (database, storage, CMS), **Formspree** (form kontak), **Google Drive / YouTube / Vimeo** (embed video), **Remixicon CDN** (ikon).
 
 ---
 
@@ -40,11 +43,12 @@ Integrasi eksternal: **Supabase** (database, storage, CMS), **Formspree** (form 
 ```
 portofolang/
 ├── public/
-│   ├── image/                 # Gambar proyek, thumbnail, foto profil
+│   ├── image/                 # Gambar statis fallback, foto profil
 │   ├── cv-galang.pdf          # File CV (dibaca oleh /api/cv)
+│   ├── favicon.ico
 │   ├── manifest.json          # PWA manifest
 │   └── robots.txt
-├── supabase_schema.sql        # Schema final (6 tabel + RLS + triggers + seed)
+├── supabase_schema.sql        # Schema tabel + RLS + seed data
 ├── src/
 │   ├── proxy.js               # Auth guard /admin/* (konvensi proxy Next.js 16)
 │   ├── lib/
@@ -55,31 +59,27 @@ portofolang/
 │       ├── layout.js          # Root layout: font, metadata, <head>, provider
 │       ├── providers.jsx      # ThemeProvider (next-themes)
 │       ├── globals.css        # Tailwind + CSS variables + light/dark overrides
-│       ├── page.js            # Beranda (typed projects, skills, featured works)
+│       ├── page.js            # Beranda one-single-page (semua section)
 │       ├── components/
 │       │   └── DarkModeToggle.jsx
-│       ├── design/page.js     # Galeri desain + lightbox (design_images)
-│       ├── video/page.js      # Galeri video + embed player
+│       ├── design/page.js     # Semua design works (fetch Supabase, fallback statis)
+│       ├── video/page.js      # Semua video works (fetch Supabase, fallback statis)
 │       ├── lua-manifest/page.js
-│       ├── admin/             # Admin panel
+│       ├── admin/
 │       │   ├── layout.js      # Passthrough (auth di proxy.js)
-│       │   ├── page.js        # Dashboard
-│       │   ├── CrudManager.jsx# Komponen CRUD generik + RelatedImages
+│       │   ├── page.js        # Dashboard ringkasan
+│       │   ├── CrudManager.jsx# Komponen CRUD generik (client)
 │       │   ├── login/         # Halaman + layout login (tanpa guard)
-│       │   ├── projects/      # CRUD projects (conditional fields, screenshots)
-│       │   ├── design/        # CRUD designs (cover + galeri gambar)
-│       │   └── video/         # CRUD videos
-│       ├── api/
-│       │   ├── cv/route.js            # GET serve PDF lokal
-│       │   ├── upload/route.js        # POST upload gambar ke Storage (auth)
-│       │   └── admin/
-│       │       ├── login/route.js     # POST login (rate-limited)
-│       │       ├── logout/route.js    # POST logout
-│       │       └── [table]/route.js   # CRUD generik 6 tabel (auth, FK filter)
-│       ├── not-found.js · error.js
-│       ├── sitemap.js · robots.js
-├── next.config.mjs
-├── postcss.config.mjs · eslint.config.mjs · jsconfig.json
+│       │   ├── projects/      # CRUD projects (web, bot, android)
+│       │   ├── design/        # CRUD design + design_images
+│       │   └── video/         # CRUD video gallery
+│       └── api/
+│           ├── cv/route.js            # GET serve PDF lokal
+│           ├── upload/route.js        # POST upload gambar ke Storage (auth)
+│           └── admin/
+│               ├── login/route.js     # POST login (rate-limited)
+│               ├── logout/route.js    # POST logout
+│               └── [table]/route.js   # CRUD generik tabel whitelist (auth)
 ```
 
 ---
@@ -94,34 +94,32 @@ portofolang/
                            │ HTTP
 ┌──────────────────────────▼─────────────────────────────────┐
 │  EDGE / PROXY  (src/proxy.js)                                │
-│  Guard /admin/* (kecuali /admin/login) via cookie session   │
+│  Guard /admin/* (kecuali /admin/login) via cookie session    │
 ├──────────────────────────────────────────────────────────────┤
-│  PRESENTATION LAYER  (src/app/*)  — Client Components        │
-│  ┌────────┬────────┬───────┬──────────────┬───────────────┐ │
-│  │ page.js│ design/│ video/│ lua-manifest/│ admin/ (CRUD)  │ │
-│  │ (home) │(galeri)│(galeri)│ (tool)      │ + login/dash   │ │
-│  └────────┴────────┴───────┴──────────────┴───────────────┘ │
+│  PRESENTATION LAYER  (src/app/*)                             │
+│  ┌──────────────┬──────────┬───────┬───────────────────────┐│
+│  │ page.js      │ design/  │ video/│ admin/ (CRUD)          ││
+│  │ (one page)   │ (semua)  │(semua)│ + login / dashboard    ││
+│  └──────────────┴──────────┴───────┴───────────────────────┘│
 ├──────────────────────────────────────────────────────────────┤
 │  CROSS-CUTTING                                               │
-│  layout.js · providers.jsx (ThemeProvider) ·                 │
-│  DarkModeToggle · TopLoader · globals.css                    │
+│  layout.js · providers.jsx · DarkModeToggle · globals.css    │
 ├──────────────────────────────────────────────────────────────┤
-│  API / SERVER LAYER  (Route Handlers)                        │
-│  api/cv         → serve public/cv-galang.pdf                 │
-│  api/admin/login (rate-limited) · logout · [table] (CRUD)    │
-│  api/upload     → Supabase Storage (auth-guarded)            │
-│  lib: supabase (anon) · supabase-admin (service) · auth      │
-├──────────────────────────────────────────────────────────────┤
-│  SEO LAYER                                                   │
-│  sitemap.js → /sitemap.xml   ·   robots.js → /robots.txt     │
+│  API / SERVER LAYER                                          │
+│  api/cv            → serve CV PDF                            │
+│  api/admin/login   → set cookie (rate-limited 5x/15 menit)  │
+│  api/admin/logout  → hapus cookie                            │
+│  api/admin/[table] → CRUD generik (whitelist + auth)         │
+│  api/upload        → upload ke Supabase Storage (auth)       │
 ├──────────────────────────────────────────────────────────────┤
 │  DATA LAYER                                                  │
-│  Supabase Postgres (6 tabel) + RLS + cascade deletes         │
+│  Supabase Postgres:                                          │
+│    projects · project_images · designs · design_images       │
+│    videos · skills  — semua dengan RLS                       │
 │  ↳ FALLBACK statis bila env Supabase kosong                  │
-│    (SKILLS_DATA · DEV_PROJECTS · FEATURED_CREATIVE · GALLERY)│
 ├──────────────────────────────────────────────────────────────┤
 │  STATIC ASSETS  (public/)                                    │
-│  image/ · cv-galang.pdf · manifest.json                      │
+│  image/ · cv-galang.pdf · manifest.json · favicon            │
 └──────────────────────────────────────────────────────────────┘
         │                    │                      │
         ▼                    ▼                      ▼
@@ -135,243 +133,241 @@ portofolang/
 
 ## 5. Routing & Halaman
 
-| Route | Tipe | File | Rendering | Fungsi |
-|-------|------|------|-----------|--------|
-| `/` | Page | `page.js` | Client | Beranda: hero, about, skills, projects (grouped by type), visual works, contact |
-| `/design` | Page | `design/page.js` | Client | Galeri masonry desain + lightbox slideshow (design_images) |
-| `/video` | Page | `video/page.js` | Client | Galeri video + embed player (YouTube/Drive/Vimeo) |
-| `/lua-manifest` | Page | `lua-manifest/page.js` | Client | Generator file `manifest.lua` + template |
-| `/admin` | Page | `admin/page.js` | Client | Dashboard (terproteksi proxy) |
-| `/admin/login` | Page | `admin/login/page.js` | Client | Form login (dikecualikan dari guard) |
-| `/admin/{projects,design,video}` | Page | `admin/*/page.js` | Client | CRUD via `CrudManager` (terproteksi) |
-| `/api/cv` | Route Handler | `api/cv/route.js` | Server | Serve `cv-galang.pdf` (inline) |
-| `/api/admin/login` | Route Handler | `api/admin/login/route.js` | Server | Login + set cookie (rate-limited) |
-| `/api/admin/logout` | Route Handler | `api/admin/logout/route.js` | Server | Hapus cookie |
-| `/api/admin/[table]` | Route Handler | `api/admin/[table]/route.js` | Server | CRUD generik 6 tabel (auth, FK filter) |
-| `/api/upload` | Route Handler | `api/upload/route.js` | Server | Upload gambar ke Storage (auth) |
-| `/sitemap.xml` | Metadata | `sitemap.js` | Server | Sitemap (home + design + video) |
-| `/robots.txt` | Metadata | `robots.js` | Server | Robots (disallow `/api/`, `/admin/`) |
-| `*` (tidak ditemukan) | Page | `not-found.js` | Client | 404 kustom |
+| Route | File | Fungsi |
+|-------|------|--------|
+| `/` | `page.js` | One single page: hero → about → skills → projects (web/bot/android) → design featured → video featured → contact |
+| `/design` | `design/page.js` | Semua design works — grid + lightbox multi-image |
+| `/video` | `video/page.js` | Semua video — grid thumbnail + embed player |
+| `/lua-manifest` | `lua-manifest/page.js` | Generator file manifest.lua |
+| `/admin` | `admin/page.js` | Dashboard (terproteksi proxy) |
+| `/admin/login` | `admin/login/page.js` | Form login (dikecualikan dari guard) |
+| `/admin/projects` | `admin/projects/page.js` | CRUD projects semua tipe |
+| `/admin/design` | `admin/design/page.js` | CRUD design + upload multi-image |
+| `/admin/video` | `admin/video/page.js` | CRUD video |
+| `/api/cv` | `api/cv/route.js` | Serve cv-galang.pdf |
+| `/api/admin/login` | `api/admin/login/route.js` | Login + set cookie |
+| `/api/admin/logout` | `api/admin/logout/route.js` | Hapus cookie |
+| `/api/admin/[table]` | `api/admin/[table]/route.js` | CRUD generik (whitelist tabel) |
+| `/api/upload` | `api/upload/route.js` | Upload gambar ke Storage |
 
 ---
 
-## 6. Komponen Utama (`/` — page.js)
+## 6. Homepage — Section Structure
 
-State lokal (React Hooks):
-- `activeSection` — section aktif untuk highlight navbar (di-update via scroll listener).
-- `isIslandHovered` — buka/tutup Dynamic Island navbar (hover di desktop, tap di mobile).
-- `selectedVideo` — URL video aktif untuk modal player.
-- `isCvModalOpen` — modal konfirmasi unduh/buka CV.
-- `skills` — data skills (dari Supabase atau fallback statis).
-- `projects` — data projects (dari Supabase, normalized ke shape JSX).
-- `projectImages` — map `project_id → [images]` untuk screenshot Android.
-- `featuredDesigns` — designs dengan `featured = true`.
-- `featuredVideos` — videos dengan `featured = true`.
-- `lightbox` — state untuk screenshot lightbox `{ images, index }`.
-
-Section: **Hero** → **About** → **Skills** (bento grid) → **Projects** (grouped: Web & Fullstack / Bot & Automation / Android Apps) → **Visual Works** (featured designs + videos) → **Contact** (form Formspree) → **Footer**.
-
-Projects di-render per group type. Tiap project menampilkan tombol aksi berdasarkan tipe:
-- `web` → Live Demo (jika `demo_url`) + GitHub
-- `bot` → GitHub
-- `android` → Play Store + Download APK + GitHub + screenshot gallery (horizontal scroll + lightbox)
-
-Animasi GSAP di-scope dengan `gsap.context()` di dalam `useEffect`, dan dibersihkan via `ctx.revert()` saat unmount untuk mencegah memory leak.
+```
+/ (one single page)
+│
+├── Hero
+├── About
+├── Skills (bento grid — dari tabel skills)
+│
+├── Projects
+│   ├── 🌐 Web & Fullstack   (type = 'web')
+│   ├── 🤖 Bot & Automation  (type = 'bot')
+│   └── 📱 Android Apps      (type = 'android')
+│       └── Screenshot gallery per app (annotated, dari project_images)
+│
+├── Design Works             (featured = true, dari tabel designs)
+│   └── Grid → klik → lightbox (gambar dari design_images)
+│   └── Tombol "Lihat Semua" → /design
+│
+├── Video Works              (featured = true, dari tabel videos)
+│   └── Grid thumbnail → klik → embed player
+│   └── Tombol "Lihat Semua" → /video
+│
+└── Contact (Formspree)
+```
 
 ---
 
 ## 7. Data Model
 
-Sumber data utama adalah **Supabase Postgres** (6 tabel). Bila env Supabase kosong, halaman publik fallback ke konstanta in-code.
+### Tabel Supabase
 
-### Tabel Supabase (`supabase_schema.sql`)
+#### `projects`
+| Field | Tipe | Keterangan |
+|-------|------|------------|
+| id | uuid | PK |
+| title | text | Nama project |
+| description | text | Deskripsi |
+| tags | text[] | Tech stack |
+| type | text | `web` / `bot` / `android` / `other` |
+| thumbnail_url | text | URL dari Supabase Storage bucket `thumbnails` |
+| github_url | text | Link repo |
+| demo_url | text | Link live demo (web) |
+| play_store_url | text | Link Play Store (android, opsional) |
+| apk_url | text | Link download APK (android, opsional) |
+| status | text | `completed` / `wip` / `private` |
+| featured | boolean | Tampil di homepage |
+| sort_order | integer | Urutan tampil |
+| created_at | timestamptz | — |
+| updated_at | timestamptz | Auto-update via trigger |
 
-| Tabel | Field utama | Dipakai oleh |
-|-------|-------------|--------------|
-| `projects` | `title, description, tags[], type, thumbnail_url, github_url, demo_url, play_store_url, apk_url, status, featured, sort_order` | `/` (grouped dev cards) |
-| `project_images` | `project_id (FK→projects), image_url, caption, description, sort_order` | `/` (Android screenshot gallery) |
-| `designs` | `title, category, cover_image_url, description, featured, sort_order` | `/design`, `/` (featured) |
-| `design_images` | `design_id (FK→designs), image_url, sort_order` | `/design` (lightbox slideshow) |
-| `videos` | `title, video_url, platform, thumbnail_url, description, featured, sort_order` | `/video`, `/` (featured) |
-| `skills` | `category, icon, items[], span, color, sort_order` | `/` (bento grid) |
+#### `project_images`
+Annotated screenshots — utamanya untuk Android apps.
 
-**Relasi:**
-- `project_images.project_id` → `projects.id` (ON DELETE CASCADE)
-- `design_images.design_id` → `designs.id` (ON DELETE CASCADE)
+| Field | Tipe | Keterangan |
+|-------|------|------------|
+| id | uuid | PK |
+| project_id | uuid | FK → projects.id (cascade delete) |
+| image_url | text | URL screenshot |
+| caption | text | Judul singkat: "Halaman Pembayaran" |
+| description | text | Deskripsi: "Mendukung GoPay, OVO, QRIS..." |
+| sort_order | integer | Urutan slide |
+| created_at | timestamptz | — |
 
-**Triggers:** `update_updated_at()` pada `projects`, `designs`, `videos`, `skills` — auto-set `updated_at` saat UPDATE.
+#### `designs`
+| Field | Tipe | Keterangan |
+|-------|------|------------|
+| id | uuid | PK |
+| title | text | Nama project design |
+| category | text | Kategori bebas: `branding`, `ui`, dll |
+| cover_image_url | text | Gambar cover untuk grid |
+| description | text | Deskripsi singkat |
+| featured | boolean | Tampil di homepage |
+| sort_order | integer | Urutan tampil |
+| created_at / updated_at | timestamptz | — |
 
-**RLS:** semua 6 tabel `enable row level security` dengan policy **public read** (`select using (true)`).
-Operasi tulis hanya lewat **service_role** (di API routes server-side) yang **bypass RLS**.
+#### `design_images`
+Simple gallery per project design, tanpa caption.
 
-### Fallback statis (bila Supabase off)
+| Field | Tipe | Keterangan |
+|-------|------|------------|
+| id | uuid | PK |
+| design_id | uuid | FK → designs.id (cascade delete) |
+| image_url | text | URL gambar |
+| sort_order | integer | Urutan di lightbox |
+| created_at | timestamptz | — |
 
-| Konstanta | Lokasi | Field utama |
-|-----------|--------|-------------|
-| `SKILLS_DATA` | `page.js` | `category, icon, items[], span, color` |
-| `DEV_PROJECTS` | `page.js` | `title, type, image, gradient, icon, tags[], desc, github_url, demo_url` |
-| `FEATURED_CREATIVE` | `page.js` | `id, title, category, image, desc, type, videoUrl?` |
-| `GALLERY_DATA` | `design/page.js` | `id, title, category, image, desc, videoUrl?` |
-| `FALLBACK_VIDEOS` | `video/page.js` | `id, title, thumbnail_url, video_url, platform, description` |
+#### `videos`
+| Field | Tipe | Keterangan |
+|-------|------|------------|
+| id | uuid | PK |
+| title | text | Judul video |
+| thumbnail_url | text | URL thumbnail |
+| video_url | text | URL video asli |
+| platform | text | `youtube` / `drive` / `vimeo` |
+| description | text | Deskripsi |
+| featured | boolean | Tampil di homepage |
+| sort_order | integer | Urutan tampil |
+| created_at / updated_at | timestamptz | — |
 
----
+#### `skills`
+| Field | Tipe | Keterangan |
+|-------|------|------------|
+| id | uuid | PK |
+| category | text | Nama kategori skill |
+| icon | text | Nama icon (Remixicon) |
+| items | text[] | List skill dalam kategori |
+| span | text | CSS span untuk bento grid |
+| color | text | Warna aksen |
+| sort_order | integer | Urutan bento grid |
+| created_at / updated_at | timestamptz | — |
 
-## 7b. Autentikasi & CMS
+### RLS Policy
 
-- **Login:** `POST /api/admin/login` membandingkan password dengan `ADMIN_PASSWORD`; jika cocok set
-  cookie `admin_session` (`httpOnly`, `sameSite=strict`, `secure` di produksi, masa berlaku 7 hari).
-- **Rate limit:** in-memory per-IP, **5 percobaan gagal / 15 menit**, balas `429` dengan `Retry-After`.
-  (Single-instance; untuk multi-instance gunakan store eksternal seperti Upstash Redis.)
-- **Guard:** `src/proxy.js` (konvensi *proxy* Next.js 16, pengganti *middleware*) memblokir `/admin/*`
-  kecuali `/admin/login`, redirect ke login bila cookie tak valid.
-- **CRUD:** `api/admin/[table]` (GET/POST/PUT/DELETE) dengan **whitelist** 6 tabel
-  (`projects, project_images, designs, design_images, videos, skills`). GET mendukung filter FK
-  (`?project_id=...`, `?design_id=...`). Operasi tulis memerlukan auth.
-- **Upload:** `api/upload` mengunggah gambar ke bucket Storage publik `thumbnails` (auth-guarded),
-  mengembalikan public URL.
+Semua tabel: `enable row level security` + policy `public read` (`select using (true)`).
+Operasi write hanya lewat **service_role** di API routes server-side (bypass RLS by default).
 
----
+### Fallback Statis
 
-## 7c. Admin Panel — CrudManager
+Bila env Supabase tidak diset, halaman publik fallback ke konstanta in-code:
 
-`CrudManager.jsx` adalah komponen CRUD generik reusable. Fitur:
-
-- **Field types:** `text`, `textarea`, `select`, `checkbox`, `url` (dengan tombol buka link), `number`, `tags`, `image`.
-- **`showWhen(form)`** — conditional field rendering. Field yang hidden tidak ikut di-submit.
-- **Type badges** — bila `columns` memuat `type`, di list row ditampilkan sebagai badge warna (web=biru, bot=hijau, android=emerald, other=abu). Field boolean (mis. `featured`) tampil sebagai indikator ✓/—.
-- **`columns` prop** — array key field yang ditampilkan di list row (default `['title']`).
-- **`RelatedImages` sub-komponen** — galeri anak (project_images / design_images) yang muncul saat edit parent row:
-  - `hasCaption=true` (Android screenshots): preview 80×80, caption, deskripsi, urutan, Simpan/Hapus per baris.
-  - `hasCaption=false` (design gallery): gambar + urutan + hapus saja.
-  - Baris baru muncul inline saat klik "+ Tambah", belum tersimpan sampai klik Simpan.
-- **`relatedImages.showWhen(form)`** — galeri hanya render bila kondisi terpenuhi (mis. `type === 'android'`).
-
-Admin pages:
-- `/admin/projects` — conditional: `demo_url` hanya tampil untuk web, `play_store_url`/`apk_url` hanya untuk android.
-- `/admin/design` — cover label eksplisit "Cover Image (tampil di grid homepage)", galeri gambar tanpa caption.
-- `/admin/video` — `video_url` tipe `url` (ada tombol buka), `featured` checkbox.
-
----
-
-## 8. Tampilan Project per Tipe (Homepage)
-
-Homepage menampilkan projects dari tabel `projects` dikelompokkan berdasarkan kolom `type`:
-
-| Group | Filter | Tombol Aksi | Fitur Tambahan |
-|-------|--------|-------------|----------------|
-| **Web & Fullstack** | `type = 'web'` | Live Demo (jika `demo_url`), GitHub | — |
-| **Bot & Automation** | `type = 'bot'` | GitHub | — |
-| **Android Apps** | `type = 'android'` | Play Store, Download APK, GitHub | Screenshot gallery (horizontal scroll, lightbox navigable) |
-
-Group yang kosong (tidak ada project dengan tipe tersebut) tidak di-render.
-
-Screenshot gallery (Android):
-- Thumbnail: fixed-height box (`h-56`/`h-64`) dengan `object-contain` pada background gelap — menjaga rasio asli gambar tanpa distorsi.
-- Klik thumbnail → lightbox fullscreen (`h-[70vh]`, `object-contain`) dengan navigasi prev/next + caption + deskripsi.
-- Data dari tabel `project_images` (FK `project_id`), di-fetch bersamaan saat load projects.
-
----
-
-## 8b. Tampilan Design & Video Works (Homepage + Halaman Dedikasi)
-
-**Di Homepage (`/`):**
-- Section "Visual Works" menampilkan gabungan `designs` (where `featured = true`) + `videos` (where `featured = true`).
-- Masing-masing ditampilkan sebagai card aspect-[4/5] dengan overlay info.
-- Design card → static image. Video card → play button overlay, klik buka embed modal.
-- Tombol "Design →" ke `/design`, "Video →" ke `/video`.
-
-**Halaman `/design`:**
-- Fetch semua `designs` + `design_images` per design.
-- Masonry grid. Klik card → lightbox slideshow semua gambar dari `design_images` (navigable, counter).
-- Fallback ke `GALLERY_DATA` statis bila Supabase off.
-
-**Halaman `/video`:**
-- Fetch semua `videos`. Grid thumbnail cards.
-- Klik → embed player modal (YouTube/Drive/Vimeo via `getEmbedUrl` helper).
-- Fallback ke `FALLBACK_VIDEOS` statis.
+| Konstanta | Dipakai di |
+|-----------|------------|
+| `SKILLS_DATA` | `page.js` |
+| `DEV_PROJECTS` | `page.js` |
+| `FEATURED_CREATIVE` | `page.js` |
+| `GALLERY_DATA` | `design/page.js` |
+| `FALLBACK_VIDEOS` | `video/page.js` |
 
 ---
 
-## 9. Styling & Theming
+## 8. Tampilan Project per Tipe
 
-- **Tailwind CSS v4** dengan custom theme di `@theme` (`globals.css`):
-  `--color-bg-dark`, `--color-card-bg`, `--color-primary` (ungu), `--color-accent` (hijau neon).
-- **Dark mode default**, light mode via class `html.light` dengan override CSS variabel + utility.
-- **next-themes** (`attribute="class"`, `defaultTheme="dark"`) menyimpan preferensi tema; `DarkModeToggle` melakukan switch.
-- **Hover cerdas**: `@media (hover: hover) and (pointer: fine)` memastikan efek hover hanya aktif di perangkat berkursor.
+### Web & Bot
+- Thumbnail + judul + tags
+- Tombol **GitHub** (bila `github_url` ada)
+- Tombol **Live Demo** (bila `demo_url` ada)
 
----
+### Android
+- Thumbnail + judul + tags
+- Annotated screenshot gallery (lightbox dari `project_images`)
+  - Setiap gambar: caption + deskripsi
+- Tombol **GitHub** (bila `github_url` ada)
+- Tombol **Play Store** (bila `play_store_url` ada)
+- Tombol **Download APK** (bila `apk_url` ada)
 
-## 10. API: `/api/cv`
-
-```
-GET /api/cv
- ├─ baca public/cv-galang.pdf (readFileSync)
- ├─ sukses → response PDF (Content-Type: application/pdf, inline, cache 1 jam)
- └─ gagal  → redirect ke /cv-galang.pdf (fallback)
-```
-
-Endpoint stateless, tidak butuh autentikasi (file publik). Diblokir dari crawler via `robots.txt` (`disallow: /api/`).
+### Design
+- Cover image di grid
+- Klik → lightbox slide semua gambar dari `design_images`
 
 ---
 
-## 11. Konfigurasi Build & Keamanan (`next.config.mjs`)
+## 9. Autentikasi & Admin Panel
 
-- **React Compiler** aktif (`reactCompiler: true`) → auto-memoization.
-- **Image optimization**: format AVIF/WebP, cache 24 jam, device/image sizes terdefinisi, `remotePatterns` izinkan semua host HTTPS.
-- **Security headers** (semua route):
-  `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`,
-  `Referrer-Policy: strict-origin-when-cross-origin`,
-  `Permissions-Policy: camera=(), microphone=(), geolocation=()`,
-  `X-DNS-Prefetch-Control: on`.
-- **Kompresi** respons aktif (`compress: true`).
+- **Login:** `POST /api/admin/login` — bandingkan dengan `ADMIN_PASSWORD` env, set cookie `admin_session` (`httpOnly`, `secure`, `sameSite=strict`, 7 hari).
+- **Rate limit:** in-memory per-IP, 5 gagal / 15 menit → `429 Retry-After`. *(Single instance; multi-instance perlu Upstash Redis.)*
+- **Guard:** `src/proxy.js` memblokir semua `/admin/*` kecuali `/admin/login`.
+- **CRUD:** `api/admin/[table]` (GET/POST/PUT/DELETE) dengan whitelist tabel: `projects, project_images, designs, design_images, videos, skills`.
+- **Upload:** `api/upload` → Supabase Storage bucket `thumbnails` (public), kembalikan public URL.
 
 ---
 
-## 12. SEO & PWA
+## 10. Konfigurasi Build & Keamanan
 
-- **Metadata** lengkap di `layout.js`: title, description, keywords, Open Graph, Twitter Card.
-- **Sitemap** dinamis (`/sitemap.xml`) — home (priority 1), design (0.9), video (0.8).
-- **Robots** (`/robots.txt`) — allow semua kecuali `/api/` dan `/admin/`.
-- **PWA** — `manifest.json`, theme-color (dark/light), apple-mobile-web-app meta.
-
----
-
-## 13. Karakteristik & Trade-off
-
-**Kelebihan**
-- **CMS via admin panel** — kelola konten tanpa edit kode/redeploy.
-- **Typed projects** — satu tabel, dibedakan by `type` (web/bot/android/other), UI otomatis menyesuaikan tombol dan fitur.
-- **Child image tables** — screenshot gallery (Android) dan design gallery dengan cascade delete.
-- **Conditional admin fields** — form admin hanya tampilkan field yang relevan per tipe.
-- **Fallback statis** — situs tetap jalan tanpa Supabase (resilient, mudah demo).
-- Secrets server-only; security headers aktif; login rate-limited.
-- SEO & performa kuat (image optimization, compress, React Compiler).
-
-**Keterbatasan / catatan**
-- Rate limiter in-memory hanya andal di **single instance**; serverless multi-instance perlu store eksternal (mis. Upstash).
-- Ketergantungan eksternal: Supabase (DB/Storage), Formspree (kuota free tier), Drive/YouTube/Vimeo (ketersediaan video).
-- Auth admin berbasis single password + cookie — cukup untuk satu pemilik, bukan multi-user/role.
-- Halaman publik fetch di client (`useEffect`); untuk SEO data CMS pertimbangkan Server Component fetch.
+- **React Compiler** aktif → auto-memoization.
+- **Image optimization**: AVIF/WebP, cache 24 jam, `remotePatterns` izinkan semua HTTPS.
+- **Security headers**: `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `X-DNS-Prefetch-Control`.
+- **Kompresi** aktif.
 
 ---
 
-## 14. Deployment
+## 11. SEO & PWA
+
+- Metadata lengkap: title, description, OG, Twitter Card.
+- Sitemap: `/` (priority 1), `/design` (0.9), `/video` (0.8).
+- Robots: disallow `/api/`, `/admin/`.
+- PWA: manifest.json, theme-color, apple-mobile-web-app.
+
+---
+
+## 12. Trade-off & Catatan
+
+| Aspek | Catatan |
+|-------|---------|
+| Client-side fetch | Halaman publik fetch via `useEffect` karena `'use client'` (GSAP). Untuk SEO data CMS pertimbangkan Server Component wrapper. |
+| Rate limiter | In-memory, hanya andal di single instance. Scale → Upstash Redis. |
+| Auth | Single password + cookie — cukup untuk satu pemilik. |
+| `sort_order` tiebreaker | Query publik selalu `order by sort_order asc, created_at desc`. |
+| Cascade delete | `project_images` dan `design_images` auto-delete saat project/design dihapus. |
+
+---
+
+## 13. Deployment
 
 ```bash
-npm install        # install dependency
-npm run dev        # development (localhost:3000)
-npm run build      # build produksi
-npm start          # jalankan hasil build
-npm run lint       # cek kualitas kode
+npm install
+npm run dev        # localhost:3000
+npm run build
+npm start
+npm run lint
 ```
 
-Target deploy utama: **Vercel** (otomatis di setiap git push).
+**Env wajib untuk CMS** (`.env.local` & Vercel Dashboard):
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+ADMIN_PASSWORD=
+```
 
-**Env wajib untuk CMS** (set di `.env.local` & Vercel): `NEXT_PUBLIC_SUPABASE_URL`,
-`NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_PASSWORD`.
-Setup awal: jalankan `supabase_schema.sql` di SQL Editor + buat bucket publik `thumbnails`.
-Tanpa env ini, situs tetap berjalan dengan data statis (fallback).
+**Setup awal Supabase:**
+1. Jalankan `supabase_schema.sql` di SQL Editor
+2. Buat bucket publik `thumbnails` di Storage
+3. Set semua env di Vercel
+
+Tanpa env Supabase, situs tetap berjalan dengan data statis (fallback).
 
 ---
 

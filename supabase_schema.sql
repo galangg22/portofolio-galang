@@ -230,7 +230,7 @@ create policy "public read certificates" on public.certificates for select using
 -- Halaman 1 tetap di certificates.image_url
 -- ============================================================
 create table public.certificate_images (
-  id              uuid primary key default gen_random_uuid(),
+  id              uuid primary key dbacefault gen_random_uuid(),
   certificate_id  uuid not null references public.certificates(id) on delete cascade,
   image_url       text not null,
   sort_order      integer default 0,   -- urutan halaman (2, 3, dst)
