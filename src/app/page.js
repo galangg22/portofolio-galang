@@ -340,7 +340,7 @@ export default function Home() {
             <span className="w-2 h-2 rounded-full bg-accent animate-ping"></span> Sidoarjo, Indonesia
           </div>
           <h1 className="hero-text text-5xl md:text-8xl font-extrabold tracking-tight mb-6 leading-tight font-serif">
-            Galang <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-400 to-accent text-glow">Arrauf</span>
+            Galang <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-400 to-accent text-glow">Pramudito</span>
           </h1>
           <p className="hero-text text-xl md:text-2xl text-gray-400 font-light mb-10 max-w-2xl mx-auto">
             Backend Developer & <span className="text-white">Creative Enthusiast</span>. Mahasiswa D3 Teknik Informatika A, PENS.
@@ -442,11 +442,10 @@ export default function Home() {
               <button
                 key={f.key}
                 onClick={() => setProjectFilter(f.key)}
-                className={`shrink-0 px-5 md:px-6 py-2.5 rounded-full border text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${
-                  projectFilter === f.key
-                    ? "bg-accent text-bg-dark border-accent"
-                    : "border-white/10 text-gray-500 hover:border-white/30 hover:text-white bg-white/5"
-                }`}
+                className={`shrink-0 px-5 md:px-6 py-2.5 rounded-full border text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${projectFilter === f.key
+                  ? "bg-accent text-bg-dark border-accent"
+                  : "border-white/10 text-gray-500 hover:border-white/30 hover:text-white bg-white/5"
+                  }`}
               >
                 <i className={f.icon}></i> {f.label}
               </button>

@@ -64,7 +64,12 @@ export default function VideoGallery() {
   return (
     <main className="min-h-screen bg-bg-dark text-white p-4 sm:p-8 md:p-16">
       <div className="max-w-6xl mx-auto">
-        <Link href="/" className="text-accent text-sm uppercase tracking-widest mb-8 inline-block">← Back to Home</Link>
+        <Link href="/" className="inline-flex items-center gap-3 text-accent font-bold uppercase text-[10px] tracking-[0.2em] mb-8 md:mb-12 hover:text-black dark:hover:text-white transition-colors group">
+          <div className="w-8 h-8 rounded-full border border-accent flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-all">
+            <i className="ri-arrow-left-line"></i>
+          </div>
+          Back to Home
+        </Link>
         <h1 className="font-display text-4xl md:text-6xl font-normal mb-10 tracking-tight">
           Video <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Showcase</span>
         </h1>
@@ -72,7 +77,7 @@ export default function VideoGallery() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {loading ? (
             Array.from({ length: 6 }).map((_, idx) => (
-              <div key={idx} className="rounded-2xl overflow-hidden bg-[#111] border border-white/10 animate-pulse">
+              <div key={idx} className="rounded-2xl overflow-hidden bg-card-bg border border-white/10 animate-pulse">
                 <div className="relative aspect-video bg-white/5"></div>
                 <div className="p-5 space-y-3">
                   <div className="h-6 bg-white/10 rounded-md w-3/4"></div>
@@ -94,7 +99,7 @@ export default function VideoGallery() {
                     setSelected(getEmbedUrl(v.video_url, v.platform));
                   }
                 }}
-                className="group relative rounded-2xl overflow-hidden bg-[#111] border border-white/10 focus:outline-none focus:ring-2 focus:ring-accent cursor-pointer"
+                className="group relative rounded-2xl overflow-hidden bg-card-bg border border-white/10 focus:outline-none focus:ring-2 focus:ring-accent cursor-pointer"
               >
                 <div className="relative aspect-video bg-black">
                   {v.thumbnail_url && (

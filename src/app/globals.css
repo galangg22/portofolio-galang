@@ -295,3 +295,20 @@ html.light form button[type="submit"]:hover {
   background-color: #8b5cf6;
   color: #ffffff;
 }
+
+/* Light mode overrides for black background capsules */
+html.light .bg-black\/70 {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Light mode overrides to keep text contrast inside creative (dark) cards */
+html.light .creative-card h4 {
+  color: #ffffff !important;
+}
+html.light .creative-card p {
+  color: #d1d5db !important;
+}
+html.light .creative-card span {
+  color: #8b5cf6 !important; /* Keep accent color bright */
+}

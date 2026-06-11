@@ -47,7 +47,7 @@ export default function CertificatesPage() {
       </div>
 
       <div className="max-w-5xl mx-auto mb-8 md:mb-16 relative z-10 pt-4 md:pt-0">
-        <Link href="/" className="inline-flex items-center gap-3 text-accent font-bold uppercase text-[10px] tracking-[0.2em] mb-8 md:mb-12 hover:text-white transition-colors group">
+        <Link href="/" className="inline-flex items-center gap-3 text-accent font-bold uppercase text-[10px] tracking-[0.2em] mb-8 md:mb-12 hover:text-black dark:hover:text-white transition-colors group">
           <div className="w-8 h-8 rounded-full border border-accent flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-all">
             <i className="ri-arrow-left-line"></i>
           </div>

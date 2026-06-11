@@ -37,10 +37,10 @@ const FALLBACK_PROJECTS = [
 ];
 
 const TYPE_CONFIG = {
-  web: { label: "Web Apps", icon: "ri-global-line", color: "bg-blue-500/20 text-blue-300 border-blue-500/30", gradient: "from-blue-900 via-indigo-800 to-purple-900" },
-  bot: { label: "Service Automation", icon: "ri-robot-2-line", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30", gradient: "from-emerald-900 via-green-800 to-teal-900" },
-  android: { label: "Mobile Apps", icon: "ri-smartphone-line", color: "bg-purple-500/20 text-purple-300 border-purple-500/30", gradient: "from-purple-900 via-violet-800 to-indigo-900" },
-  other: { label: "Other", icon: "ri-code-s-slash-line", color: "bg-gray-500/20 text-gray-300 border-gray-500/30", gradient: "from-gray-800 via-gray-700 to-gray-900" },
+  web: { label: "Web Apps", icon: "ri-global-line", color: "bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-500/30", gradient: "from-blue-900 via-indigo-800 to-purple-900" },
+  bot: { label: "Service Automation", icon: "ri-robot-2-line", color: "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/30", gradient: "from-emerald-900 via-green-800 to-teal-900" },
+  android: { label: "Mobile Apps", icon: "ri-smartphone-line", color: "bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-500/30", gradient: "from-purple-900 via-violet-800 to-indigo-900" },
+  other: { label: "Other", icon: "ri-code-s-slash-line", color: "bg-gray-500/20 text-gray-700 dark:text-gray-300 border-gray-500/30", gradient: "from-gray-800 via-gray-700 to-gray-900" },
 };
 
 const STATUS_BADGE = {
@@ -118,8 +118,8 @@ export default function ProjectsPage() {
 
       {/* Header */}
       <div className="max-w-6xl mx-auto mb-8 md:mb-16 relative z-10 pt-4 md:pt-0">
-        <Link href="/" className="inline-flex items-center gap-3 text-accent font-bold uppercase text-[10px] tracking-[0.2em] mb-8 md:mb-12 hover:text-white transition-colors group">
-          <div className="w-8 h-8 rounded-full border border-accent flex items-center justify-center group-hover:bg-accent group-hover:text-bg-dark transition-all">
+        <Link href="/" className="inline-flex items-center gap-3 text-accent font-bold uppercase text-[10px] tracking-[0.2em] mb-8 md:mb-12 hover:text-black dark:hover:text-white transition-colors group">
+          <div className="w-8 h-8 rounded-full border border-accent flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-all">
             <i className="ri-arrow-left-line"></i>
           </div>
           Back to Home
