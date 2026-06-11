@@ -145,6 +145,7 @@ export default function Home() {
   const [isIslandHovered, setIsIslandHovered] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [isCvModalOpen, setIsCvModalOpen] = useState(false);
+  const [selectedCert, setSelectedCert] = useState(null);
   const [skills, setSkills] = useState(SKILLS_DATA);
   const [projects, setProjects] = useState(DEV_PROJECTS);
   const [projectFilter, setProjectFilter] = useState("all");
@@ -207,7 +208,19 @@ export default function Home() {
       observers.push(observer);
     });
 
-    return () => observers.forEach((o) => o.disconnect());
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setSelectedVideo(null);
+        setIsCvModalOpen(false);
+        setSelectedCert(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      observers.forEach((o) => o.disconnect());
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   useEffect(() => {
@@ -258,10 +271,25 @@ export default function Home() {
       {/* 🍎 THE REAL DYNAMIC ISLAND NAVBAR 🍎 */}
       <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] flex justify-center drop-shadow-2xl h-32 items-start pointer-events-none">
         <div
+          role="navigation"
+          aria-label="Main Menu"
           onMouseEnter={() => setIsIslandHovered(true)}
           onMouseLeave={() => setIsIslandHovered(false)}
           onClick={() => setIsIslandHovered((v) => !v)}
-          className={`bg-black pointer-events-auto cursor-pointer relative flex items-center justify-center overflow-visible transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isIslandHovered
+          onFocus={() => setIsIslandHovered(true)}
+          onBlur={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget)) {
+              setIsIslandHovered(false);
+            }
+          }}
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setIsIslandHovered((v) => !v);
+            }
+          }}
+          className={`bg-black pointer-events-auto cursor-pointer relative flex items-center justify-center overflow-visible transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] focus:outline-none focus:ring-2 focus:ring-accent/50 ${isIslandHovered
             ? 'w-[360px] md:w-[480px] h-[72px] rounded-[36px] border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.8)]'
             : 'w-28 h-9 rounded-full border border-transparent shadow-lg'
             }`}
@@ -279,10 +307,11 @@ export default function Home() {
                 key={item.id}
                 href={`#${item.id}`}
                 onClick={(e) => scrollToSection(e, item.id)}
-                className="relative group flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full transition-transform hover:scale-110"
+                aria-label={`Navigasi ke ${item.label}`}
+                className="relative group flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-accent"
               >
                 {activeSection === item.id && <div className="absolute inset-0 bg-accent/20 rounded-full blur-md"></div>}
-                <div className={`relative z-10 transition-colors ${activeSection === item.id ? "text-accent" : "text-gray-400 group-hover:text-white"}`}>{item.svg}</div>
+                <div className={`relative z-10 transition-colors ${activeSection === item.id ? "text-accent" : "text-gray-400 group-hover:text-white"}`} aria-hidden="true">{item.svg}</div>
                 <span className="absolute -bottom-10 bg-white/10 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold px-3 py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg whitespace-nowrap">{item.label}</span>
               </a>
             ))}
@@ -502,18 +531,26 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {certificates.map((cert) => (
-              <div key={cert.id} className="bento-card group bg-card-bg border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all flex flex-col">
+              <div key={cert.id} onClick={() => setSelectedCert(cert)} className="bento-card group bg-card-bg border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all flex flex-col cursor-pointer">
                 <div className="relative w-full aspect-[4/3] bg-gradient-to-br from-primary/40 to-accent/30 flex items-center justify-center overflow-hidden">
                   {cert.verify_url?.endsWith('.pdf') ? (
-                    <PdfThumbnail url={cert.verify_url} width={600} className="object-cover" />
+                    <PdfThumbnail url={cert.verify_url} width={600} />
                   ) : (
                     <i className="ri-award-fill text-6xl text-white/40"></i>
                   )}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-300">
+                      <i className="ri-eye-line text-white text-xl"></i>
+                    </div>
+                  </div>
                 </div>
                 <div className="p-6 flex flex-col flex-1">
                   <h3 className="font-bold text-base text-white mb-2 line-clamp-2">{cert.title}</h3>
                   <p className="text-sm text-gray-400 flex items-center gap-2 mb-1"><i className="ri-award-line text-accent"></i> {cert.issuer}</p>
                   {cert.issue_date && <p className="text-xs text-gray-500">{cert.issue_date}</p>}
+                  <span className="inline-flex items-center gap-1.5 text-accent text-xs font-bold mt-3 group-hover:gap-2.5 transition-all">
+                    View Credential <i className="ri-arrow-right-line"></i>
+                  </span>
                 </div>
               </div>
             ))}
@@ -521,6 +558,51 @@ export default function Home() {
           {!certificates.length && <p className="text-gray-500 text-sm text-center">Belum ada sertifikat.</p>}
         </div>
       </section>
+
+      {/* 🏅 CERTIFICATE MODAL 🏅 */}
+      {selectedCert && (
+        <div className="fixed inset-0 z-[200] flex md:items-center md:justify-center md:p-10">
+          <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" onClick={() => setSelectedCert(null)}></div>
+          <div className="relative z-10 w-full md:max-w-4xl bg-card-bg md:border border-white/10 md:rounded-2xl overflow-y-auto md:max-h-[90vh] grid md:grid-cols-2">
+            <button onClick={() => setSelectedCert(null)} className="fixed md:absolute top-4 right-4 w-9 h-9 bg-white/10 hover:bg-red-500 text-white rounded-full flex items-center justify-center z-[300] transition-all active:scale-90">
+              <i className="ri-close-line text-xl"></i>
+            </button>
+            {/* PDF Preview */}
+            <div className="bg-white/5 flex items-start justify-center overflow-y-auto">
+              {selectedCert.verify_url?.endsWith('.pdf') ? (
+                <PdfThumbnail url={selectedCert.verify_url} width={900} />
+              ) : (
+                <div className="w-full aspect-[1/1.414] bg-gradient-to-br from-primary/40 to-accent/30 flex items-center justify-center">
+                  <i className="ri-award-fill text-8xl text-white/40"></i>
+                </div>
+              )}
+            </div>
+            {/* Detail */}
+            <div className="p-6 flex flex-col">
+              <h4 className="font-bold text-xl text-white mb-4 pr-10">{selectedCert.title}</h4>
+              <dl className="space-y-3 text-sm flex-1">
+                <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Penerbit</dt><dd className="text-white">{selectedCert.issuer}</dd></div>
+                {selectedCert.credential_id && <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Credential ID</dt><dd className="text-white break-all">{selectedCert.credential_id}</dd></div>}
+                {selectedCert.credential_url && <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Credential Link</dt><dd><a href={selectedCert.credential_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:text-white transition-colors break-all">{selectedCert.credential_url} <i className="ri-external-link-line text-xs"></i></a></dd></div>}
+                {selectedCert.issue_date && <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Tanggal Terbit</dt><dd className="text-white">{selectedCert.issue_date}</dd></div>}
+                {selectedCert.description && <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Deskripsi</dt><dd className="text-gray-300 leading-relaxed">{selectedCert.description}</dd></div>}
+              </dl>
+              <div className="flex flex-wrap gap-3 mt-6">
+                {selectedCert.verify_url && (
+                  <a href={selectedCert.verify_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-bold text-white bg-accent px-5 py-2.5 rounded-xl hover:scale-105 transition-transform">
+                    View PDF <i className="ri-file-pdf-2-line"></i>
+                  </a>
+                )}
+                {selectedCert.credential_url && (
+                  <a href={selectedCert.credential_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-bold text-white bg-accent/80 px-5 py-2.5 rounded-xl hover:scale-105 transition-transform">
+                    Verify Credential <i className="ri-external-link-line"></i>
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* CONTACT */}
       <section id="contact" className="py-24 px-6 relative z-10">
@@ -531,10 +613,10 @@ export default function Home() {
           </div>
           <form action="https://formspree.io/f/meoqzdan" method="POST" className="space-y-4">
             <div className="grid md:grid-cols-2 gap-4">
-              <input type="text" name="name" placeholder="Nama Lengkap" required className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:border-accent transition-colors" />
-              <input type="email" name="email" placeholder="Email Valid" required className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:border-accent transition-colors" />
+              <input type="text" name="name" placeholder="Nama Lengkap" aria-label="Nama Lengkap" required className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:border-accent transition-colors" />
+              <input type="email" name="email" placeholder="Email Valid" aria-label="Email Valid" required className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:border-accent transition-colors" />
             </div>
-            <textarea name="message" rows="4" placeholder="Pesan Anda..." required className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:border-accent transition-colors resize-none"></textarea>
+            <textarea name="message" rows="4" placeholder="Pesan Anda..." aria-label="Pesan Anda" required className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:border-accent transition-colors resize-none"></textarea>
             <button type="submit" className="w-full py-5 bg-white text-bg-dark font-black uppercase tracking-widest rounded-2xl hover:bg-accent transition-all active:scale-95 shadow-xl">Send Message</button>
           </form>
         </div>

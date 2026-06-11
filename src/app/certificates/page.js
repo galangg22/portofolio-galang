@@ -17,6 +17,17 @@ export default function CertificatesPage() {
       .then(({ data }) => setCerts(data ?? []));
   }, []);
 
+  // Handle keyboard events (Escape to close)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setModal(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const share = (cert) => {
     navigator.clipboard.writeText(`${window.location.origin}/certificates#${cert.id}`);
     setCopied(true);
@@ -48,7 +59,7 @@ export default function CertificatesPage() {
           <div key={cert.id} id={cert.id} className="group bg-card-bg border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all flex flex-col">
             <div className="relative w-full aspect-[4/3] bg-gradient-to-br from-primary/40 to-accent/30 flex items-center justify-center overflow-hidden">
               {cert.verify_url?.endsWith('.pdf') ? (
-                <PdfThumbnail url={cert.verify_url} width={600} className="object-cover" />
+                <PdfThumbnail url={cert.verify_url} width={600} />
               ) : (
                 <i className="ri-award-fill text-6xl text-white/40"></i>
               )}
@@ -57,8 +68,8 @@ export default function CertificatesPage() {
               <h3 className="font-bold text-base md:text-lg text-white mb-2">{cert.title}</h3>
               <p className="text-sm text-gray-400 flex items-center gap-2 mb-1"><i className="ri-award-line text-accent"></i> {cert.issuer}{cert.issue_date ? ` · ${cert.issue_date}` : ""}</p>
               {cert.description && <p className="text-gray-400 text-sm leading-relaxed mb-4 flex-1">{cert.description}</p>}
-              {cert.verify_url && (
-                <button onClick={() => setModal(cert)} className="inline-flex items-center gap-2 w-fit text-sm font-bold text-white bg-white/5 border border-white/10 px-5 py-2.5 rounded-xl hover:border-accent/40 transition-colors mt-auto">
+              {(cert.verify_url || cert.credential_url) && (
+                <button onClick={() => setModal(cert)} className="inline-flex items-center gap-2 w-fit text-sm font-bold text-white bg-white/5 border border-white/10 px-5 py-2.5 rounded-xl hover:border-accent/40 focus:outline-none focus:ring-2 focus:ring-accent transition-colors mt-auto">
                   View Credential <i className="ri-external-link-line"></i>
                 </button>
               )}
@@ -75,19 +86,15 @@ export default function CertificatesPage() {
             <button onClick={() => setModal(null)} className="fixed md:absolute top-4 right-4 w-9 h-9 bg-white/10 hover:bg-red-500 text-white rounded-full flex items-center justify-center z-[300] transition-all active:scale-90">
               <i className="ri-close-line text-xl"></i>
             </button>
-            {/* PDF — A4 aspect ratio, responsive */}
-            <div className="bg-white/5">
-              <div className="relative w-full" style={{ paddingBottom: "141.4%" }}>
-                <div className="absolute inset-0 overflow-y-auto">
-                  {modal.verify_url?.endsWith('.pdf') ? (
-                    <PdfThumbnail url={modal.verify_url} width={900} />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-primary/40 to-accent/30 flex items-center justify-center">
-                      <i className="ri-award-fill text-8xl text-white/40"></i>
-                    </div>
-                  )}
+            {/* PDF Preview */}
+            <div className="bg-white/5 flex items-start justify-center overflow-y-auto">
+              {modal.verify_url?.endsWith('.pdf') ? (
+                <PdfThumbnail url={modal.verify_url} width={900} />
+              ) : (
+                <div className="w-full aspect-[1/1.414] bg-gradient-to-br from-primary/40 to-accent/30 flex items-center justify-center">
+                  <i className="ri-award-fill text-8xl text-white/40"></i>
                 </div>
-              </div>
+              )}
             </div>
             {/* Detail */}
             <div className="p-6 flex flex-col">
@@ -95,13 +102,21 @@ export default function CertificatesPage() {
               <dl className="space-y-3 text-sm flex-1">
                 <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Penerbit</dt><dd className="text-white">{modal.issuer}</dd></div>
                 {modal.credential_id && <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Credential ID</dt><dd className="text-white break-all">{modal.credential_id}</dd></div>}
+                {modal.credential_url && <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Credential Link</dt><dd><a href={modal.credential_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:text-white transition-colors break-all">{modal.credential_url} <i className="ri-external-link-line text-xs"></i></a></dd></div>}
                 {modal.issue_date && <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Tanggal Terbit</dt><dd className="text-white">{modal.issue_date}</dd></div>}
                 {modal.description && <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Deskripsi</dt><dd className="text-gray-300 leading-relaxed">{modal.description}</dd></div>}
               </dl>
               <div className="flex flex-wrap gap-3 mt-6">
-                <a href={modal.verify_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-bold text-white bg-accent px-5 py-2.5 rounded-xl hover:scale-105 transition-transform">
-                  View Credential <i className="ri-external-link-line"></i>
-                </a>
+                {modal.verify_url && (
+                  <a href={modal.verify_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-bold text-white bg-accent px-5 py-2.5 rounded-xl hover:scale-105 transition-transform">
+                    View PDF <i className="ri-file-pdf-2-line"></i>
+                  </a>
+                )}
+                {modal.credential_url && (
+                  <a href={modal.credential_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-bold text-white bg-accent/80 px-5 py-2.5 rounded-xl hover:scale-105 transition-transform">
+                    Verify Credential <i className="ri-external-link-line"></i>
+                  </a>
+                )}
                 <button onClick={() => share(modal)} className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/5 border border-white/10 px-5 py-2.5 rounded-xl hover:border-accent/40 transition-colors">
                   <i className="ri-link"></i> {copied ? "Tersalin!" : "Share Link"}
                 </button>

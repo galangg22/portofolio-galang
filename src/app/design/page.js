@@ -119,6 +119,25 @@ export default function DesignGallery() {
     })();
   }, []);
 
+  // Handle keyboard events (Escape to close, Arrows to paginate)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setSelectedVideo(null);
+        setLightbox(null);
+      }
+      if (lightbox && lightbox.images.length > 1) {
+        if (e.key === "ArrowLeft") {
+          setLightbox((l) => ({ ...l, index: (l.index - 1 + l.images.length) % l.images.length }));
+        } else if (e.key === "ArrowRight") {
+          setLightbox((l) => ({ ...l, index: (l.index + 1) % l.images.length }));
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [lightbox]);
+
   const filteredData = filter === "all"
     ? gallery
     : gallery.filter(item => item.category === filter);
@@ -175,7 +194,16 @@ export default function DesignGallery() {
         {filteredData.map((item) => (
           <div 
             key={item.id} 
-            className="break-inside-avoid mb-6 group relative rounded-[20px] md:rounded-[24px] overflow-hidden bg-[#111] border border-white/5 hover:border-white/20 transition-all duration-500 cursor-pointer"
+            role="button"
+            tabIndex={0}
+            aria-label={`${item.title} - ${item.category === "video" ? "Video" : "Desain"}`}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                openItem(item);
+              }
+            }}
+            className="break-inside-avoid mb-6 group relative rounded-[20px] md:rounded-[24px] overflow-hidden bg-[#111] border border-white/5 hover:border-white/20 focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-500 cursor-pointer"
             onClick={() => openItem(item)}
           >
             <div className="relative w-full overflow-hidden aspect-auto bg-black">
@@ -189,15 +217,15 @@ export default function DesignGallery() {
               
               {/* Minimalist Video Overlay */}
               {item.category === "video" && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/50 transition-all duration-500">
-                  <span className="opacity-100 md:opacity-0 group-hover:opacity-100 text-white font-bold uppercase tracking-[0.2em] text-[9px] md:text-[10px] border border-white/20 px-3 md:px-4 py-2 rounded-md backdrop-blur-sm transition-opacity duration-500 bg-black/40">
-                    Play Video
-                  </span>
+                <div className="absolute inset-0 flex items-center justify-center bg-black/25 group-hover:bg-black/45 transition-all duration-500">
+                  <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white transition-transform duration-500 group-hover:scale-110 group-hover:bg-accent group-hover:text-bg-dark" aria-label="Play Video">
+                    <i className="ri-play-fill text-xl ml-0.5" aria-hidden="true"></i>
+                  </div>
                 </div>
               )}
               
               {/* Category Tag */}
-              <div className="absolute top-3 left-3 md:top-4 md:left-4 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 text-[8px] md:text-[9px] font-bold text-white/80 uppercase tracking-widest opacity-100 md:opacity-0 md:-translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+              <div className="absolute top-3 left-3 md:top-4 md:left-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 text-[8px] md:text-[9px] font-bold text-white/80 uppercase tracking-widest transition-all duration-300">
                 {item.category}
               </div>
             </div>

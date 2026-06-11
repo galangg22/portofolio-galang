@@ -9,7 +9,6 @@ const CARDS = [
   { href: '/admin/design', label: 'Design Gallery', icon: 'ri-palette-line', table: 'designs', color: 'from-pink-500/20 to-rose-500/20' },
   { href: '/admin/video', label: 'Video Gallery', icon: 'ri-video-line', table: 'videos', color: 'from-purple-500/20 to-violet-500/20' },
   { href: '/admin/certificates', label: 'Certificates', icon: 'ri-award-line', table: 'certificates', color: 'from-amber-500/20 to-yellow-500/20' },
-  { href: '/admin/skills', label: 'Skills', icon: 'ri-tools-line', table: 'skills', color: 'from-emerald-500/20 to-green-500/20' },
 ];
 
 export default function AdminDashboard() {
@@ -65,7 +64,7 @@ export default function AdminDashboard() {
               <p className="text-2xl font-bold text-white">{loading ? '...' : total}</p>
             </div>
           </div>
-          <div className="grid grid-cols-5 gap-3">
+          <div className="grid grid-cols-4 gap-3">
             {CARDS.map((c) => (
               <div key={c.table} className="text-center">
                 <p className="text-lg font-bold text-white">{loading ? '-' : (counts[c.table] ?? 0)}</p>

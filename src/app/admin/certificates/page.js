@@ -12,6 +12,7 @@ export default function AdminCertificates() {
         { key: 'title', label: 'Judul Sertifikat', type: 'text', required: true },
         { key: 'issuer', label: 'Penerbit', type: 'text', required: true },
         { key: 'credential_id', label: 'Credential ID (opsional)', type: 'text' },
+        { key: 'credential_url', label: 'Credential Link (opsional)', type: 'url' },
         { key: 'issue_date', label: 'Tanggal Terbit (kosongkan jika tidak ada)', type: 'date' },
         { key: 'verify_url', label: 'Link PDF', type: 'pdf' },
         { key: 'description', label: 'Deskripsi', type: 'textarea' },

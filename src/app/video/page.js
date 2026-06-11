@@ -44,6 +44,17 @@ export default function VideoGallery() {
     });
   }, []);
 
+  // Handle keyboard events (Escape to close)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setSelected(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
     <main className="min-h-screen bg-bg-dark text-white p-4 sm:p-8 md:p-16">
       <div className="max-w-6xl mx-auto">
@@ -54,14 +65,26 @@ export default function VideoGallery() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {videos.map((v) => (
-            <div key={v.id} onClick={() => setSelected(getEmbedUrl(v.video_url, v.platform))}
-              className="group relative rounded-2xl overflow-hidden bg-[#111] border border-white/10 cursor-pointer">
+            <div 
+              key={v.id} 
+              role="button"
+              tabIndex={0}
+              aria-label={`Play video: ${v.title}`}
+              onClick={() => setSelected(getEmbedUrl(v.video_url, v.platform))}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setSelected(getEmbedUrl(v.video_url, v.platform));
+                }
+              }}
+              className="group relative rounded-2xl overflow-hidden bg-[#111] border border-white/10 focus:outline-none focus:ring-2 focus:ring-accent cursor-pointer"
+            >
               <div className="relative aspect-video bg-black">
                 {v.thumbnail_url && (
                   <Image src={v.thumbnail_url} alt={v.title} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
                 )}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-14 h-14 rounded-full bg-accent/90 flex items-center justify-center">
+                  <div className="w-14 h-14 rounded-full bg-accent/90 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-focus:scale-110">
                     <i className="ri-play-fill text-bg-dark text-2xl ml-1"></i>
                   </div>
                 </div>

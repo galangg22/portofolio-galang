@@ -75,6 +75,24 @@ export default function ProjectsPage() {
     })();
   }, []);
 
+  // Handle keyboard events (Escape to close, Arrows to paginate screenshots)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setScreenshotModal(null);
+      }
+      if (screenshotModal && screenshotModal.images.length > 1) {
+        if (e.key === "ArrowLeft") {
+          setScreenshotModal((s) => ({ ...s, index: (s.index - 1 + s.images.length) % s.images.length }));
+        } else if (e.key === "ArrowRight") {
+          setScreenshotModal((s) => ({ ...s, index: (s.index + 1) % s.images.length }));
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [screenshotModal]);
+
   // Get available types from data
   const availableTypes = [...new Set(projects.map((p) => p.type || "web"))];
   const filterTabs = [

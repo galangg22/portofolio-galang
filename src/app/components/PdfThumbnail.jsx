@@ -54,9 +54,9 @@ export default function PdfThumbnail({ url, width = 600, className = "" }) {
   }
 
   return (
-    <>
-      {status === "loading" && <div className={`absolute inset-0 bg-white/5 animate-pulse ${className}`}></div>}
-      <canvas ref={canvasRef} className={`w-full h-full ${status === "done" ? "" : "opacity-0"} ${className}`} />
-    </>
+    <div className={`relative w-full ${className}`}>
+      {status === "loading" && <div className="absolute inset-0 bg-white/5 animate-pulse"></div>}
+      <canvas ref={canvasRef} className={`w-full h-auto block ${status === "done" ? "" : "opacity-0"}`} />
+    </div>
   );
 }
