@@ -314,12 +314,8 @@ html.light .creative-card span {
 }
 
 /* Force text visibility on dark/accent backgrounds in light mode */
-html.light .bg-accent,
-html.light .bg-accent *,
-html.light button.bg-accent,
-html.light button.bg-accent *,
-html.light a.bg-accent,
-html.light a.bg-accent *,
+html.light [class*="bg-accent"],
+html.light [class*="bg-accent"] *,
 html.light .text-white-force,
 html.light .hover\:text-white:hover,
 html.light .group-hover\:text-white {

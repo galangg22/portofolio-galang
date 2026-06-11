@@ -107,7 +107,7 @@ export default function VideoGallery() {
                   )}
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="w-14 h-14 rounded-full bg-accent/90 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-focus:scale-110">
-                      <i className="ri-play-fill text-bg-dark text-2xl ml-1"></i>
+                      <i className="ri-play-fill text-white text-2xl ml-1"></i>
                     </div>
                   </div>
                 </div>
