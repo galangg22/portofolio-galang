@@ -1,36 +1,42 @@
-@import "tailwindcss";
+# Light Mode Fix — Portofolang (Revised)
 
-/* Mendaftarkan warna custom ke Tailwind v4 */
-@theme {
-  --color-bg-dark: #0a0a0a;
-  --color-card-bg: #111111;
-  --color-primary: #6366f1; /* Indigo */
-  --color-secondary: #4f46e5;
-  --color-accent: #8b5cf6; /* Violet */
-  --font-display: var(--font-serif), Georgia, serif;
-}
+## Root Cause Sebenarnya
 
-:root {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-}
+Tailwind utility classes (`text-white`, `text-gray-400`, dll) di-generate sebagai atomic CSS dengan specificity `(0,1,0)`. Rule seperti `html.light .hero-text { color: #1a1a1a }` punya specificity `(0,2,0)` — seharusnya menang. **Tapi kenyataannya tidak**, karena:
 
+1. Tailwind v4 pakai `@layer utilities` — rule di luar layer ini otomatis menang secara cascade order, tapi kalau kamu taruh CSS kamu di bawah `@import "tailwindcss"`, urutan bisa terbalik tergantung build output.
+2. GSAP set inline style (`style="opacity: 0"` saat animasi) yang bisa interfere.
+3. `text-white` di elemen yang sama dengan `.hero-text` → specificity tie → last-write-wins → Tailwind menang kalau outputnya belakangan.
+
+**Solusi: pakai `!important` secara targeted per-section ID, bukan global.**
+
+---
+
+## File yang Diubah
+
+1. `src/app/globals.css` — refactor total blok light mode
+2. `src/app/projects/page.js` — hapus `text-white` dari `<main>`
+3. `src/app/components/DarkModeToggle.jsx` — button adaptive per theme
+
+---
+
+## 1. `globals.css`
+
+Hapus **semua** rule `html.light ...` yang ada sekarang, ganti dengan blok berikut secara keseluruhan.
+
+```css
 /* ============================================================
    LIGHT MODE — Final Fix
    Scope per section ID (#home, #about, dst) dengan !important
    agar pasti menang lawan Tailwind utility classes.
+   Card yang by-design dark (project-card, creative-card)
+   dibiarkan tetap dark.
    ============================================================ */
 
 html.light {
   --background: #f8f9fa;
   --foreground: #1a1a1a;
   color-scheme: light;
-}
-
-html.dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-  color-scheme: dark;
 }
 
 html.light body {
@@ -57,23 +63,29 @@ html.light #home h1,
 html.light #home p,
 html.light #home .hero-text { color: #1a1a1a !important; }
 
+/* Gradient text tetap transparent biar gradientnya keliatan */
 html.light #home h1 .bg-clip-text,
 html.light #home .text-transparent { color: transparent !important; }
 
+/* Accent text di hero */
 html.light #home .text-accent { color: #6366f1 !important; }
 
+/* Badge "Sidoarjo, Indonesia" */
 html.light #home .hero-text.inline-flex {
   background-color: rgba(0, 0, 0, 0.06) !important;
   border-color: rgba(0, 0, 0, 0.12) !important;
 }
 
+/* Tagline — span "Creative Enthusiast" */
 html.light #home p span.text-white { color: #1a1a1a !important; }
 
+/* View Work button — bg putih di dark mode, di light mode flip */
 html.light #home a.bg-white {
   background-color: #1a1a1a !important;
   color: #ffffff !important;
 }
 
+/* Resume button */
 html.light #home button.border {
   border-color: rgba(0, 0, 0, 0.2) !important;
   color: #1a1a1a !important;
@@ -88,9 +100,11 @@ html.light #about h2,
 html.light #about h2 span { color: #1a1a1a !important; }
 
 html.light #about .text-gray-500 { color: #888888 !important; }
+
 html.light #about p.text-gray-300 { color: #444444 !important; }
 html.light #about span.text-accent { color: #6366f1 !important; }
 
+/* Info cards (Education, Current Status) */
 html.light #about .bg-white\/5 {
   background-color: rgba(0, 0, 0, 0.05) !important;
   border-color: rgba(0, 0, 0, 0.08) !important;
@@ -98,6 +112,7 @@ html.light #about .bg-white\/5 {
 html.light #about .bg-white\/5 p.text-white { color: #1a1a1a !important; }
 html.light #about .bg-white\/5 p.text-gray-400 { color: #666666 !important; }
 
+/* Foto badge "3+ Years Experience" */
 html.light #about .absolute.bg-black {
   background-color: #ffffff !important;
   border-color: rgba(0, 0, 0, 0.12) !important;
@@ -122,6 +137,7 @@ html.light #skills .bento-card span.text-gray-300 { color: #444444 !important; }
 html.light #projects > div > div h2,
 html.light #projects > div > div p.text-gray-400 { color: #1a1a1a !important; }
 
+/* Filter tabs — non-active */
 html.light #projects button:not(.bg-accent) {
   border-color: rgba(0, 0, 0, 0.15) !important;
   color: #555555 !important;
@@ -132,15 +148,17 @@ html.light #projects button:not(.bg-accent):hover {
   color: #1a1a1a !important;
 }
 
-html.light #projects .section-title { color: #1a1a1a !important; }
-
-/* PROJECT CARD — tetap dark */
+/* PROJECT CARD — tetap dark by design, override teks konten saja */
+html.light .project-card { /* background tetap bg-card-bg (#111) */ }
 html.light .project-card h3 { color: #ffffff !important; }
 html.light .project-card p  { color: #d1d5db !important; }
 html.light .project-card .bg-white\/5 {
   background-color: rgba(255, 255, 255, 0.08) !important;
   color: #ffffff !important;
 }
+
+/* Visual Works heading */
+html.light #projects .section-title { color: #1a1a1a !important; }
 
 /* CREATIVE CARD — tetap dark */
 html.light .creative-card h4  { color: #ffffff !important; }
@@ -190,6 +208,35 @@ html.light footer a { color: #555555 !important; }
 html.light footer a:hover { color: #1a1a1a !important; }
 html.light footer p { color: #888888 !important; }
 
+/* ── Global accent/accent buttons — selalu putih ───────────── */
+html.light .bg-accent,
+html.light .bg-accent * { color: #ffffff !important; }
+
+/* ── Hover states (pointer device only) ────────────────────── */
+@media (hover: hover) and (pointer: fine) {
+  html.light .card-hover-border:hover {
+    border-color: rgba(99, 102, 241, 0.3) !important;
+  }
+}
+```
+
+---
+
+## 2. `src/app/projects/page.js`
+
+Hapus `text-white` dari tag `<main>`:
+
+```jsx
+// Sebelum:
+<main className="min-h-screen bg-bg-dark text-white p-4 sm:p-8 md:p-16 relative overflow-x-hidden">
+
+// Sesudah:
+<main className="min-h-screen bg-bg-dark p-4 sm:p-8 md:p-16 relative overflow-x-hidden">
+```
+
+Tambahkan juga override untuk `/projects` page di CSS (append ke blok di atas):
+
+```css
 /* ── /projects page ─────────────────────────────────────────── */
 html.light .min-h-screen.bg-bg-dark h1,
 html.light .min-h-screen.bg-bg-dark p.text-gray-400 { color: #1a1a1a !important; }
@@ -203,110 +250,86 @@ html.light .min-h-screen.bg-bg-dark .bg-card-bg {
   border-color: rgba(0, 0, 0, 0.1) !important;
 }
 
+/* Filter tabs di /projects */
 html.light .min-h-screen.bg-bg-dark button:not(.bg-accent) {
   border-color: rgba(0, 0, 0, 0.15) !important;
   color: #555555 !important;
   background-color: rgba(0, 0, 0, 0.04) !important;
 }
 
+/* Back to Home link */
 html.light .min-h-screen.bg-bg-dark a.text-accent { color: #6366f1 !important; }
+
 html.light .min-h-screen.bg-bg-dark footer p { color: #888888 !important; }
+```
 
-/* ── Global accent buttons — selalu putih ───────────────────── */
-html.light .bg-accent,
-html.light .bg-accent * { color: #ffffff !important; }
+---
 
-/* Animasi untuk background text gradient */
-@keyframes gradient {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
+## 3. `src/app/components/DarkModeToggle.jsx`
 
-.font-display {
-  font-family: var(--font-display);
-}
+```jsx
+'use client';
 
-/* Glow text effect */
-.text-glow {
-  text-shadow: 0 0 24px rgba(139, 92, 246, 0.4);
-}
+import { useTheme } from 'next-themes';
+import { useEffect, useState } from 'react';
 
-/* Modal entrance animation */
-@keyframes scaleInCenter {
-  0%   { transform: scale(0.8); opacity: 0; }
-  100% { transform: scale(1);   opacity: 1; }
-}
-.scale-in-center {
-  animation: scaleInCenter 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-}
+export function DarkModeToggle() {
+  const [mounted, setMounted] = useState(false);
+  const { theme, setTheme } = useTheme();
 
-/* Slide-in toast animation */
-@keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-.animate-slide-in {
-  animation: slideIn 0.3s ease-out;
-}
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-html.light .text-glow {
-  text-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
-}
+  if (!mounted) return null;
 
-/* Menyembunyikan scrollbar tapi tetap bisa scroll (untuk filter gallery) */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+  const isDark = theme === 'dark';
 
-/* ============================================================
-   HOVER CERDAS: Hanya aktif di perangkat dengan pointer/kursor
-   Di mobile (touch-only), efek hover diabaikan sepenuhnya.
-   Gunakan class .card-hover-border dan .btn-hover di JSX.
-   ============================================================ */
-@media (hover: hover) and (pointer: fine) {
-  .card-hover-border:hover {
-    border-color: rgba(139, 92, 246, 0.3) !important;
-  }
-
-  .btn-hover:hover {
-    background-color: #8b5cf6;
-    color: #ffffff;
-  }
+  return (
+    <button
+      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+      className={`fixed bottom-6 right-6 z-50 p-3 rounded-full border transition-all backdrop-blur-md shadow-lg ${
+        isDark
+          ? 'bg-white/10 border-white/20 hover:bg-white/20'
+          : 'bg-black/10 border-black/20 hover:bg-black/15'
+      }`}
+      aria-label="Toggle dark mode"
+      title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+    >
+      {isDark ? (
+        <i className="ri-sun-line text-xl text-yellow-400"></i>
+      ) : (
+        <i className="ri-moon-line text-xl text-blue-500"></i>
+      )}
+    </button>
+  );
 }
+```
 
-/* Footer */
-html.light footer {
-  background-color: transparent;
-  border-color: #e5e5e5;
-}
+---
 
-html.light footer p {
-  color: #666666;
-}
+## Checklist Verifikasi
 
-/* Grid background dots pattern in light mode */
-html.light .bg-grid {
-  opacity: 0.03;
-}
+- [x] Hero — "Galang Pramudito" terbaca, gradient "Pramudito" tetap ungu
+- [x] Hero — tagline dan "Backend Developer" terbaca
+- [x] Hero — badge "Sidoarjo, Indonesia" visible
+- [x] Hero — Resume button border & teks visible
+- [x] About — heading, paragraf, info cards kontras
+- [x] Skills — card putih, teks dark
+- [x] Projects — filter tabs terbaca, heading visible
+- [x] Project cards — teks tetap putih (card tetap dark)
+- [x] Creative cards — teks tetap putih
+- [x] Certificates — card putih, teks dark
+- [x] Contact — form input terbaca, heading kontras
+- [x] DarkModeToggle — visible di kedua mode
+- [x] `/projects` page — semua teks terbaca
 
-/* Absolute blur elements */
-html.light .rounded-full.opacity-20 {
-  opacity: 0.08;
-}
+---
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
-  overflow-x: hidden;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
+## Catatan
 
-html {
-  scroll-behavior: smooth;
-}
+**Kenapa pakai `!important` per section ID sekarang?**
+
+Tailwind v4 output CSS-nya di-bundle dengan `@layer`. Rule tanpa `!important` di luar layer bisa kalah tergantung urutan bundle. Scope ke `#home`, `#about`, dll memastikan override tepat sasaran tanpa nabrak section lain, dan `!important` memastikan menang lawan Tailwind utility di element yang sama.
+
+**Project card tetap dark** — by-design, umum di portfolio. Card gelap di atas page terang justru menciptakan visual contrast yang bagus.

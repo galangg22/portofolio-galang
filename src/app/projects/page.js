@@ -109,7 +109,7 @@ export default function ProjectsPage() {
   const filtered = filter === "all" ? projects : projects.filter((p) => (p.type || "web") === filter);
 
   return (
-    <main className="min-h-screen bg-bg-dark text-white p-4 sm:p-8 md:p-16 relative overflow-x-hidden">
+    <main className="min-h-screen bg-bg-dark p-4 sm:p-8 md:p-16 relative overflow-x-hidden">
       {/* Background Decor */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-10">
         <div className="absolute left-[-20%] top-[-10%] w-[60%] h-[40%] bg-accent blur-[120px] rounded-full"></div>

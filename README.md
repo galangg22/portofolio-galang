@@ -12,12 +12,14 @@ Modern portfolio website built with **Next.js 16**, **React 19**, **Tailwind CSS
 - **Typed Projects** — Web, Bot, Android apps in one place with type-specific UI (screenshots, Play Store links, etc.)
 - **Design Gallery** — Masonry grid with per-design image slideshow lightbox
 - **Video Gallery** — YouTube, Google Drive, Vimeo embed with auto-detected URLs
+- **Certificates Showcase** — Interactive certificate gallery, supporting custom detail lightbox popups and external credential verification links
 - **Supabase CMS + Admin Panel** — Full CRUD at `/admin` with image upload, conditional fields, child galleries
 - **Static Fallback** — Works without Supabase; falls back to hardcoded data
 - **GSAP Animations** — ScrollTrigger entrance animations, smooth scroll
 - **SEO** — Dynamic sitemap, robots.txt, Open Graph, meta tags
 - **PWA Ready** — Web app manifest, mobile-optimized
-- **Security** — Rate-limited login, httpOnly cookies, security headers, server-only secrets
+- **Security & Performance** — Rate-limited login, httpOnly cookies, security headers, server-only secrets, lightweight IntersectionObserver page scroll tracking
+- **Dark/Light Mode** — Premium high-contrast layout transition with a modular scoping approach (keeping dark elements readable while flipping main UI theme colors)
 
 ## Tech Stack
 
@@ -79,6 +81,7 @@ ADMIN_PASSWORD=your_strong_password
 | `design_images` | Gallery images per design (FK, cascade delete) |
 | `videos` | Video entries (YouTube/Drive/Vimeo) |
 | `skills` | Skills bento grid data |
+| `certificates` | Certificates entries (featured, sort_order, credential_link) |
 
 All tables have public read (RLS) — writes only via service_role in API routes.
 
