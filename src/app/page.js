@@ -473,7 +473,7 @@ export default function Home() {
                   <div key={idx} className="project-card group bg-card-bg rounded-3xl overflow-hidden border border-white/10 flex flex-col transition-all duration-500 shadow-xl card-hover-border">
                     <div className="relative h-56">
                       {project.image ? (
-                        <Image src={project.image} alt={project.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" loading={idx < 2 ? "eager" : "lazy"} />
+                        <Image src={project.image} alt={project.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" priority={idx < 2} />
                       ) : (
                         <div className={`w-full h-full bg-gradient-to-br ${project.gradient} flex items-center justify-center`}>
                           <i className={`${project.icon} text-6xl text-white/30`}></i>

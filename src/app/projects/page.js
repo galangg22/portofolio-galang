@@ -171,7 +171,7 @@ export default function ProjectsPage() {
             </div>
           ))
         ) : (
-          filtered.map((project) => {
+          filtered.map((project, idx) => {
             const typeInfo = TYPE_CONFIG[project.type] || TYPE_CONFIG.other;
             const statusInfo = STATUS_BADGE[project.status] || "";
             return (
@@ -180,7 +180,7 @@ export default function ProjectsPage() {
                 <div className="relative w-full aspect-video bg-black overflow-hidden">
                   {project.thumbnail_url ? (
                     <Image src={project.thumbnail_url} alt={project.title} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />
+                      className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" priority={idx < 3} />
                   ) : (
                     <div className={`w-full h-full bg-gradient-to-br ${typeInfo.gradient} flex items-center justify-center`}>
                       <i className={`${typeInfo.icon} text-5xl text-white/20`}></i>
