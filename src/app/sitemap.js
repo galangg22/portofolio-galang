@@ -1,12 +1,18 @@
 export default function sitemap() {
-  const baseUrl = 'https://galang-arrauf.com';
-  
+  const baseUrl = 'https://portofolang.vercel.app';
+
   return [
     {
       url: baseUrl,
       lastModified: new Date().toISOString(),
       priority: 1,
       changeFrequency: 'weekly',
+    },
+    {
+      url: `${baseUrl}/projects`,
+      lastModified: new Date().toISOString(),
+      priority: 0.9,
+      changeFrequency: 'monthly',
     },
     {
       url: `${baseUrl}/design`,

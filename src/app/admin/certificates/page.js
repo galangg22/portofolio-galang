@@ -15,10 +15,21 @@ export default function AdminCertificates() {
         { key: 'issue_date', label: 'Tanggal Terbit (kosongkan jika tidak ada)', type: 'date' },
         { key: 'verify_url', label: 'Link PDF', type: 'pdf' },
         { key: 'description', label: 'Deskripsi', type: 'textarea' },
-        { key: 'featured', label: 'Featured di Homepage (Max 3)', type: 'checkbox' },
-        { key: 'sort_order', label: 'Urutan Featured (0-2, hanya jika Featured dicentang)', type: 'number' },
+        { key: 'featured', label: 'Featured di Homepage', type: 'checkbox' },
+        { key: 'sort_order', label: 'Slot Featured', type: 'featured_slot', showWhen: (f) => !!f.featured },
       ]}
-      helpText="Centang Featured dan atur sort_order (0, 1, atau 2) untuk menampilkan di homepage. Max 3 sertifikat."
+      featuredSlots={{
+        maxSlots: 3,
+        slotField: 'sort_order',
+        featuredField: 'featured',
+        table: 'certificates',
+      }}
+      relatedImages={{
+        table: 'certificate_images',
+        fk: 'certificate_id',
+        hasCaption: false,
+      }}
+      helpText="Centang Featured untuk menampilkan di homepage (max 3 slot). Pilih slot dari dropdown — slot yang sudah terpakai akan ditampilkan."
     />
   );
 }

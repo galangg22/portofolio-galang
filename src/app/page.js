@@ -49,6 +49,7 @@ const DEV_PROJECTS = [
     gradient: "from-emerald-900 via-green-800 to-teal-900",
     icon: "ri-whatsapp-line",
     tags: ["Node.js", "Baileys API", "Automation"],
+    type: "bot",
     desc: "Sistem automasi backend untuk memonitor jadwal dan mengirimkan pengingat absensi secara otomatis via WhatsApp.",
     link: "https://github.com/galangpramudito/bot-presensi",
     actionText: "GitHub Repo",
@@ -60,6 +61,7 @@ const DEV_PROJECTS = [
     gradient: "from-blue-900 via-indigo-800 to-purple-900",
     icon: "ri-graduation-cap-line",
     tags: ["Web Dev", "HTML", "CSS"],
+    type: "web",
     desc: "Platform sistem informasi manajemen untuk digitalisasi administrasi santri dan guru di TPQ Al-Hikmah.",
     link: "https://github.com/galangpramudito/alhikmah",
     actionText: "GitHub Repo",
@@ -71,6 +73,7 @@ const DEV_PROJECTS = [
     gradient: null,
     icon: null,
     tags: ["React/Next.js", "Tailwind", "E-Commerce"],
+    type: "web",
     desc: "Katalog e-commerce modern untuk produk thrifting dengan UI/UX intuitif dan performa pencarian cepat.",
     link: "https://github.com/galangpramudito/thriftyfinds",
     actionText: "Live Demo",
@@ -82,11 +85,27 @@ const DEV_PROJECTS = [
     gradient: null,
     icon: null,
     tags: ["LMS", "Fullstack", "Database"],
+    type: "web",
     desc: "Aplikasi e-learning interaktif untuk manajemen materi kelas online, penugasan, dan interaksi pembelajaran.",
     link: "https://github.com/galangpramudito/hearthorizon",
     actionText: "GitHub Repo",
     actionIcon: "ri-github-fill"
   }
+];
+
+// Label mapping untuk tipe project
+const TYPE_LABELS = {
+  web: { label: "Web Apps", icon: "ri-global-line", color: "bg-blue-500/20 text-blue-300 border-blue-500/30" },
+  bot: { label: "Service Automation", icon: "ri-robot-2-line", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" },
+  android: { label: "Mobile Apps", icon: "ri-smartphone-line", color: "bg-purple-500/20 text-purple-300 border-purple-500/30" },
+  other: { label: "Other", icon: "ri-code-s-slash-line", color: "bg-gray-500/20 text-gray-300 border-gray-500/30" },
+};
+
+const PROJECT_FILTERS = [
+  { key: "all", label: "All Projects", icon: "ri-apps-line" },
+  { key: "web", label: "Web Apps", icon: "ri-global-line" },
+  { key: "bot", label: "Service Automation", icon: "ri-robot-2-line" },
+  { key: "android", label: "Mobile Apps", icon: "ri-smartphone-line" },
 ];
 
 // Cuma ambil 2 untuk showcase di Home
@@ -125,9 +144,10 @@ export default function Home() {
   const [activeSection, setActiveSection] = useState("home");
   const [isIslandHovered, setIsIslandHovered] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
-  const [isCvModalOpen, setIsCvModalOpen] = useState(false); // 👈 TAMBAHKAN INI
+  const [isCvModalOpen, setIsCvModalOpen] = useState(false);
   const [skills, setSkills] = useState(SKILLS_DATA);
   const [projects, setProjects] = useState(DEV_PROJECTS);
+  const [projectFilter, setProjectFilter] = useState("all");
   const [certificates, setCertificates] = useState([]);
   const mainRef = useRef(null);
 
@@ -152,6 +172,7 @@ export default function Home() {
               gradient: p.thumbnail_url ? null : "from-emerald-900 via-green-800 to-teal-900",
               icon: p.thumbnail_url ? null : "ri-code-s-slash-line",
               tags: p.tags || [],
+              type: p.type || "web",
               desc: p.description,
               link: p.demo_url || p.github_url || "#",
               actionText: p.demo_url ? "Live Demo" : "GitHub Repo",
@@ -343,32 +364,64 @@ export default function Home() {
       {/* PROJECTS DEVELOPMENT */}
       <section id="projects" className="py-24 px-6">
         <div className="max-w-5xl mx-auto">
-          <h2 className="section-title text-4xl font-bold mb-12 uppercase tracking-tighter">Featured Development</h2>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-6">
+            <div>
+              <h2 className="section-title text-4xl font-bold mb-3 uppercase tracking-tighter">Featured Development</h2>
+              <p className="text-gray-400 text-sm max-w-md">Project web, service automation, dan mobile apps.</p>
+            </div>
+            <Link href="/projects" className="px-6 py-3 bg-accent text-bg-dark font-black uppercase text-xs tracking-widest rounded-xl hover:scale-105 transition-transform flex items-center gap-2 shadow-lg shadow-accent/20">
+              View All <i className="ri-arrow-right-line"></i>
+            </Link>
+          </div>
+
+          {/* Category Tabs */}
+          <div className="flex gap-2 md:gap-3 mb-10 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            {PROJECT_FILTERS.filter(f => f.key === 'all' || projects.some(p => p.type === f.key)).map((f) => (
+              <button
+                key={f.key}
+                onClick={() => setProjectFilter(f.key)}
+                className={`shrink-0 px-5 md:px-6 py-2.5 rounded-full border text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${
+                  projectFilter === f.key
+                    ? "bg-accent text-bg-dark border-accent"
+                    : "border-white/10 text-gray-500 hover:border-white/30 hover:text-white bg-white/5"
+                }`}
+              >
+                <i className={f.icon}></i> {f.label}
+              </button>
+            ))}
+          </div>
+
           <div className="grid md:grid-cols-2 gap-8 mb-24">
-            {projects.map((project, idx) => (
-              <div key={idx} className="project-card group bg-card-bg rounded-3xl overflow-hidden border border-white/10 flex flex-col transition-all duration-500 shadow-xl card-hover-border">
-                <div className="relative h-56">
-                  {project.image ? (
-                    <Image src={project.image} alt={project.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" loading={idx < 2 ? "eager" : "lazy"} />
-                  ) : (
-                    <div className={`w-full h-full bg-gradient-to-br ${project.gradient} flex items-center justify-center`}>
-                      <i className={`${project.icon} text-6xl text-white/30`}></i>
+            {projects.filter(p => projectFilter === 'all' || p.type === projectFilter).map((project, idx) => {
+              const typeInfo = TYPE_LABELS[project.type] || TYPE_LABELS.other;
+              return (
+                <div key={idx} className="project-card group bg-card-bg rounded-3xl overflow-hidden border border-white/10 flex flex-col transition-all duration-500 shadow-xl card-hover-border">
+                  <div className="relative h-56">
+                    {project.image ? (
+                      <Image src={project.image} alt={project.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" loading={idx < 2 ? "eager" : "lazy"} />
+                    ) : (
+                      <div className={`w-full h-full bg-gradient-to-br ${project.gradient} flex items-center justify-center`}>
+                        <i className={`${project.icon} text-6xl text-white/30`}></i>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-bg-dark/90 to-transparent"></div>
+                    <div className="absolute top-4 left-4 flex gap-2 flex-wrap">
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase border flex items-center gap-1.5 ${typeInfo.color}`}>
+                        <i className={typeInfo.icon}></i> {typeInfo.label}
+                      </span>
+                      {project.tags.slice(0, 2).map(tag => <span key={tag} className="px-3 py-1 bg-black/70 backdrop-blur-md border border-white/10 rounded-full text-[10px] text-white font-bold uppercase">{tag}</span>)}
                     </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-bg-dark/90 to-transparent"></div>
-                  <div className="absolute top-4 left-4 flex gap-2">
-                    {project.tags.map(tag => <span key={tag} className="px-3 py-1 bg-black/70 backdrop-blur-md border border-white/10 rounded-full text-[10px] text-white font-bold uppercase">{tag}</span>)}
+                  </div>
+                  <div className="p-8 flex flex-col flex-1">
+                    <h3 className="text-2xl font-bold mb-3 text-white">{project.title}</h3>
+                    <p className="text-gray-400 text-sm mb-8 flex-1 leading-relaxed">{project.desc}</p>
+                    <a href={project.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 text-white font-bold text-sm bg-white/5 w-fit px-6 py-3 rounded-xl active:scale-95 transition-all btn-hover">
+                      <i className={project.actionIcon + " text-xl"}></i> {project.actionText}
+                    </a>
                   </div>
                 </div>
-                <div className="p-8 flex flex-col flex-1">
-                  <h3 className="text-2xl font-bold mb-3 text-white">{project.title}</h3>
-                  <p className="text-gray-400 text-sm mb-8 flex-1 leading-relaxed">{project.desc}</p>
-                  <a href={project.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 text-white font-bold text-sm bg-white/5 w-fit px-6 py-3 rounded-xl active:scale-95 transition-all btn-hover">
-                    <i className={project.actionIcon + " text-xl"}></i> {project.actionText}
-                  </a>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* CREATIVE SHOWCASE LITE (ONLY 2 ITEMS) */}

@@ -14,9 +14,10 @@ export default function AdminVideo() {
         { key: 'platform', label: 'Platform', type: 'select', options: ['youtube', 'drive', 'vimeo'] },
         { key: 'thumbnail_url', label: 'Thumbnail', type: 'image' },
         { key: 'description', label: 'Deskripsi', type: 'textarea' },
-        { key: 'featured', label: 'Featured', type: 'checkbox' },
+        { key: 'featured', label: 'Featured di Homepage', type: 'checkbox' },
         { key: 'sort_order', label: 'Urutan', type: 'number' },
       ]}
+      helpText="URL video dari YouTube, Google Drive, atau Vimeo. Thumbnail opsional — jika kosong akan generate otomatis dari URL."
     />
   );
 }

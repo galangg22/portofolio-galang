@@ -28,6 +28,7 @@ export default function AdminProjects() {
         hasCaption: true,
         showWhen: (f) => f.type === 'android',
       }}
+      helpText="Kelola semua project. Tipe Android bisa tambah screenshots. Tipe Web bisa isi Demo URL. Status 'private' tidak akan ditampilkan di frontend."
     />
   );
 }
