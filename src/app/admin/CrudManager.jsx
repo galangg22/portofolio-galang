@@ -115,7 +115,7 @@ function RelatedImages({ table, fk, parentId, hasCaption }) {
                 <span className="text-xs text-gray-400">Urutan</span>
                 <input type="number" value={row.sort_order ?? 0} onChange={(e) => update(idx, { sort_order: e.target.value })}
                   className="w-16 bg-white/5 border border-white/10 rounded-lg p-2 text-white text-sm" />
-                <button type="button" onClick={() => save(row)} className="px-3 py-2 bg-accent text-bg-dark text-xs font-bold rounded-lg hover:scale-105 transition-transform">Simpan</button>
+                <button type="button" onClick={() => save(row)} className="px-3 py-2 bg-accent text-white text-xs font-bold rounded-lg hover:scale-105 transition-transform">Simpan</button>
                 <button type="button" onClick={() => remove(row, idx)} className="px-3 py-2 text-red-400 text-xs hover:text-red-300 transition-colors">Hapus</button>
               </div>
             </div>
@@ -268,8 +268,8 @@ export default function CrudManager({ table, title, fields, columns = ['title'],
     <main className="min-h-screen bg-bg-dark text-white p-6 md:p-12">
       {toast && <Toast msg={toast.msg} type={toast.type} onDone={() => setToast(null)} />}
       <div className="max-w-4xl mx-auto">
-        <a href="/admin" className="inline-flex items-center gap-2 text-accent text-sm mb-6 hover:text-white transition-colors group">
-          <span className="w-7 h-7 rounded-full border border-accent/30 flex items-center justify-center group-hover:bg-accent group-hover:text-bg-dark transition-all">
+        <a href="/admin" className="inline-flex items-center gap-2 text-accent text-sm mb-6 hover:text-black dark:hover:text-white transition-colors group">
+          <span className="w-7 h-7 rounded-full border border-accent/30 flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-all">
             <i className="ri-arrow-left-s-line"></i>
           </span>
           Dashboard
@@ -369,7 +369,7 @@ export default function CrudManager({ table, title, fields, columns = ['title'],
             </div>
           ))}
           <div className="flex gap-3 pt-2">
-            <button type="submit" className="px-6 py-3 bg-accent text-bg-dark font-bold rounded-xl hover:scale-105 transition-transform">
+            <button type="submit" className="px-6 py-3 bg-accent text-white font-bold rounded-xl hover:scale-105 transition-transform">
               {editingId ? 'Update' : 'Tambah'}
             </button>
             {editingId && <button type="button" onClick={reset} className="px-6 py-3 border border-white/20 rounded-xl hover:bg-white/5 transition-colors">Batal</button>}

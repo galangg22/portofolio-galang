@@ -431,7 +431,7 @@ export default function Home() {
               <h2 className="section-title text-4xl font-bold mb-3 uppercase tracking-tighter">Featured Development</h2>
               <p className="text-gray-400 text-sm max-w-md">Project web, service automation, dan mobile apps.</p>
             </div>
-            <Link href="/projects" className="px-6 py-3 bg-accent text-bg-dark font-black uppercase text-xs tracking-widest rounded-xl hover:scale-105 transition-transform flex items-center gap-2 shadow-lg shadow-accent/20">
+            <Link href="/projects" className="px-6 py-3 bg-accent text-white font-black uppercase text-xs tracking-widest rounded-xl hover:scale-105 transition-transform flex items-center gap-2 shadow-lg shadow-accent/20">
               View All <i className="ri-arrow-right-line"></i>
             </Link>
           </div>
@@ -443,7 +443,7 @@ export default function Home() {
                 key={f.key}
                 onClick={() => setProjectFilter(f.key)}
                 className={`shrink-0 px-5 md:px-6 py-2.5 rounded-full border text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${projectFilter === f.key
-                  ? "bg-accent text-bg-dark border-accent"
+                  ? "bg-accent text-white border-accent"
                   : "border-white/10 text-gray-500 hover:border-white/30 hover:text-white bg-white/5"
                   }`}
               >
@@ -505,7 +505,7 @@ export default function Home() {
               <h2 className="section-title text-4xl font-bold mb-3 uppercase tracking-tighter">Visual Works</h2>
               <p className="text-gray-400 text-sm max-w-md">Hanya cuplikan kecil. Lihat koleksi lengkap desain & video di galeri.</p>
             </div>
-            <Link href="/design" className="px-6 py-3 bg-accent text-bg-dark font-black uppercase text-xs tracking-widest rounded-xl hover:scale-105 transition-transform flex items-center gap-2 shadow-lg shadow-accent/20">
+            <Link href="/design" className="px-6 py-3 bg-accent text-white font-black uppercase text-xs tracking-widest rounded-xl hover:scale-105 transition-transform flex items-center gap-2 shadow-lg shadow-accent/20">
               Full Gallery <i className="ri-arrow-right-line"></i>
             </Link>
           </div>
@@ -571,7 +571,7 @@ export default function Home() {
               <h2 className="section-title text-4xl font-bold mb-3 tracking-tight font-serif">Certificates</h2>
               <p className="text-gray-400 text-sm max-w-md">Sertifikat dan pencapaian dari berbagai pelatihan dan kompetisi.</p>
             </div>
-            <Link href="/certificates" className="px-6 py-3 bg-accent text-bg-dark font-black uppercase text-xs tracking-widest rounded-xl hover:scale-105 transition-transform flex items-center gap-2 shadow-lg shadow-accent/20">
+            <Link href="/certificates" className="px-6 py-3 bg-accent text-white font-black uppercase text-xs tracking-widest rounded-xl hover:scale-105 transition-transform flex items-center gap-2 shadow-lg shadow-accent/20">
               View All <i className="ri-arrow-right-line"></i>
             </Link>
           </div>
@@ -677,7 +677,7 @@ export default function Home() {
               <input type="email" name="email" placeholder="Email Valid" aria-label="Email Valid" required className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:border-accent transition-colors" />
             </div>
             <textarea name="message" rows="4" placeholder="Pesan Anda..." aria-label="Pesan Anda" required className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-white focus:outline-none focus:border-accent transition-colors resize-none"></textarea>
-            <button type="submit" className="w-full py-5 bg-white text-bg-dark font-black uppercase tracking-widest rounded-2xl hover:bg-accent transition-all active:scale-95 shadow-xl">Send Message</button>
+            <button type="submit" className="w-full py-5 bg-white text-bg-dark font-black uppercase tracking-widest rounded-2xl hover:bg-accent hover:text-white transition-all active:scale-95 shadow-xl">Send Message</button>
           </form>
         </div>
       </section>
@@ -726,7 +726,7 @@ export default function Home() {
                   document.body.appendChild(previewModal);
                   previewModal.querySelector('.absolute').addEventListener('click', () => previewModal.remove());
                 }}
-                className="w-full py-4 bg-accent text-bg-dark font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-transform text-xs inline-flex items-center justify-center gap-2"
+                className="w-full py-4 bg-accent text-white font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-transform text-xs inline-flex items-center justify-center gap-2"
               >
                 <i className="ri-eye-line text-base"></i>
                 Preview CV
