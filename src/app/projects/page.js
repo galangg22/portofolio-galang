@@ -37,10 +37,10 @@ const FALLBACK_PROJECTS = [
 ];
 
 const TYPE_CONFIG = {
-  web: { label: "Web Apps", icon: "ri-global-line", color: "bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-500/30", gradient: "from-blue-900 via-indigo-800 to-purple-900" },
-  bot: { label: "Service Automation", icon: "ri-robot-2-line", color: "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/30", gradient: "from-emerald-900 via-green-800 to-teal-900" },
-  android: { label: "Mobile Apps", icon: "ri-smartphone-line", color: "bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-500/30", gradient: "from-purple-900 via-violet-800 to-indigo-900" },
-  other: { label: "Other", icon: "ri-code-s-slash-line", color: "bg-gray-500/20 text-gray-700 dark:text-gray-300 border-gray-500/30", gradient: "from-gray-800 via-gray-700 to-gray-900" },
+  web: { label: "Web Apps", icon: "ri-global-line", color: "bg-blue-500/20 text-blue-300 border-blue-500/30", gradient: "from-blue-900 via-indigo-800 to-purple-900" },
+  bot: { label: "Service Automation", icon: "ri-robot-2-line", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30", gradient: "from-emerald-900 via-green-800 to-teal-900" },
+  android: { label: "Mobile Apps", icon: "ri-smartphone-line", color: "bg-purple-500/20 text-purple-300 border-purple-500/30", gradient: "from-purple-900 via-violet-800 to-indigo-900" },
+  other: { label: "Other", icon: "ri-code-s-slash-line", color: "bg-gray-500/20 text-gray-300 border-gray-500/30", gradient: "from-gray-800 via-gray-700 to-gray-900" },
 };
 
 const STATUS_BADGE = {
