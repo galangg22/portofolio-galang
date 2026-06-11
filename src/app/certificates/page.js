@@ -7,14 +7,19 @@ import PdfThumbnail from "@/app/components/PdfThumbnail";
 
 export default function CertificatesPage() {
   const [certs, setCerts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null); // cert object
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!supabase) return;
+    setLoading(true);
     supabase.from("certificates").select("*")
       .order("sort_order").order("created_at", { ascending: false })
-      .then(({ data }) => setCerts(data ?? []));
+      .then(({ data }) => {
+        setCerts(data ?? []);
+        setLoading(false);
+      });
   }, []);
 
   // Handle keyboard events (Escape to close)
@@ -55,28 +60,42 @@ export default function CertificatesPage() {
       </div>
 
       <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
-        {certs.map((cert) => (
-          <div key={cert.id} id={cert.id} className="group bg-card-bg border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all flex flex-col">
-            <div className="relative w-full aspect-[4/3] bg-gradient-to-br from-primary/40 to-accent/30 flex items-center justify-center overflow-hidden">
-              {cert.verify_url?.endsWith('.pdf') ? (
-                <PdfThumbnail url={cert.verify_url} width={600} />
-              ) : (
-                <i className="ri-award-fill text-6xl text-white/40"></i>
-              )}
+        {loading ? (
+          Array.from({ length: 6 }).map((_, idx) => (
+            <div key={idx} className="bg-card-bg border border-white/10 rounded-2xl overflow-hidden flex flex-col animate-pulse">
+              <div className="w-full aspect-[4/3] bg-white/5"></div>
+              <div className="p-6 flex flex-col flex-1 space-y-3">
+                <div className="h-6 bg-white/10 rounded-md w-3/4"></div>
+                <div className="h-4 bg-white/5 rounded-md w-1/2"></div>
+                <div className="h-4 bg-white/5 rounded-md w-5/6"></div>
+                <div className="h-10 bg-white/5 border border-white/10 rounded-xl w-1/3 mt-auto"></div>
+              </div>
             </div>
-            <div className="p-6 flex flex-col flex-1">
-              <h3 className="font-bold text-base md:text-lg text-white mb-2">{cert.title}</h3>
-              <p className="text-sm text-gray-400 flex items-center gap-2 mb-1"><i className="ri-award-line text-accent"></i> {cert.issuer}{cert.issue_date ? ` · ${cert.issue_date}` : ""}</p>
-              {cert.description && <p className="text-gray-400 text-sm leading-relaxed mb-4 flex-1">{cert.description}</p>}
-              {(cert.verify_url || cert.credential_url) && (
-                <button onClick={() => setModal(cert)} className="inline-flex items-center gap-2 w-fit text-sm font-bold text-white bg-white/5 border border-white/10 px-5 py-2.5 rounded-xl hover:border-accent/40 focus:outline-none focus:ring-2 focus:ring-accent transition-colors mt-auto">
-                  View Credential <i className="ri-external-link-line"></i>
-                </button>
-              )}
+          ))
+        ) : (
+          certs.map((cert) => (
+            <div key={cert.id} id={cert.id} className="group bg-card-bg border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all flex flex-col">
+              <div className="relative w-full aspect-[4/3] bg-gradient-to-br from-primary/40 to-accent/30 flex items-center justify-center overflow-hidden">
+                {cert.verify_url?.endsWith('.pdf') ? (
+                  <PdfThumbnail url={cert.verify_url} width={600} />
+                ) : (
+                  <i className="ri-award-fill text-6xl text-white/40"></i>
+                )}
+              </div>
+              <div className="p-6 flex flex-col flex-1">
+                <h3 className="font-bold text-base md:text-lg text-white mb-2">{cert.title}</h3>
+                <p className="text-sm text-gray-400 flex items-center gap-2 mb-1"><i className="ri-award-line text-accent"></i> {cert.issuer}{cert.issue_date ? ` · ${cert.issue_date}` : ""}</p>
+                {cert.description && <p className="text-gray-400 text-sm leading-relaxed mb-4 flex-1">{cert.description}</p>}
+                {(cert.verify_url || cert.credential_url) && (
+                  <button onClick={() => setModal(cert)} className="inline-flex items-center gap-2 w-fit text-sm font-bold text-white bg-white/5 border border-white/10 px-5 py-2.5 rounded-xl hover:border-accent/40 focus:outline-none focus:ring-2 focus:ring-accent transition-colors mt-auto">
+                    View Credential <i className="ri-external-link-line"></i>
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
-        {!certs.length && <p className="text-gray-500 text-sm col-span-full">Belum ada sertifikat.</p>}
+          ))
+        )}
+        {!loading && !certs.length && <p className="text-gray-500 text-sm col-span-full">Belum ada sertifikat.</p>}
       </div>
 
       {modal && (

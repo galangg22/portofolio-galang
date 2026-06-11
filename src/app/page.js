@@ -150,11 +150,15 @@ export default function Home() {
   const [projects, setProjects] = useState(DEV_PROJECTS);
   const [projectFilter, setProjectFilter] = useState("all");
   const [certificates, setCertificates] = useState([]);
+  const [certsLoading, setCertsLoading] = useState(true);
   const mainRef = useRef(null);
 
   // Hydrate dari Supabase bila aktif; jika kosong/gagal, tetap pakai data statis.
   useEffect(() => {
-    if (!supabase) return;
+    if (!supabase) {
+      setCertsLoading(false);
+      return;
+    }
     supabase.from("skills").select("*").order("sort_order").then(({ data }) => {
       if (data && data.length) setSkills(data);
     });
@@ -182,8 +186,10 @@ export default function Home() {
           );
         }
       });
+    setCertsLoading(true);
     supabase.from("certificates").select("*").eq("featured", true).order("sort_order").limit(3).then(({ data }) => {
       if (data) setCertificates(data);
+      setCertsLoading(false);
     });
   }, []);
 
@@ -530,32 +536,46 @@ export default function Home() {
             </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {certificates.map((cert) => (
-              <div key={cert.id} onClick={() => setSelectedCert(cert)} className="bento-card group bg-card-bg border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all flex flex-col cursor-pointer">
-                <div className="relative w-full aspect-[4/3] bg-gradient-to-br from-primary/40 to-accent/30 flex items-center justify-center overflow-hidden">
-                  {cert.verify_url?.endsWith('.pdf') ? (
-                    <PdfThumbnail url={cert.verify_url} width={600} />
-                  ) : (
-                    <i className="ri-award-fill text-6xl text-white/40"></i>
-                  )}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-300">
-                      <i className="ri-eye-line text-white text-xl"></i>
-                    </div>
+            {certsLoading ? (
+              Array.from({ length: 3 }).map((_, idx) => (
+                <div key={idx} className="bg-card-bg border border-white/10 rounded-2xl overflow-hidden flex flex-col animate-pulse">
+                  <div className="w-full aspect-[4/3] bg-white/5"></div>
+                  <div className="p-6 flex flex-col flex-1 space-y-3">
+                    <div className="h-6 bg-white/10 rounded-md w-3/4"></div>
+                    <div className="h-4 bg-white/5 rounded-md w-1/2"></div>
+                    <div className="h-4 bg-white/5 rounded-md w-5/6"></div>
+                    <div className="h-8 bg-white/5 border border-white/10 rounded-xl w-1/3 mt-auto"></div>
                   </div>
                 </div>
-                <div className="p-6 flex flex-col flex-1">
-                  <h3 className="font-bold text-base text-white mb-2 line-clamp-2">{cert.title}</h3>
-                  <p className="text-sm text-gray-400 flex items-center gap-2 mb-1"><i className="ri-award-line text-accent"></i> {cert.issuer}</p>
-                  {cert.issue_date && <p className="text-xs text-gray-500">{cert.issue_date}</p>}
-                  <span className="inline-flex items-center gap-1.5 text-accent text-xs font-bold mt-3 group-hover:gap-2.5 transition-all">
-                    View Credential <i className="ri-arrow-right-line"></i>
-                  </span>
+              ))
+            ) : (
+              certificates.map((cert) => (
+                <div key={cert.id} onClick={() => setSelectedCert(cert)} className="bento-card group bg-card-bg border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all flex flex-col cursor-pointer">
+                  <div className="relative w-full aspect-[4/3] bg-gradient-to-br from-primary/40 to-accent/30 flex items-center justify-center overflow-hidden">
+                    {cert.verify_url?.endsWith('.pdf') ? (
+                      <PdfThumbnail url={cert.verify_url} width={600} />
+                    ) : (
+                      <i className="ri-award-fill text-6xl text-white/40"></i>
+                    )}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-300">
+                        <i className="ri-eye-line text-white text-xl"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-6 flex flex-col flex-1">
+                    <h3 className="font-bold text-base text-white mb-2 line-clamp-2">{cert.title}</h3>
+                    <p className="text-sm text-gray-400 flex items-center gap-2 mb-1"><i className="ri-award-line text-accent"></i> {cert.issuer}</p>
+                    {cert.issue_date && <p className="text-xs text-gray-500">{cert.issue_date}</p>}
+                    <span className="inline-flex items-center gap-1.5 text-accent text-xs font-bold mt-3 group-hover:gap-2.5 transition-all">
+                      View Credential <i className="ri-arrow-right-line"></i>
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
-          {!certificates.length && <p className="text-gray-500 text-sm text-center">Belum ada sertifikat.</p>}
+          {!certsLoading && !certificates.length && <p className="text-gray-500 text-sm text-center">Belum ada sertifikat.</p>}
         </div>
       </section>
 
