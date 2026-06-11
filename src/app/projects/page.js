@@ -52,9 +52,14 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState(FALLBACK_PROJECTS);
   const [filter, setFilter] = useState("all");
   const [screenshotModal, setScreenshotModal] = useState(null); // { images, index, title }
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!supabase) return;
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
     (async () => {
       const { data } = await supabase
         .from("projects").select("*")
@@ -72,6 +77,7 @@ export default function ProjectsPage() {
           _images: imgs.filter((im) => im.project_id === p.id),
         })));
       }
+      setLoading(false);
     })();
   }, []);
 
@@ -148,92 +154,110 @@ export default function ProjectsPage() {
 
       {/* Project Grid */}
       <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
-        {filtered.map((project) => {
-          const typeInfo = TYPE_CONFIG[project.type] || TYPE_CONFIG.other;
-          const statusInfo = STATUS_BADGE[project.status] || "";
-          return (
-            <div key={project.id} className="group bg-card-bg border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all flex flex-col">
-              {/* Thumbnail */}
-              <div className="relative w-full aspect-video bg-black overflow-hidden">
-                {project.thumbnail_url ? (
-                  <Image src={project.thumbnail_url} alt={project.title} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />
-                ) : (
-                  <div className={`w-full h-full bg-gradient-to-br ${typeInfo.gradient} flex items-center justify-center`}>
-                    <i className={`${typeInfo.icon} text-5xl text-white/20`}></i>
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                {/* Type Badge */}
-                <div className="absolute top-3 left-3 flex items-center gap-2">
-                  <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase border flex items-center gap-1 ${typeInfo.color}`}>
-                    <i className={typeInfo.icon}></i> {typeInfo.label}
-                  </span>
-                  {project.status === "wip" && (
-                    <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase border ${statusInfo}`}>WIP</span>
-                  )}
+        {loading ? (
+          Array.from({ length: 6 }).map((_, idx) => (
+            <div key={idx} className="bg-card-bg border border-white/10 rounded-2xl overflow-hidden flex flex-col animate-pulse">
+              <div className="relative w-full aspect-video bg-white/5"></div>
+              <div className="p-5 flex flex-col flex-1 space-y-3">
+                <div className="h-6 bg-white/10 rounded-md w-3/4"></div>
+                <div className="flex gap-1.5 flex-wrap">
+                  <div className="h-4 bg-white/5 rounded-md w-12"></div>
+                  <div className="h-4 bg-white/5 rounded-md w-16"></div>
                 </div>
-                {/* Featured Badge */}
-                {project.featured && (
-                  <div className="absolute top-3 right-3">
-                    <span className="px-2.5 py-1 rounded-full text-[9px] font-bold uppercase bg-accent/20 text-accent border border-accent/30">
-                      <i className="ri-star-fill mr-1"></i>Featured
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Content */}
-              <div className="p-5 flex flex-col flex-1">
-                <h3 className="font-bold text-base md:text-lg text-white mb-2">{project.title}</h3>
-                {project.tags && project.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mb-3">
-                    {project.tags.map((tag) => (
-                      <span key={tag} className="px-2 py-0.5 bg-white/5 border border-white/10 rounded-md text-[9px] font-bold text-gray-400 uppercase">{tag}</span>
-                    ))}
-                  </div>
-                )}
-                <p className="text-gray-400 text-sm leading-relaxed mb-4 flex-1 line-clamp-3">{project.description}</p>
-
-                {/* Action Buttons */}
-                <div className="flex flex-wrap gap-2 mt-auto">
-                  {project.github_url && (
-                    <a href={project.github_url} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/5 border border-white/10 px-4 py-2 rounded-xl hover:border-accent/40 transition-colors">
-                      <i className="ri-github-fill"></i> GitHub
-                    </a>
-                  )}
-                  {project.demo_url && (
-                    <a href={project.demo_url} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm font-bold text-bg-dark bg-accent px-4 py-2 rounded-xl hover:scale-105 transition-transform">
-                      <i className="ri-external-link-line"></i> Demo
-                    </a>
-                  )}
-                  {project.play_store_url && (
-                    <a href={project.play_store_url} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/5 border border-white/10 px-4 py-2 rounded-xl hover:border-accent/40 transition-colors">
-                      <i className="ri-google-play-fill"></i> Play Store
-                    </a>
-                  )}
-                  {project.apk_url && (
-                    <a href={project.apk_url} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/5 border border-white/10 px-4 py-2 rounded-xl hover:border-accent/40 transition-colors">
-                      <i className="ri-download-line"></i> APK
-                    </a>
-                  )}
-                  {/* Screenshots button for android */}
-                  {project._images && project._images.length > 0 && (
-                    <button onClick={() => setScreenshotModal({ images: project._images, index: 0, title: project.title })}
-                      className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/5 border border-white/10 px-4 py-2 rounded-xl hover:border-accent/40 transition-colors">
-                      <i className="ri-screenshot-2-line"></i> Screenshots ({project._images.length})
-                    </button>
-                  )}
-                </div>
+                <div className="h-4 bg-white/5 rounded-md w-full"></div>
+                <div className="h-4 bg-white/5 rounded-md w-5/6"></div>
+                <div className="h-10 bg-white/5 border border-white/10 rounded-xl w-1/3 mt-auto"></div>
               </div>
             </div>
-          );
-        })}
-        {!filtered.length && <p className="text-gray-500 text-sm col-span-full text-center py-12">Tidak ada project untuk kategori ini.</p>}
+          ))
+        ) : (
+          filtered.map((project) => {
+            const typeInfo = TYPE_CONFIG[project.type] || TYPE_CONFIG.other;
+            const statusInfo = STATUS_BADGE[project.status] || "";
+            return (
+              <div key={project.id} className="group bg-card-bg border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all flex flex-col">
+                {/* Thumbnail */}
+                <div className="relative w-full aspect-video bg-black overflow-hidden">
+                  {project.thumbnail_url ? (
+                    <Image src={project.thumbnail_url} alt={project.title} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />
+                  ) : (
+                    <div className={`w-full h-full bg-gradient-to-br ${typeInfo.gradient} flex items-center justify-center`}>
+                      <i className={`${typeInfo.icon} text-5xl text-white/20`}></i>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                  {/* Type Badge */}
+                  <div className="absolute top-3 left-3 flex items-center gap-2">
+                    <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase border flex items-center gap-1 ${typeInfo.color}`}>
+                      <i className={typeInfo.icon}></i> {typeInfo.label}
+                    </span>
+                    {project.status === "wip" && (
+                      <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase border ${statusInfo}`}>WIP</span>
+                    )}
+                  </div>
+                  {/* Featured Badge */}
+                  {project.featured && (
+                    <div className="absolute top-3 right-3">
+                      <span className="px-2.5 py-1 rounded-full text-[9px] font-bold uppercase bg-accent/20 text-accent border border-accent/30">
+                        <i className="ri-star-fill mr-1"></i>Featured
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Content */}
+                <div className="p-5 flex flex-col flex-1">
+                  <h3 className="font-bold text-base md:text-lg text-white mb-2">{project.title}</h3>
+                  {project.tags && project.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-3">
+                      {project.tags.map((tag) => (
+                        <span key={tag} className="px-2 py-0.5 bg-white/5 border border-white/10 rounded-md text-[9px] font-bold text-gray-400 uppercase">{tag}</span>
+                      ))}
+                    </div>
+                  )}
+                  <p className="text-gray-400 text-sm leading-relaxed mb-4 flex-1 line-clamp-3">{project.description}</p>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-wrap gap-2 mt-auto">
+                    {project.github_url && (
+                      <a href={project.github_url} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/5 border border-white/10 px-4 py-2 rounded-xl hover:border-accent/40 transition-colors">
+                        <i className="ri-github-fill"></i> GitHub
+                      </a>
+                    )}
+                    {project.demo_url && (
+                      <a href={project.demo_url} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-sm font-bold text-bg-dark bg-accent px-4 py-2 rounded-xl hover:scale-105 transition-transform">
+                        <i className="ri-external-link-line"></i> Demo
+                      </a>
+                    )}
+                    {project.play_store_url && (
+                      <a href={project.play_store_url} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/5 border border-white/10 px-4 py-2 rounded-xl hover:border-accent/40 transition-colors">
+                        <i className="ri-google-play-fill"></i> Play Store
+                      </a>
+                    )}
+                    {project.apk_url && (
+                      <a href={project.apk_url} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/5 border border-white/10 px-4 py-2 rounded-xl hover:border-accent/40 transition-colors">
+                        <i className="ri-download-line"></i> APK
+                      </a>
+                    )}
+                    {/* Screenshots button for android */}
+                    {project._images && project._images.length > 0 && (
+                      <button onClick={() => setScreenshotModal({ images: project._images, index: 0, title: project.title })}
+                        className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/5 border border-white/10 px-4 py-2 rounded-xl hover:border-accent/40 transition-colors">
+                        <i className="ri-screenshot-2-line"></i> Screenshots ({project._images.length})
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+        {!loading && !filtered.length && <p className="text-gray-500 text-sm col-span-full text-center py-12">Tidak ada project untuk kategori ini.</p>}
       </div>
 
       {/* Screenshot Lightbox */}

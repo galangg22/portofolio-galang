@@ -36,11 +36,17 @@ function getEmbedUrl(videoUrl, platform) {
 export default function VideoGallery() {
   const [videos, setVideos] = useState(FALLBACK_VIDEOS);
   const [selected, setSelected] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!supabase) return;
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
     supabase.from('videos').select('*').order('sort_order').order('created_at', { ascending: false }).then(({ data }) => {
       if (data && data.length) setVideos(data);
+      setLoading(false);
     });
   }, []);
 
@@ -64,37 +70,49 @@ export default function VideoGallery() {
         </h1>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {videos.map((v) => (
-            <div 
-              key={v.id} 
-              role="button"
-              tabIndex={0}
-              aria-label={`Play video: ${v.title}`}
-              onClick={() => setSelected(getEmbedUrl(v.video_url, v.platform))}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  setSelected(getEmbedUrl(v.video_url, v.platform));
-                }
-              }}
-              className="group relative rounded-2xl overflow-hidden bg-[#111] border border-white/10 focus:outline-none focus:ring-2 focus:ring-accent cursor-pointer"
-            >
-              <div className="relative aspect-video bg-black">
-                {v.thumbnail_url && (
-                  <Image src={v.thumbnail_url} alt={v.title} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
-                )}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-14 h-14 rounded-full bg-accent/90 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-focus:scale-110">
-                    <i className="ri-play-fill text-bg-dark text-2xl ml-1"></i>
-                  </div>
+          {loading ? (
+            Array.from({ length: 6 }).map((_, idx) => (
+              <div key={idx} className="rounded-2xl overflow-hidden bg-[#111] border border-white/10 animate-pulse">
+                <div className="relative aspect-video bg-white/5"></div>
+                <div className="p-5 space-y-3">
+                  <div className="h-6 bg-white/10 rounded-md w-3/4"></div>
+                  <div className="h-4 bg-white/5 rounded-md w-5/6"></div>
                 </div>
               </div>
-              <div className="p-5">
-                <h3 className="font-bold mb-1">{v.title}</h3>
-                <p className="text-gray-500 text-xs line-clamp-2">{v.description}</p>
+            ))
+          ) : (
+            videos.map((v) => (
+              <div 
+                key={v.id} 
+                role="button"
+                tabIndex={0}
+                aria-label={`Play video: ${v.title}`}
+                onClick={() => setSelected(getEmbedUrl(v.video_url, v.platform))}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setSelected(getEmbedUrl(v.video_url, v.platform));
+                  }
+                }}
+                className="group relative rounded-2xl overflow-hidden bg-[#111] border border-white/10 focus:outline-none focus:ring-2 focus:ring-accent cursor-pointer"
+              >
+                <div className="relative aspect-video bg-black">
+                  {v.thumbnail_url && (
+                    <Image src={v.thumbnail_url} alt={v.title} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                  )}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-14 h-14 rounded-full bg-accent/90 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-focus:scale-110">
+                      <i className="ri-play-fill text-bg-dark text-2xl ml-1"></i>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-5">
+                  <h3 className="font-bold mb-1">{v.title}</h3>
+                  <p className="text-gray-500 text-xs line-clamp-2">{v.description}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 

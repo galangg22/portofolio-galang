@@ -151,17 +151,24 @@ export default function Home() {
   const [projectFilter, setProjectFilter] = useState("all");
   const [certificates, setCertificates] = useState([]);
   const [certsLoading, setCertsLoading] = useState(true);
+  const [skillsLoading, setSkillsLoading] = useState(true);
+  const [projectsLoading, setProjectsLoading] = useState(true);
   const mainRef = useRef(null);
 
   // Hydrate dari Supabase bila aktif; jika kosong/gagal, tetap pakai data statis.
   useEffect(() => {
     if (!supabase) {
       setCertsLoading(false);
+      setSkillsLoading(false);
+      setProjectsLoading(false);
       return;
     }
+    setSkillsLoading(true);
     supabase.from("skills").select("*").order("sort_order").then(({ data }) => {
       if (data && data.length) setSkills(data);
+      setSkillsLoading(false);
     });
+    setProjectsLoading(true);
     supabase
       .from("projects")
       .select("*")
@@ -185,6 +192,7 @@ export default function Home() {
             }))
           );
         }
+        setProjectsLoading(false);
       });
     setCertsLoading(true);
     supabase.from("certificates").select("*").eq("featured", true).order("sort_order").limit(3).then(({ data }) => {
@@ -383,15 +391,34 @@ export default function Home() {
         <div className="max-w-5xl mx-auto">
           <h2 className="section-title text-4xl font-bold mb-12 uppercase tracking-tighter">Tech Arsenal</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {skills.map((skill, idx) => (
-              <div key={idx} className={`bento-card group rounded-3xl bg-card-bg border border-white/10 p-8 transition-all hover:border-white/20 ${skill.span}`}>
-                <div className={`text-3xl mb-6 bg-gradient-to-br ${skill.color} bg-clip-text text-transparent`}><i className={skill.icon}></i></div>
-                <h3 className="text-xl font-bold mb-6 text-white">{skill.category}</h3>
-                <div className="flex flex-wrap gap-2">
-                  {skill.items.map(item => <span key={item} className="px-3 py-1 bg-white/5 border border-white/5 rounded-lg text-[11px] font-medium text-gray-300">{item}</span>)}
+            {skillsLoading ? (
+              [
+                { span: "md:col-span-2" },
+                { span: "md:col-span-1" },
+                { span: "md:col-span-1" },
+                { span: "md:col-span-2" },
+              ].map((skill, idx) => (
+                <div key={idx} className={`bento-card group rounded-3xl bg-card-bg border border-white/10 p-8 animate-pulse ${skill.span}`}>
+                  <div className="w-10 h-10 rounded-xl bg-white/5 mb-6"></div>
+                  <div className="h-6 bg-white/10 rounded-md w-1/3 mb-6"></div>
+                  <div className="flex flex-wrap gap-2">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <span key={i} className="h-6 w-20 bg-white/5 border border-white/5 rounded-lg"></span>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              skills.map((skill, idx) => (
+                <div key={idx} className={`bento-card group rounded-3xl bg-card-bg border border-white/10 p-8 transition-all hover:border-white/20 ${skill.span}`}>
+                  <div className={`text-3xl mb-6 bg-gradient-to-br ${skill.color} bg-clip-text text-transparent`}><i className={skill.icon}></i></div>
+                  <h3 className="text-xl font-bold mb-6 text-white">{skill.category}</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {skill.items.map(item => <span key={item} className="px-3 py-1 bg-white/5 border border-white/5 rounded-lg text-[11px] font-medium text-gray-300">{item}</span>)}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -427,36 +454,50 @@ export default function Home() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 mb-24">
-            {projects.filter(p => projectFilter === 'all' || p.type === projectFilter).map((project, idx) => {
-              const typeInfo = TYPE_LABELS[project.type] || TYPE_LABELS.other;
-              return (
-                <div key={idx} className="project-card group bg-card-bg rounded-3xl overflow-hidden border border-white/10 flex flex-col transition-all duration-500 shadow-xl card-hover-border">
-                  <div className="relative h-56">
-                    {project.image ? (
-                      <Image src={project.image} alt={project.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" loading={idx < 2 ? "eager" : "lazy"} />
-                    ) : (
-                      <div className={`w-full h-full bg-gradient-to-br ${project.gradient} flex items-center justify-center`}>
-                        <i className={`${project.icon} text-6xl text-white/30`}></i>
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-bg-dark/90 to-transparent"></div>
-                    <div className="absolute top-4 left-4 flex gap-2 flex-wrap">
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase border flex items-center gap-1.5 ${typeInfo.color}`}>
-                        <i className={typeInfo.icon}></i> {typeInfo.label}
-                      </span>
-                      {project.tags.slice(0, 2).map(tag => <span key={tag} className="px-3 py-1 bg-black/70 backdrop-blur-md border border-white/10 rounded-full text-[10px] text-white font-bold uppercase">{tag}</span>)}
-                    </div>
-                  </div>
-                  <div className="p-8 flex flex-col flex-1">
-                    <h3 className="text-2xl font-bold mb-3 text-white">{project.title}</h3>
-                    <p className="text-gray-400 text-sm mb-8 flex-1 leading-relaxed">{project.desc}</p>
-                    <a href={project.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 text-white font-bold text-sm bg-white/5 w-fit px-6 py-3 rounded-xl active:scale-95 transition-all btn-hover">
-                      <i className={project.actionIcon + " text-xl"}></i> {project.actionText}
-                    </a>
+            {projectsLoading ? (
+              Array.from({ length: 4 }).map((_, idx) => (
+                <div key={idx} className="project-card group bg-card-bg rounded-3xl overflow-hidden border border-white/10 flex flex-col animate-pulse">
+                  <div className="relative h-56 bg-white/5"></div>
+                  <div className="p-8 flex flex-col flex-1 space-y-4">
+                    <div className="h-8 bg-white/10 rounded-md w-3/4"></div>
+                    <div className="h-4 bg-white/5 rounded-md w-full"></div>
+                    <div className="h-4 bg-white/5 rounded-md w-5/6"></div>
+                    <div className="h-12 bg-white/5 border border-white/10 rounded-xl w-1/3 mt-auto"></div>
                   </div>
                 </div>
-              );
-            })}
+              ))
+            ) : (
+              projects.filter(p => projectFilter === 'all' || p.type === projectFilter).map((project, idx) => {
+                const typeInfo = TYPE_LABELS[project.type] || TYPE_LABELS.other;
+                return (
+                  <div key={idx} className="project-card group bg-card-bg rounded-3xl overflow-hidden border border-white/10 flex flex-col transition-all duration-500 shadow-xl card-hover-border">
+                    <div className="relative h-56">
+                      {project.image ? (
+                        <Image src={project.image} alt={project.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" loading={idx < 2 ? "eager" : "lazy"} />
+                      ) : (
+                        <div className={`w-full h-full bg-gradient-to-br ${project.gradient} flex items-center justify-center`}>
+                          <i className={`${project.icon} text-6xl text-white/30`}></i>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-bg-dark/90 to-transparent"></div>
+                      <div className="absolute top-4 left-4 flex gap-2 flex-wrap">
+                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase border flex items-center gap-1.5 ${typeInfo.color}`}>
+                          <i className={typeInfo.icon}></i> {typeInfo.label}
+                        </span>
+                        {project.tags.slice(0, 2).map(tag => <span key={tag} className="px-3 py-1 bg-black/70 backdrop-blur-md border border-white/10 rounded-full text-[10px] text-white font-bold uppercase">{tag}</span>)}
+                      </div>
+                    </div>
+                    <div className="p-8 flex flex-col flex-1">
+                      <h3 className="text-2xl font-bold mb-3 text-white">{project.title}</h3>
+                      <p className="text-gray-400 text-sm mb-8 flex-1 leading-relaxed">{project.desc}</p>
+                      <a href={project.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 text-white font-bold text-sm bg-white/5 w-fit px-6 py-3 rounded-xl active:scale-95 transition-all btn-hover">
+                        <i className={project.actionIcon + " text-xl"}></i> {project.actionText}
+                      </a>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
 
           {/* CREATIVE SHOWCASE LITE (ONLY 2 ITEMS) */}
