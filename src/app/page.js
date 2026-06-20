@@ -748,7 +748,7 @@ export default function Home() {
                           <i class="ri-close-line text-xl md:text-2xl"></i>
                         </button>
                       </div>
-                      <iframe src="/api/cv" class="w-full flex-1 border-0"></iframe>
+                      <iframe src="/cv-galang.pdf" class="w-full flex-1 border-0"></iframe>
                     </div>
                   `;
                   document.body.appendChild(previewModal);
@@ -760,7 +760,7 @@ export default function Home() {
                 Preview CV
               </button>
               <a
-                href="/api/cv"
+                href="/cv-galang.pdf"
                 download="CV_Galang_Arrauf_Pramudito.pdf"
                 className="w-full py-4 border border-white/20 text-white font-bold uppercase tracking-widest rounded-xl hover:bg-white/5 transition-colors text-xs inline-flex items-center justify-center gap-2"
               >

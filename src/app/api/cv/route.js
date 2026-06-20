@@ -13,7 +13,7 @@ export async function GET() {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': 'inline; filename="CV_Galang_Arrauf_Pramudito.pdf"',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Cache-Control': 'public, max-age=86400, s-maxage=31536000, stale-while-revalidate',
       },
     });
   } catch (error) {
