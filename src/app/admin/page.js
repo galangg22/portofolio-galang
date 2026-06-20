@@ -6,10 +6,7 @@ export default async function AdminDashboardPage() {
     let query = supabaseAdmin.from(table).select('count', { count: 'exact', head: true })
     if (type) query = query.eq('type', type)
     const { count, error } = await query
-    if (error) {
-      console.error(`Error fetching count for ${table} (type: ${type}):`, error)
-      return 0
-    }
+    if (error) return 0
     return count
   }
 

@@ -33,7 +33,6 @@ export default function PdfThumbnail({ url, width = 600, className = "" }) {
         await page.render({ canvas, viewport }).promise;
         if (!cancelled) setStatus("done");
       } catch (e) {
-        console.error('PdfThumbnail error:', e);
         if (!cancelled) setStatus("error");
       }
     })();

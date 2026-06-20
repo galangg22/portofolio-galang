@@ -30,10 +30,7 @@ async function getCertificates() {
     .order("sort_order")
     .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error("Error fetching certificates:", error.message);
-    return [];
-  }
+  if (error) return [];
   return data ?? [];
 }
 

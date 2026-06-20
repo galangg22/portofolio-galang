@@ -5,8 +5,10 @@ import Link from 'next/link';
 
 export default function Error({ error, reset }) {
   useEffect(() => {
-    // Log error untuk debugging
-    console.error('Global Error:', error);
+    // Log error untuk debugging (development only)
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Global Error:', error);
+    }
   }, [error]);
 
   return (
