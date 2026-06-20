@@ -12,17 +12,26 @@ function RelatedImages({ parentId, table, foreignKey, label, addLabel, hasCaptio
   const [newImageLoading, setNewImageLoading] = useState(false)
   const [uploadError, setUploadError] = useState('')
 
-  const fetchImages = useCallback(async () => {
+  useEffect(() => {
+    if (!parentId) return
+    
+    const fetchImages = async () => {
+      const res = await fetch(`/api/admin/${table}`)
+      if (!res.ok) return
+      const data = await res.json()
+      setImages(data.filter(img => img[foreignKey] === parentId).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)))
+    }
+    
+    fetchImages()
+  }, [parentId, table, foreignKey])
+  
+  const refetchImages = async () => {
     if (!parentId) return
     const res = await fetch(`/api/admin/${table}`)
     if (!res.ok) return
     const data = await res.json()
     setImages(data.filter(img => img[foreignKey] === parentId).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)))
-  }, [parentId, table, foreignKey])
-
-  useEffect(() => {
-    fetchImages()
-  }, [fetchImages])
+  }
 
   const handleImageUpload = async (file) => {
     setNewImageLoading(true)
@@ -73,7 +82,7 @@ function RelatedImages({ parentId, table, foreignKey, label, addLabel, hasCaptio
       const errData = await res.json()
       setUploadError(errData.error || 'Failed to add image')
     } else {
-      await fetchImages()
+      await refetchImages()
       setNewImageFile(null)
       setNewImageCaption('')
       setNewImageDescription('')
@@ -195,7 +204,24 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
   const [fileToUpload, setFileToUpload] = useState(null)
   const [uploadLoading, setUploadLoading] = useState(false)
 
-  const fetchData = useCallback(async () => {
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true)
+      try {
+        const res = await fetch(`/api/admin/${table}`)
+        if (!res.ok) throw new Error('Failed to fetch')
+        const items = await res.json()
+        setData(items)
+      } catch (err) {
+        setError(err.message)
+      }
+      setLoading(false)
+    }
+    
+    fetchData()
+  }, [table])
+  
+  const refetchData = async () => {
     setLoading(true)
     try {
       const res = await fetch(`/api/admin/${table}`)
@@ -206,11 +232,7 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
       setError(err.message)
     }
     setLoading(false)
-  }, [table])
-
-  useEffect(() => {
-    fetchData()
-  }, [fetchData])
+  }
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -286,7 +308,7 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
         const errorData = await res.json()
         throw new Error(errorData.error || 'Submission failed')
       }
-      await fetchData()
+      await refetchData()
       setFormData({})
       setEditingId(null)
       setFileToUpload(null)
@@ -319,7 +341,7 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
         const errorData = await res.json()
         throw new Error(errorData.error || 'Deletion failed')
       }
-      await fetchData()
+      await refetchData()
     } catch (err) {
       setError(err.message)
     } finally {
