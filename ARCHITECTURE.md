@@ -1,7 +1,7 @@
 # Arsitektur Project — Portofolang
 
 > Portfolio website untuk **Galang Arrauf Pramudito** (Backend Developer & Creative Enthusiast).
-> Live: https://portofolang.vercel.app
+> Live: https://portofolang.web.id
 
 ---
 

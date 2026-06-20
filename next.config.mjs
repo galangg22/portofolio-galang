@@ -30,6 +30,17 @@ const nextConfig = {
     ];
   },
   compress: true,
+  // Turbopack (default in Next.js 16) — react-pdf needs canvas disabled
+  turbopack: {
+    resolveAlias: {
+      canvas: { browser: './empty-module.js' },
+    },
+  },
+  // Webpack fallback (when running with --webpack flag)
+  webpack: (config) => {
+    config.resolve.alias.canvas = false;
+    return config;
+  },
 };
 
 export default nextConfig;

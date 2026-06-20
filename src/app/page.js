@@ -50,8 +50,9 @@ const DEV_PROJECTS = [
     icon: "ri-whatsapp-line",
     tags: ["Node.js", "Baileys API", "Automation"],
     type: "bot",
-    desc: "Sistem automasi backend untuk memonitor jadwal dan mengirimkan pengingat absensi secara otomatis via WhatsApp.",
-    link: "https://github.com/galangpramudito/bot-presensi",
+    desc: "Sistem automasi backend untuk memonitor jadwal dan mengirimkan pengingat absensi secara otomatis via WhatsApp. Menggunakan library Baileys untuk integrasi langsung dengan WhatsApp tanpa API resmi.",
+    github_url: "https://github.com/galangg22/bot-presensi",
+    link: "https://github.com/galangg22/bot-presensi",
     actionText: "GitHub Repo",
     actionIcon: "ri-github-fill"
   },
@@ -62,8 +63,9 @@ const DEV_PROJECTS = [
     icon: "ri-graduation-cap-line",
     tags: ["Web Dev", "HTML", "CSS"],
     type: "web",
-    desc: "Platform sistem informasi manajemen untuk digitalisasi administrasi santri dan guru di TPQ Al-Hikmah.",
-    link: "https://github.com/galangpramudito/alhikmah",
+    desc: "Platform sistem informasi manajemen untuk digitalisasi administrasi santri dan guru di TPQ Al-Hikmah. Menangani data absensi, nilai, dan profil santri.",
+    github_url: "https://github.com/galangg22/alhikmah",
+    link: "https://github.com/galangg22/alhikmah",
     actionText: "GitHub Repo",
     actionIcon: "ri-github-fill"
   },
@@ -74,10 +76,11 @@ const DEV_PROJECTS = [
     icon: null,
     tags: ["React/Next.js", "Tailwind", "E-Commerce"],
     type: "web",
-    desc: "Katalog e-commerce modern untuk produk thrifting dengan UI/UX intuitif dan performa pencarian cepat.",
-    link: "https://github.com/galangpramudito/thriftyfinds",
-    actionText: "Live Demo",
-    actionIcon: "ri-external-link-line"
+    desc: "Katalog e-commerce modern untuk produk thrifting dengan UI/UX intuitif dan performa pencarian cepat. Dibangun dengan Next.js dan Tailwind CSS.",
+    github_url: "https://github.com/galangg22/thriftyfinds",
+    link: "https://github.com/galangg22/thriftyfinds",
+    actionText: "GitHub Repo",
+    actionIcon: "ri-github-fill"
   },
   {
     title: "HeartHorizon / Online Class",
@@ -86,8 +89,9 @@ const DEV_PROJECTS = [
     icon: null,
     tags: ["LMS", "Fullstack", "Database"],
     type: "web",
-    desc: "Aplikasi e-learning interaktif untuk manajemen materi kelas online, penugasan, dan interaksi pembelajaran.",
-    link: "https://github.com/galangpramudito/hearthorizon",
+    desc: "Aplikasi e-learning interaktif untuk manajemen materi kelas online, penugasan, dan interaksi pembelajaran. Full-stack dengan backend database MySQL.",
+    github_url: "https://github.com/galangg22/hearthorizon",
+    link: "https://github.com/galangg22/hearthorizon",
     actionText: "GitHub Repo",
     actionIcon: "ri-github-fill"
   }
@@ -186,6 +190,11 @@ export default function Home() {
               tags: p.tags || [],
               type: p.type || "web",
               desc: p.description,
+              github_url: p.github_url || null,
+              demo_url: p.demo_url || null,
+              play_store_url: p.play_store_url || null,
+              apk_url: p.apk_url || null,
+              // Keep legacy fields for fallback
               link: p.demo_url || p.github_url || "#",
               actionText: p.demo_url ? "Live Demo" : "GitHub Repo",
               actionIcon: p.demo_url ? "ri-external-link-line" : "ri-github-fill",
@@ -343,7 +352,7 @@ export default function Home() {
             Galang <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-400 to-accent text-glow">Pramudito</span>
           </h1>
           <p className="hero-text text-xl md:text-2xl text-gray-400 font-light mb-10 max-w-2xl mx-auto">
-            Backend Developer & <span className="text-white">Creative Enthusiast</span>. Mahasiswa D3 Teknik Informatika, PENS.
+            Full-Stack Dev <span className="text-white">(Laravel + Next.js)</span> · Open to Internship/Freelance
           </p>
           <div className="hero-text flex flex-wrap justify-center gap-4">
             <a href="#projects" onClick={(e) => scrollToSection(e, "projects")} className="px-8 py-4 bg-white text-bg-dark font-bold rounded-full hover:scale-105 transition-transform shadow-[0_0_30px_rgba(255,255,255,0.1)]">View Work</a>
@@ -363,14 +372,14 @@ export default function Home() {
               <Image src="/image/gambar galang 2.jpg" alt="Profil Galang" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover transition-all grayscale hover:grayscale-0 scale-105 group-hover:scale-100 duration-700" priority />
             </div>
             <div className="absolute -bottom-6 -right-6 bg-black border border-white/10 p-5 rounded-2xl shadow-2xl">
-              <p className="text-accent font-bold text-xl">3+</p>
-              <p className="text-gray-400 text-[10px] uppercase tracking-widest">Years Experience</p>
+              <p className="text-accent font-bold text-xl">10+</p>
+              <p className="text-gray-400 text-[10px] uppercase tracking-widest">Projects Completed</p>
             </div>
           </div>
           <div className="lg:col-span-7">
             <h2 className="section-title text-4xl md:text-5xl font-bold mb-6 tracking-tight font-serif">Membangun Logika,<br /><span className="text-gray-500">Menciptakan Visual.</span></h2>
             <p className="text-lg text-gray-300 mb-8 leading-relaxed">
-              Fokus utama saya adalah <span className="text-accent font-semibold">IT Automation & Backend Arsitektur</span>. Dengan pengalaman di bidang desain dan video editing, saya membangun produk yang fungsional secara logika dan menarik secara visual.
+              Fokus utama saya adalah <span className="text-accent font-semibold">Full-Stack Development (Laravel + Next.js)</span> dan <span className="text-accent font-semibold">IT Automation</span>. Dengan pengalaman di bidang desain dan video editing, saya membangun produk yang fungsional secara logika dan menarik secara visual.
             </p>
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="p-5 bg-white/5 rounded-2xl border border-white/5 flex items-center gap-4">
@@ -489,9 +498,33 @@ export default function Home() {
                     <div className="p-8 flex flex-col flex-1">
                       <h3 className="text-2xl font-bold mb-3 text-white">{project.title}</h3>
                       <p className="text-gray-400 text-sm mb-8 flex-1 leading-relaxed">{project.desc}</p>
-                      <a href={project.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 text-white font-bold text-sm bg-white/5 w-fit px-6 py-3 rounded-xl active:scale-95 transition-all btn-hover">
-                        <i className={project.actionIcon + " text-xl"}></i> {project.actionText}
-                      </a>
+                      <div className="flex flex-wrap gap-2">
+                        {project.github_url && (
+                          <a href={project.github_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-white font-bold text-sm bg-white/5 px-5 py-2.5 rounded-xl active:scale-95 transition-all btn-hover border border-white/10">
+                            <i className="ri-github-fill text-lg"></i> GitHub
+                          </a>
+                        )}
+                        {project.demo_url && (
+                          <a href={project.demo_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-white font-bold text-sm bg-accent px-5 py-2.5 rounded-xl active:scale-95 transition-all hover:scale-105">
+                            <i className="ri-external-link-line text-lg"></i> Live Demo
+                          </a>
+                        )}
+                        {project.play_store_url && (
+                          <a href={project.play_store_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-white font-bold text-sm bg-white/5 px-5 py-2.5 rounded-xl active:scale-95 transition-all btn-hover border border-white/10">
+                            <i className="ri-google-play-fill text-lg"></i> Play Store
+                          </a>
+                        )}
+                        {project.apk_url && (
+                          <a href={project.apk_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-white font-bold text-sm bg-white/5 px-5 py-2.5 rounded-xl active:scale-95 transition-all btn-hover border border-white/10">
+                            <i className="ri-download-line text-lg"></i> APK
+                          </a>
+                        )}
+                        {!project.github_url && !project.demo_url && !project.play_store_url && !project.apk_url && project.link && project.link !== '#' && (
+                          <a href={project.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 text-white font-bold text-sm bg-white/5 px-6 py-3 rounded-xl active:scale-95 transition-all btn-hover">
+                            <i className={project.actionIcon + " text-xl"}></i> {project.actionText}
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
                 );
@@ -549,9 +582,9 @@ export default function Home() {
           <div className="relative w-full max-w-5xl aspect-video bg-black rounded-3xl overflow-hidden border border-white/10 shadow-2xl z-[10000]">
             <button
               onClick={() => setSelectedVideo(null)}
-              className="absolute top-4 right-4 w-10 h-10 bg-white/10 hover:bg-red-500 text-white rounded-full flex items-center justify-center z-[10001] transition-all active:scale-90"
+              className="absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 md:w-12 md:h-12 bg-black/60 md:bg-white/10 backdrop-blur-md md:hover:bg-red-500 text-white rounded-full flex items-center justify-center z-[10001] transition-all active:scale-90 border border-white/20 md:border-transparent shadow-xl md:shadow-none"
             >
-              <i className="ri-close-line text-2xl"></i>
+              <i className="ri-close-line text-xl md:text-2xl"></i>
             </button>
             <iframe
               src={selectedVideo}
@@ -624,8 +657,8 @@ export default function Home() {
         <div className="fixed inset-0 z-[200] flex md:items-center md:justify-center md:p-10">
           <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" onClick={() => setSelectedCert(null)}></div>
           <div className="relative z-10 w-full md:max-w-4xl bg-card-bg md:border border-white/10 md:rounded-2xl overflow-y-auto md:max-h-[90vh] grid md:grid-cols-2">
-            <button onClick={() => setSelectedCert(null)} className="fixed md:absolute top-4 right-4 w-9 h-9 bg-white/10 hover:bg-red-500 text-white rounded-full flex items-center justify-center z-[300] transition-all active:scale-90">
-              <i className="ri-close-line text-xl"></i>
+            <button onClick={() => setSelectedCert(null)} className="fixed md:absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 md:w-11 md:h-11 bg-black/80 md:bg-white/10 backdrop-blur-md md:hover:bg-red-500 text-white rounded-full flex items-center justify-center z-[300] transition-all active:scale-90 border border-white/20 md:border-transparent shadow-xl md:shadow-none">
+              <i className="ri-close-line text-xl md:text-2xl"></i>
             </button>
             {/* PDF Preview */}
             <div className="bg-white/5 flex items-start justify-center overflow-y-auto">
@@ -688,7 +721,7 @@ export default function Home() {
         <div className="flex justify-center gap-8 mb-8">
           <a href="https://github.com/galangpramudito" target="_blank" rel="noopener noreferrer" aria-label="GitHub Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-github-fill"></i></a>
           <a href="https://www.linkedin.com/in/galang-arrauf-pramudito/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-linkedin-fill"></i></a>
-          <a href="mailto:glangarraf@gmail.com" aria-label="Email Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-mail-line"></i></a>
+          <a href="mailto:galangarrauf22@gmail.com" aria-label="Email Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-mail-line"></i></a>
         </div>
         <p className="text-gray-500 text-[10px] font-medium tracking-[0.3em] uppercase">© 2026 Galang Arrauf Pramudito • Built with Next.js</p>
       </footer>
@@ -716,8 +749,8 @@ export default function Home() {
                     <div class="relative w-full max-w-4xl h-[90vh] bg-card-bg border border-white/10 rounded-2xl overflow-hidden flex flex-col">
                       <div class="p-4 border-b border-white/10 flex justify-between items-center bg-black/50">
                         <h3 class="text-white font-bold">CV - Galang Arrauf Pramudito</h3>
-                        <button onclick="this.closest('.fixed').remove()" class="w-9 h-9 bg-white/10 hover:bg-red-500 text-white rounded-full flex items-center justify-center transition-all">
-                          <i class="ri-close-line text-xl"></i>
+                        <button onclick="this.closest('.fixed').remove()" class="w-10 h-10 md:w-11 md:h-11 bg-black/60 md:bg-white/10 border border-white/20 md:border-transparent md:hover:bg-red-500 text-white rounded-full flex items-center justify-center transition-all active:scale-90">
+                          <i class="ri-close-line text-xl md:text-2xl"></i>
                         </button>
                       </div>
                       <iframe src="/api/cv" class="w-full flex-1 border-0"></iframe>

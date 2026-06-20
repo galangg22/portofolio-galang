@@ -13,19 +13,16 @@ export default function PdfThumbnail({ url, width = 600, className = "" }) {
 
     (async () => {
       try {
-        console.log('loading PDF:', url);
         const pdfjsLib = await import("pdfjs-dist");
         pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
 
         task = pdfjsLib.getDocument({ url });
         const pdf = await task.promise;
-        console.log('PDF loaded, pages:', pdf.numPages);
         const page = await pdf.getPage(1);
 
         const base = page.getViewport({ scale: 1 });
         const scale = width / base.width;
         const viewport = page.getViewport({ scale });
-        console.log('viewport:', viewport.width, viewport.height);
 
         if (cancelled) return;
         const canvas = canvasRef.current;
@@ -34,7 +31,6 @@ export default function PdfThumbnail({ url, width = 600, className = "" }) {
         canvas.height = viewport.height;
 
         await page.render({ canvas, viewport }).promise;
-        console.log('page rendered, canvas:', canvasRef.current);
         if (!cancelled) setStatus("done");
       } catch (e) {
         console.error('PdfThumbnail error:', e);
@@ -54,7 +50,7 @@ export default function PdfThumbnail({ url, width = 600, className = "" }) {
   }
 
   return (
-    <div className={`relative w-full ${className}`}>
+    <div className={`relative w-full max-w-full overflow-hidden ${className}`}>
       {status === "loading" && <div className="absolute inset-0 bg-white/5 animate-pulse"></div>}
       <canvas ref={canvasRef} className={`w-full h-auto block ${status === "done" ? "" : "opacity-0"}`} />
     </div>

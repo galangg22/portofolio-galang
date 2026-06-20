@@ -7,6 +7,6 @@ export default function robots() {
         disallow: ['/api/', '/admin/'],
       },
     ],
-    sitemap: 'https://galang-arrauf.com/sitemap.xml',
+    sitemap: 'https://portofolang.web.id/sitemap.xml',
   };
 }

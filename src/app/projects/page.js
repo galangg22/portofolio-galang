@@ -265,18 +265,18 @@ export default function ProjectsPage() {
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-10">
           <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" onClick={() => setScreenshotModal(null)}></div>
           <button onClick={() => setScreenshotModal(null)}
-            className="fixed top-4 right-4 md:top-8 md:right-8 w-10 h-10 md:w-12 md:h-12 bg-white/10 backdrop-blur-md hover:bg-red-500 text-white rounded-full flex items-center justify-center z-[300] transition-all active:scale-90 border border-white/20">
+            className="fixed top-4 right-4 md:top-6 md:right-6 w-10 h-10 md:w-12 md:h-12 bg-black/60 md:bg-white/10 backdrop-blur-md md:hover:bg-red-500 text-white rounded-full flex items-center justify-center z-[300] transition-all active:scale-90 border border-white/20 md:border-transparent shadow-xl md:shadow-none">
             <i className="ri-close-line text-xl md:text-2xl"></i>
           </button>
           {screenshotModal.images.length > 1 && (
             <>
               <button onClick={() => setScreenshotModal((s) => ({ ...s, index: (s.index - 1 + s.images.length) % s.images.length }))}
-                className="fixed left-4 w-10 h-10 md:w-12 md:h-12 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center z-[300]">
-                <i className="ri-arrow-left-s-line text-2xl"></i>
+                className="fixed left-4 md:left-10 top-1/2 -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 bg-black/60 md:bg-white/10 backdrop-blur-md md:hover:bg-white/20 text-white rounded-full flex items-center justify-center z-[300] transition-all active:scale-90 border border-white/20 md:border-transparent shadow-xl md:shadow-none">
+                <i className="ri-arrow-left-s-line text-2xl md:text-3xl"></i>
               </button>
               <button onClick={() => setScreenshotModal((s) => ({ ...s, index: (s.index + 1) % s.images.length }))}
-                className="fixed right-4 w-10 h-10 md:w-12 md:h-12 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center z-[300]">
-                <i className="ri-arrow-right-s-line text-2xl"></i>
+                className="fixed right-4 md:right-10 top-1/2 -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 bg-black/60 md:bg-white/10 backdrop-blur-md md:hover:bg-white/20 text-white rounded-full flex items-center justify-center z-[300] transition-all active:scale-90 border border-white/20 md:border-transparent shadow-xl md:shadow-none">
+                <i className="ri-arrow-right-s-line text-2xl md:text-3xl"></i>
               </button>
             </>
           )}

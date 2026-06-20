@@ -21,24 +21,24 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata = {
-  title: "Galang Arrauf - Backend Developer & Creative Enthusiast",
+  title: "Galang Arrauf — Full-Stack Dev (Laravel + Next.js) · Open to Internship/Freelance",
   description:
-    "Portfolio of Galang Arrauf Pramudito. Backend Developer, IT Automation specialist, and Creative Enthusiast. Showcasing development projects, design work, and video production.",
+    "Portfolio Galang Arrauf Pramudito — Full-Stack Developer (Laravel, Next.js, Node.js). Mahasiswa D3 Teknik Informatika PENS. Open to internship & freelance. Lihat project, design, dan sertifikat.",
   keywords:
-    "backend developer, node.js, laravel, react, next.js, ui/ux design, video editing, portfolio, galang arrauf, pens",
+    "full-stack developer, laravel, next.js, node.js, react, backend developer, ui/ux design, video editing, portfolio, galang arrauf, pens, internship, freelance",
   authors: [{ name: "Galang Arrauf Pramudito" }],
   openGraph: {
-    title: "Galang Arrauf - Backend Developer & Creative Enthusiast",
+    title: "Galang Arrauf — Full-Stack Dev (Laravel + Next.js) · Open to Internship/Freelance",
     description:
-      "Portfolio of Galang Arrauf Pramudito showcasing development projects, design work, and video production.",
-    url: "https://galang-arrauf.vercel.app",
+      "Portfolio Galang Arrauf Pramudito — Full-Stack Developer specializing in Laravel & Next.js. Open to internship & freelance opportunities.",
+    url: "https://portofolang.web.id",
     type: "website",
-    siteName: "Galang Arrauf Portfolio",
+    siteName: "Portofolang — Galang Arrauf Portfolio",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Galang Arrauf - Backend Developer & Creative Enthusiast",
-    description: "Portfolio of Galang Arrauf Pramudito",
+    title: "Galang Arrauf — Full-Stack Dev (Laravel + Next.js)",
+    description: "Portfolio Galang Arrauf Pramudito — Open to internship & freelance",
   },
 };
 

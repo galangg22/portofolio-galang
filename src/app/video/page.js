@@ -7,8 +7,62 @@ import { supabase } from '@/lib/supabase';
 
 // Fallback: video lama dari data statis (dipakai bila Supabase belum aktif).
 const FALLBACK_VIDEOS = [
-  { id: 'f1', title: 'Creative Video Showcase 1', thumbnail_url: '/image/kantor disnaker.jpg', video_url: 'https://drive.google.com/file/d/18rl6oX3F_ZaaTaoSONB6v2hs-uxYESB5/preview', platform: 'drive', description: 'Project editing video dokumentasi profesional.' },
-  { id: 'f2', title: 'Creative Video Showcase 2', thumbnail_url: '/image/kantor disnaker.jpg', video_url: 'https://drive.google.com/file/d/1gHHz2DmmbvNLucbE3djJp0Rgph151s60/preview', platform: 'drive', description: 'Editing video dengan teknik transisi modern.' },
+  {
+    id: 'f1',
+    title: 'Dokumentasi Profesional Disnaker',
+    thumbnail_url: '/image/kantor disnaker.jpg',
+    video_url: 'https://drive.google.com/file/d/18rl6oX3F_ZaaTaoSONB6v2hs-uxYESB5/preview',
+    platform: 'drive',
+    description: 'Video dokumentasi kegiatan resmi di kantor Disnaker — editing profesional dengan VN Editor.',
+  },
+  {
+    id: 'f2',
+    title: 'Video Transisi Modern',
+    thumbnail_url: '/image/kantor disnaker.jpg',
+    video_url: 'https://drive.google.com/file/d/1gHHz2DmmbvNLucbE3djJp0Rgph151s60/preview',
+    platform: 'drive',
+    description: 'Project editing video dengan teknik transisi modern dan smooth cuts menggunakan CapCut Pro.',
+  },
+  {
+    id: 'f3',
+    title: 'Color Grading Sinematik',
+    thumbnail_url: '/image/kantor disnaker.jpg',
+    video_url: 'https://drive.google.com/file/d/1pevh5g-okN18hD9B5jdsfyIwu_6QxnJq/preview',
+    platform: 'drive',
+    description: 'Visual storytelling melalui color grading sinematik — warm tones dan cinematic look.',
+  },
+  {
+    id: 'f4',
+    title: 'Motion Graphics Kreatif',
+    thumbnail_url: '/image/kantor disnaker.jpg',
+    video_url: 'https://drive.google.com/file/d/1EaQ2jKuZtgh5YVkbX4caAq7uXsrZrpQ2/preview',
+    platform: 'drive',
+    description: 'Konten motion graphics dan visual kreatif untuk kebutuhan promosi institusi.',
+  },
+  {
+    id: 'f5',
+    title: 'Video Promosi Institusi',
+    thumbnail_url: '/image/kantor disnaker.jpg',
+    video_url: 'https://drive.google.com/file/d/1b4sYM6GY88YfG4PhnjrJmeXN0nNendDf/preview',
+    platform: 'drive',
+    description: 'Video promosi institusi dengan editing profesional menggunakan VN dan CapCut Pro.',
+  },
+  {
+    id: 'f6',
+    title: 'Showreel Video Editing',
+    thumbnail_url: '/image/kantor disnaker.jpg',
+    video_url: 'https://drive.google.com/file/d/1jAV6GxrbbN9sKAc9kypL21WKynx3cLfK/preview',
+    platform: 'drive',
+    description: 'Kompilasi showcase dari berbagai project video editing selama 2025-2026.',
+  },
+  {
+    id: 'f7',
+    title: 'Highlight Reel Kegiatan',
+    thumbnail_url: '/image/kantor disnaker.jpg',
+    video_url: 'https://drive.google.com/file/d/1xBGPc8PI1z1wEkhTzwQ8mxUKMUyMl-nJ/preview',
+    platform: 'drive',
+    description: 'Highlight reel dari berbagai kegiatan kampus dan organisasi — fast-paced editing style.',
+  },
 ];
 
 function getEmbedUrl(videoUrl, platform) {
@@ -70,9 +124,12 @@ export default function VideoGallery() {
           </div>
           Back to Home
         </Link>
-        <h1 className="font-display text-4xl md:text-6xl font-normal mb-10 tracking-tight">
+        <h1 className="font-display text-4xl md:text-6xl font-normal mb-4 tracking-tight">
           Video <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Showcase</span>
         </h1>
+        <p className="text-gray-400 max-w-xl text-sm md:text-base font-light leading-relaxed mb-10">
+          Koleksi video editing — dokumentasi, promosi, motion graphics, dan showreel.
+        </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {loading ? (
@@ -99,7 +156,7 @@ export default function VideoGallery() {
                     setSelected(getEmbedUrl(v.video_url, v.platform));
                   }
                 }}
-                className="group relative rounded-2xl overflow-hidden bg-card-bg border border-white/10 focus:outline-none focus:ring-2 focus:ring-accent cursor-pointer"
+                className="group relative rounded-2xl overflow-hidden bg-card-bg border border-white/10 focus:outline-none focus:ring-2 focus:ring-accent cursor-pointer hover:border-white/20 transition-all"
               >
                 <div className="relative aspect-video bg-black">
                   {v.thumbnail_url && (
@@ -110,6 +167,14 @@ export default function VideoGallery() {
                       <i className="ri-play-fill text-white text-2xl ml-1"></i>
                     </div>
                   </div>
+                  {/* Platform badge */}
+                  {v.platform && (
+                    <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10 text-[8px] font-bold text-white/80 uppercase tracking-widest">
+                      {v.platform === 'youtube' && <><i className="ri-youtube-line mr-1"></i>YouTube</>}
+                      {v.platform === 'drive' && <><i className="ri-drive-line mr-1"></i>Drive</>}
+                      {v.platform === 'vimeo' && <><i className="ri-vimeo-line mr-1"></i>Vimeo</>}
+                    </div>
+                  )}
                 </div>
                 <div className="p-5">
                   <h3 className="font-bold mb-1">{v.title}</h3>
@@ -125,14 +190,20 @@ export default function VideoGallery() {
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-0 md:p-10">
           <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" onClick={() => setSelected(null)}></div>
           <button onClick={() => setSelected(null)}
-            className="fixed top-4 right-4 w-10 h-10 bg-white/10 hover:bg-red-500 rounded-full flex items-center justify-center z-[300]">
-            <i className="ri-close-line text-xl"></i>
+            className="fixed top-4 right-4 md:top-8 md:right-8 w-10 h-10 md:w-12 md:h-12 bg-black/60 md:bg-white/10 backdrop-blur-md md:hover:bg-red-500 text-white rounded-full flex items-center justify-center z-[300] transition-all active:scale-90 border border-white/20 md:border-transparent shadow-xl md:shadow-none">
+            <i className="ri-close-line text-xl md:text-2xl"></i>
           </button>
           <div className="relative w-full max-w-6xl aspect-video bg-black md:rounded-2xl overflow-hidden z-10">
             <iframe src={selected} className="w-full h-full border-none" allow="autoplay; fullscreen" allowFullScreen></iframe>
           </div>
         </div>
       )}
+
+      <footer className="mt-20 md:mt-32 pb-8 md:pb-16 text-center border-t border-white/5 pt-8 md:pt-10">
+        <p className="text-gray-600 text-[8px] md:text-[9px] font-bold uppercase tracking-[0.4em]">
+          Galang Arrauf Pramudito • Video Showcase 2026
+        </p>
+      </footer>
     </main>
   );
 }

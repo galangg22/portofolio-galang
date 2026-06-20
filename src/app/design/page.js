@@ -6,7 +6,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
 // ==========================================
-// 📂 DATA GALLERY (Desain & 7 Video Drive)
+// 📂 DATA GALLERY — Design only (videos moved to /video)
 // ==========================================
 const GALLERY_DATA = [
   {
@@ -14,94 +14,47 @@ const GALLERY_DATA = [
     title: "TPQ Al-Hikmah Branding",
     category: "design",
     image: "/image/TOKO TUNAI BGDARK mockup fix.png",
-    desc: "Identitas visual lengkap untuk lembaga TPQ Al-Hikmah."
+    desc: "Identitas visual lengkap untuk lembaga TPQ Al-Hikmah — logo, color palette, dan material promosi.",
+    images: ["/image/TOKO TUNAI BGDARK mockup fix.png"],
   },
   {
     id: 2,
     title: "HeartHorizon LMS UI",
     category: "design",
     image: "/image/Photo by Pankaj Patel on Unsplash.jpg",
-    desc: "Perancangan antarmuka pengguna untuk platform Online Class."
+    desc: "Perancangan antarmuka pengguna untuk platform Online Class — wireframe, mockup, dan user flow.",
+    images: ["/image/Photo by Pankaj Patel on Unsplash.jpg"],
   },
   {
     id: 3,
     title: "ThriftyFinds Identity",
     category: "design",
     image: "/image/TOKO TUNAI MOCKUP FIXX.png",
-    desc: "Desain logo dan palet warna untuk platform e-commerce thrift."
+    desc: "Desain logo, palet warna, dan panduan brand untuk platform e-commerce thrift modern.",
+    images: ["/image/TOKO TUNAI MOCKUP FIXX.png"],
   },
-  {
-    id: 4,
-    title: "Creative Video Showcase 1",
-    category: "video",
-    image: "/image/kantor disnaker.jpg",
-    videoUrl: "https://drive.google.com/file/d/18rl6oX3F_ZaaTaoSONB6v2hs-uxYESB5/preview",
-    desc: "Project editing video dokumentasi profesional."
-  },
-  {
-    id: 5,
-    title: "Creative Video Showcase 2",
-    category: "video",
-    image: "/image/kantor disnaker.jpg",
-    videoUrl: "https://drive.google.com/file/d/1gHHz2DmmbvNLucbE3djJp0Rgph151s60/preview",
-    desc: "Editing video dengan teknik transisi modern."
-  },
-  {
-    id: 6,
-    title: "Creative Video Showcase 3",
-    category: "video",
-    image: "/image/kantor disnaker.jpg",
-    videoUrl: "https://drive.google.com/file/d/1pevh5g-okN18hD9B5jdsfyIwu_6QxnJq/preview",
-    desc: "Visual storytelling melalui color grading sinematik."
-  },
-  {
-    id: 7,
-    title: "Creative Video Showcase 4",
-    category: "video",
-    image: "/image/kantor disnaker.jpg",
-    videoUrl: "https://drive.google.com/file/d/1EaQ2jKuZtgh5YVkbX4caAq7uXsrZrpQ2/preview",
-    desc: "Motion graphics dan konten visual kreatif."
-  },
-  {
-    id: 8,
-    title: "Creative Video Showcase 5",
-    category: "video",
-    image: "/image/kantor disnaker.jpg",
-    videoUrl: "https://drive.google.com/file/d/1b4sYM6GY88YfG4PhnjrJmeXN0nNendDf/preview",
-    desc: "Video promosi institusi dengan VN/CapCut Pro."
-  },
-  {
-    id: 9,
-    title: "Creative Video Showcase 6",
-    category: "video",
-    image: "/image/kantor disnaker.jpg",
-    videoUrl: "https://drive.google.com/file/d/1jAV6GxrbbN9sKAc9kypL21WKynx3cLfK/preview",
-    desc: "Showcase final dari koleksi video editing."
-  },
-  {
-    id: 10,
-    title: "Creative Video Showcase 7",
-    category: "video",
-    image: "/image/kantor disnaker.jpg",
-    videoUrl: "https://drive.google.com/file/d/1xBGPc8PI1z1wEkhTzwQ8mxUKMUyMl-nJ/preview", 
-    desc: "Showcase tambahan dari koleksi video editing."
-  }
 ];
 
 export default function DesignGallery() {
-  const [filter, setFilter] = useState("all");
-  const [selectedVideo, setSelectedVideo] = useState(null);
   const [gallery, setGallery] = useState(GALLERY_DATA);
   const [lightbox, setLightbox] = useState(null); // { images: [url], index, title }
+  const [loading, setLoading] = useState(true);
 
   // Hydrate designs + galeri gambar dari Supabase bila aktif.
   useEffect(() => {
-    if (!supabase) return;
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
     (async () => {
       const { data: designs } = await supabase
         .from("designs").select("*")
         .order("sort_order").order("created_at", { ascending: false });
-      if (!designs || !designs.length) return;
+      if (!designs || !designs.length) {
+        setLoading(false);
+        return;
+      }
       const { data: imgs } = await supabase
         .from("design_images").select("*").order("sort_order");
       const byDesign = (imgs || []).reduce((acc, im) => {
@@ -111,11 +64,12 @@ export default function DesignGallery() {
       setGallery(designs.map((d) => ({
         id: d.id,
         title: d.title,
-        category: d.category || "design",
+        category: "design",
         image: d.cover_image_url,
         desc: d.description,
         images: byDesign[d.id] || (d.cover_image_url ? [d.cover_image_url] : []),
       })));
+      setLoading(false);
     })();
   }, []);
 
@@ -123,7 +77,6 @@ export default function DesignGallery() {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
-        setSelectedVideo(null);
         setLightbox(null);
       }
       if (lightbox && lightbox.images.length > 1) {
@@ -138,12 +91,7 @@ export default function DesignGallery() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [lightbox]);
 
-  const filteredData = filter === "all"
-    ? gallery
-    : gallery.filter(item => item.category === filter);
-
   const openItem = (item) => {
-    if (item.category === "video") { setSelectedVideo(item.videoUrl); return; }
     if (item.images && item.images.length) setLightbox({ images: item.images, index: 0, title: item.title });
   };
 
@@ -165,124 +113,99 @@ export default function DesignGallery() {
           Back to Home
         </Link>
         <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold mb-3 md:mb-4 tracking-tighter uppercase leading-tight">
-          Creative <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-emerald-400">Archives</span>
+          Design <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-emerald-400">Gallery</span>
         </h1>
         <p className="text-gray-400 max-w-xl text-sm md:text-base font-light leading-relaxed">
-          Eksplorasi estetika dalam desain grafis dan teknik pengolahan video profesional.
+          Eksplorasi estetika dalam desain grafis — branding, UI/UX, dan identitas visual.
         </p>
-      </div>
 
-      {/* Modern Filter Pill */}
-      <div className="max-w-6xl mx-auto flex gap-2 md:gap-3 mb-10 md:mb-12 overflow-x-auto pb-4 relative z-10 snap-x [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-        {["all", "design", "video"].map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setFilter(cat)}
-            className={`snap-start shrink-0 px-5 md:px-6 py-2.5 rounded-full border text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap ${
-              filter === cat 
-              ? "bg-accent text-white border-accent" 
-              : "border-white/10 text-gray-500 hover:border-white/30 hover:text-white bg-white/5"
-            }`}
-          >
-            {cat === "all" ? "All Works" : cat === "design" ? "Graphic Design" : "Video Editing"}
-          </button>
-        ))}
+        {/* Link to Video page */}
+        <div className="flex gap-3 mt-6">
+          <Link href="/video" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/10 text-[11px] font-bold uppercase tracking-widest text-gray-400 hover:border-accent hover:text-accent transition-all bg-white/5">
+            <i className="ri-video-line"></i> Lihat Video Works
+          </Link>
+        </div>
       </div>
 
       {/* 💎 MASONRY GRID 💎 */}
       <div className="max-w-6xl mx-auto columns-1 sm:columns-2 lg:columns-3 gap-6 relative z-10">
-        {filteredData.map((item) => (
-          <div 
-            key={item.id} 
-            role="button"
-            tabIndex={0}
-            aria-label={`${item.title} - ${item.category === "video" ? "Video" : "Desain"}`}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                openItem(item);
-              }
-            }}
-            className="break-inside-avoid mb-6 group relative rounded-[20px] md:rounded-[24px] overflow-hidden bg-[#111] border border-white/5 hover:border-white/20 focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-500 cursor-pointer"
-            onClick={() => openItem(item)}
-          >
-            <div className="relative w-full overflow-hidden aspect-auto bg-black">
-              <Image 
-                src={item.image} 
-                alt={item.title} 
-                width={600} 
-                height={800} 
-                className="w-full h-auto object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-90 group-hover:opacity-100"
-              />
-              
-              {/* Minimalist Video Overlay */}
-              {item.category === "video" && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/25 group-hover:bg-black/45 transition-all duration-500">
-                  <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white transition-transform duration-500 group-hover:scale-110 group-hover:bg-accent group-hover:text-bg-dark" aria-label="Play Video">
-                    <i className="ri-play-fill text-xl ml-0.5" aria-hidden="true"></i>
-                  </div>
-                </div>
-              )}
-              
-              {/* Category Tag */}
-              <div className="absolute top-3 left-3 md:top-4 md:left-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 text-[8px] md:text-[9px] font-bold text-white/80 uppercase tracking-widest transition-all duration-300">
-                {item.category}
+        {loading ? (
+          Array.from({ length: 6 }).map((_, idx) => (
+            <div key={idx} className="break-inside-avoid mb-6 rounded-[24px] overflow-hidden bg-[#111] border border-white/5 animate-pulse">
+              <div className="w-full aspect-[4/5] bg-white/5"></div>
+              <div className="p-6 space-y-3">
+                <div className="h-6 bg-white/10 rounded-md w-3/4"></div>
+                <div className="h-4 bg-white/5 rounded-md w-5/6"></div>
               </div>
             </div>
-            
-            <div className="p-5 md:p-6 bg-gradient-to-t from-[#111] to-transparent">
-              <h3 className="text-base md:text-lg font-bold mb-1.5 md:mb-2 text-white/90 group-hover:text-white transition-colors">{item.title}</h3>
-              <p className="text-gray-500 text-[11px] md:text-xs leading-relaxed line-clamp-2">{item.desc}</p>
+          ))
+        ) : (
+          gallery.map((item) => (
+            <div 
+              key={item.id} 
+              role="button"
+              tabIndex={0}
+              aria-label={`${item.title} - Desain`}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  openItem(item);
+                }
+              }}
+              className="break-inside-avoid mb-6 group relative rounded-[20px] md:rounded-[24px] overflow-hidden bg-[#111] border border-white/5 hover:border-white/20 focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-500 cursor-pointer"
+              onClick={() => openItem(item)}
+            >
+              <div className="relative w-full overflow-hidden aspect-auto bg-black">
+                <Image 
+                  src={item.image} 
+                  alt={item.title} 
+                  width={600} 
+                  height={800} 
+                  className="w-full h-auto object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-90 group-hover:opacity-100"
+                />
+                
+                {/* Category Tag */}
+                <div className="absolute top-3 left-3 md:top-4 md:left-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 text-[8px] md:text-[9px] font-bold text-white/80 uppercase tracking-widest transition-all duration-300">
+                  design
+                </div>
+
+                {/* Gallery indicator */}
+                {item.images && item.images.length > 1 && (
+                  <div className="absolute top-3 right-3 md:top-4 md:right-4 bg-black/60 backdrop-blur-md px-2.5 py-1.5 rounded-lg border border-white/10 text-[8px] md:text-[9px] font-bold text-white/80 flex items-center gap-1">
+                    <i className="ri-image-line"></i> {item.images.length}
+                  </div>
+                )}
+              </div>
+              
+              <div className="p-5 md:p-6 bg-gradient-to-t from-[#111] to-transparent">
+                <h3 className="text-base md:text-lg font-bold mb-1.5 md:mb-2 text-white/90 group-hover:text-white transition-colors">{item.title}</h3>
+                <p className="text-gray-500 text-[11px] md:text-xs leading-relaxed line-clamp-2">{item.desc}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
+        {!loading && !gallery.length && (
+          <p className="text-gray-500 text-sm col-span-full text-center py-12">Belum ada desain.</p>
+        )}
       </div>
-
-      {/* 🎬 MODAL VIDEO PLAYER (FULLSCREEN ENABLED) 🎬 */}
-      {selectedVideo && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-0 md:p-10">
-          {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" onClick={() => setSelectedVideo(null)}></div>
-          
-          {/* TOMBOL CLOSE FIXED */}
-          <button 
-            onClick={() => setSelectedVideo(null)} 
-            className="fixed top-4 right-4 md:top-8 md:right-8 w-10 h-10 md:w-12 md:h-12 bg-white/10 backdrop-blur-md hover:bg-red-500 text-white rounded-full flex items-center justify-center z-[300] transition-all active:scale-90 border border-white/20 shadow-2xl"
-          >
-            <i className="ri-close-line text-xl md:text-2xl"></i>
-          </button>
-
-          {/* Container Video */}
-          <div className="relative w-full max-w-6xl aspect-video bg-black md:rounded-[24px] overflow-hidden border-y md:border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)] z-10">
-            <iframe 
-              src={selectedVideo} 
-              className="w-full h-full border-none" 
-              allow="autoplay; fullscreen" 
-              allowFullScreen={true}
-              webkitallowfullscreen="true"
-              mozallowfullscreen="true"
-            ></iframe>
-          </div>
-        </div>
-      )}
 
       {/* 🖼️ DESIGN LIGHTBOX (slideshow design_images) 🖼️ */}
       {lightbox && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-10">
           <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" onClick={() => setLightbox(null)}></div>
           <button onClick={() => setLightbox(null)}
-            className="fixed top-4 right-4 md:top-8 md:right-8 w-10 h-10 md:w-12 md:h-12 bg-white/10 backdrop-blur-md hover:bg-red-500 text-white rounded-full flex items-center justify-center z-[300] transition-all active:scale-90 border border-white/20">
+            className="fixed top-4 right-4 md:top-6 md:right-6 w-10 h-10 md:w-12 md:h-12 bg-black/60 md:bg-white/10 backdrop-blur-md md:hover:bg-red-500 text-white rounded-full flex items-center justify-center z-[300] transition-all active:scale-90 border border-white/20 md:border-transparent shadow-xl md:shadow-none">
             <i className="ri-close-line text-xl md:text-2xl"></i>
           </button>
           {lightbox.images.length > 1 && (
             <>
               <button onClick={() => setLightbox((l) => ({ ...l, index: (l.index - 1 + l.images.length) % l.images.length }))}
-                className="fixed left-4 w-10 h-10 md:w-12 md:h-12 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center z-[300]">
-                <i className="ri-arrow-left-s-line text-2xl"></i>
+                className="fixed left-4 md:left-10 top-1/2 -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 bg-black/60 md:bg-white/10 backdrop-blur-md md:hover:bg-white/20 text-white rounded-full flex items-center justify-center z-[300] transition-all active:scale-90 border border-white/20 md:border-transparent shadow-xl md:shadow-none">
+                <i className="ri-arrow-left-s-line text-2xl md:text-3xl"></i>
               </button>
               <button onClick={() => setLightbox((l) => ({ ...l, index: (l.index + 1) % l.images.length }))}
-                className="fixed right-4 w-10 h-10 md:w-12 md:h-12 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center z-[300]">
-                <i className="ri-arrow-right-s-line text-2xl"></i>
+                className="fixed right-4 md:right-10 top-1/2 -translate-y-1/2 w-10 h-10 md:w-14 md:h-14 bg-black/60 md:bg-white/10 backdrop-blur-md md:hover:bg-white/20 text-white rounded-full flex items-center justify-center z-[300] transition-all active:scale-90 border border-white/20 md:border-transparent shadow-xl md:shadow-none">
+                <i className="ri-arrow-right-s-line text-2xl md:text-3xl"></i>
               </button>
             </>
           )}
@@ -300,7 +223,7 @@ export default function DesignGallery() {
       {/* Footer */}
       <footer className="mt-20 md:mt-32 pb-8 md:pb-16 text-center border-t border-white/5 pt-8 md:pt-10">
         <p className="text-gray-600 text-[8px] md:text-[9px] font-bold uppercase tracking-[0.4em]">
-          Galang Arrauf Pramudito • Visual Archives 2026
+          Galang Arrauf Pramudito • Design Gallery 2026
         </p>
       </footer>
     </main>

@@ -1,5 +1,5 @@
 export default function sitemap() {
-  const baseUrl = 'https://portofolang.vercel.app';
+  const baseUrl = 'https://portofolang.web.id';
 
   return [
     {

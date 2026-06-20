@@ -1,8 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js'
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-// Service role bypass RLS — HANYA dipakai di API routes server-side.
-export const supabaseAdmin =
-  url && serviceKey ? createClient(url, serviceKey, { auth: { persistSession: false } }) : null;
+export const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+)
