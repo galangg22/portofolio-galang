@@ -10,10 +10,12 @@ export default function AdminNav() {
   const [loading, setLoading] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
+  if (pathname === '/admin/login') return null;
+
   const handleLogout = async () => {
     setLoading(true)
     await fetch('/api/admin/logout', { method: 'POST' })
-    router.push('/admin/login')
+    window.location.href = '/admin/login';
   }
 
   const navItems = [
