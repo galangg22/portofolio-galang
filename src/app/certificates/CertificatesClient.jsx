@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import PdfThumbnail from "@/app/components/PdfThumbnail";
 
@@ -53,7 +54,7 @@ export default function CertificatesClient({ certs: initialCerts }) {
               {cert.verify_url?.endsWith('.pdf') ? (
                 <PdfThumbnail url={cert.verify_url} width={600} />
               ) : cert.image_url ? (
-                <img src={cert.image_url} alt={cert.title} className="w-full h-full object-cover" />
+                <Image src={cert.image_url} alt={cert.title} fill className="object-cover" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
               ) : (
                 <i className="ri-award-fill text-6xl text-white/40"></i>
               )}
@@ -85,7 +86,7 @@ export default function CertificatesClient({ certs: initialCerts }) {
               {modal.verify_url?.endsWith('.pdf') ? (
                 <PdfThumbnail url={modal.verify_url} width={900} />
               ) : modal.image_url ? (
-                <img src={modal.image_url} alt={modal.title} className="w-full h-auto" />
+                <Image src={modal.image_url} alt={modal.title} width={900} height={636} className="w-full h-auto" />
               ) : (
                 <div className="w-full aspect-[1/1.414] bg-gradient-to-br from-primary/40 to-accent/30 flex items-center justify-center">
                   <i className="ri-award-fill text-8xl text-white/40"></i>

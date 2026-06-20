@@ -376,6 +376,13 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
             value={value} onChange={handleInputChange} required={field.required} disabled={loading || uploadLoading} />
         )
         break
+      case 'date':
+        inputElement = (
+          <input type="date" name={field.key}
+            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:border-purple-500 focus:outline-none"
+            value={value} onChange={handleInputChange} required={field.required} disabled={loading || uploadLoading} />
+        )
+        break
       case 'select':
         inputElement = (
           <select name={field.key}
@@ -477,16 +484,16 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
         <h2 className="text-xl font-semibold text-purple-300 mb-4">{editingId ? 'Edit Item' : 'Add New'}</h2>
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
           {fields.map(renderField)}
-          <div className="md:col-span-2 flex justify-end gap-3 mt-4">
+          <div className="md:col-span-2 flex flex-col sm:flex-row justify-end gap-3 mt-4">
             {editingId && (
               <button type="button" onClick={handleCancelEdit}
-                className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md text-sm disabled:opacity-50"
+                className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-md text-sm disabled:opacity-50 min-h-[44px]"
                 disabled={loading || uploadLoading}>
                 Cancel
               </button>
             )}
             <button type="submit"
-              className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-md text-sm disabled:opacity-50 flex items-center gap-2"
+              className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-md text-sm disabled:opacity-50 flex items-center justify-center gap-2 min-h-[44px]"
               disabled={loading || uploadLoading}>
               {(loading || uploadLoading) && <i className="ri-loader-4-line animate-spin"></i>}
               {editingId ? 'Update' : 'Submit'}
@@ -508,7 +515,7 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
       )}
 
       {/* Data List Section */}
-      <div className="bg-gray-800 p-6 rounded-lg border border-purple-500/30">
+      <div className="bg-gray-800 p-4 md:p-6 rounded-lg border border-purple-500/30">
         <h2 className="text-xl font-semibold text-purple-300 mb-4">
           Existing {table.charAt(0).toUpperCase() + table.slice(1).replace(/_/g, ' ')}
         </h2>
@@ -517,23 +524,68 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
         ) : data.length === 0 ? (
           <p className="text-gray-400">No data found.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-gray-700 rounded-lg">
-              <thead>
-                <tr className="bg-gray-600 text-gray-200 uppercase text-xs">
-                  {columns.map((col) => (
-                    <th key={col} className="py-3 px-4 text-left">{col.replace(/_/g, ' ')}</th>
-                  ))}
-                  <th className="py-3 px-4 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="text-gray-300 text-sm">
-                {data.map((item) => (
-                  <tr key={item.id} className="border-b border-gray-600 hover:bg-gray-600/50">
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="min-w-full bg-gray-700 rounded-lg">
+                <thead>
+                  <tr className="bg-gray-600 text-gray-200 uppercase text-xs">
                     {columns.map((col) => (
-                      <td key={col} className="py-3 px-4 text-left whitespace-nowrap">
+                      <th key={col} className="py-3 px-4 text-left">{col.replace(/_/g, ' ')}</th>
+                    ))}
+                    <th className="py-3 px-4 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="text-gray-300 text-sm">
+                  {data.map((item) => (
+                    <tr key={item.id} className="border-b border-gray-600 hover:bg-gray-600/50">
+                      {columns.map((col) => (
+                        <td key={col} className="py-3 px-4 text-left whitespace-nowrap">
+                          {col === 'type' ? (
+                            <span className={`py-1 px-2.5 rounded-full text-xs font-semibold text-white ${getBadgeColor(item[col])}`}>
+                              {item[col]}
+                            </span>
+                          ) : col === 'featured' ? (
+                            item[col] ? '✅' : '—'
+                          ) : col === 'issue_date' ? (
+                            item[col] ? new Date(item[col]).toLocaleDateString() : '—'
+                          ) : (
+                            String(item[col] ?? '—').substring(0, 50)
+                          )}
+                        </td>
+                      ))}
+                      <td className="py-3 px-4 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <button onClick={() => handleEdit(item)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white p-1.5 rounded-md text-xs">
+                            <i className="ri-edit-line"></i>
+                          </button>
+                          <button onClick={() => handleDelete(item.id)}
+                            className="bg-red-600 hover:bg-red-700 text-white p-1.5 rounded-md text-xs">
+                            <i className="ri-delete-bin-line"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-3">
+              {data.map((item) => (
+                <div key={item.id} className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                  {/* Title/Main Field */}
+                  <div className="mb-3">
+                    <h3 className="font-bold text-white text-base mb-1">
+                      {item[columns[0]] ?? 'Untitled'}
+                    </h3>
+                    {columns.slice(1).map((col) => (
+                      <div key={col} className="flex items-center gap-2 text-sm text-gray-300 mt-1">
+                        <span className="text-gray-500 font-medium capitalize">{col.replace(/_/g, ' ')}:</span>
                         {col === 'type' ? (
-                          <span className={`py-1 px-2.5 rounded-full text-xs font-semibold text-white ${getBadgeColor(item[col])}`}>
+                          <span className={`py-0.5 px-2 rounded-full text-xs font-semibold text-white ${getBadgeColor(item[col])}`}>
                             {item[col]}
                           </span>
                         ) : col === 'featured' ? (
@@ -541,27 +593,29 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
                         ) : col === 'issue_date' ? (
                           item[col] ? new Date(item[col]).toLocaleDateString() : '—'
                         ) : (
-                          String(item[col] ?? '—').substring(0, 50)
+                          <span className="truncate">{String(item[col] ?? '—').substring(0, 40)}</span>
                         )}
-                      </td>
-                    ))}
-                    <td className="py-3 px-4 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <button onClick={() => handleEdit(item)}
-                          className="bg-blue-600 hover:bg-blue-700 text-white p-1.5 rounded-md text-xs">
-                          <i className="ri-edit-line"></i>
-                        </button>
-                        <button onClick={() => handleDelete(item.id)}
-                          className="bg-red-600 hover:bg-red-700 text-white p-1.5 rounded-md text-xs">
-                          <i className="ri-delete-bin-line"></i>
-                        </button>
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    ))}
+                  </div>
+                  
+                  {/* Action Buttons */}
+                  <div className="flex gap-2 pt-3 border-t border-gray-600">
+                    <button onClick={() => handleEdit(item)}
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-md font-medium flex items-center justify-center gap-2">
+                      <i className="ri-edit-line text-lg"></i>
+                      Edit
+                    </button>
+                    <button onClick={() => handleDelete(item.id)}
+                      className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-md font-medium flex items-center justify-center gap-2">
+                      <i className="ri-delete-bin-line text-lg"></i>
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>

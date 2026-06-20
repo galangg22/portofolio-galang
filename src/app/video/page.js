@@ -90,14 +90,11 @@ function getEmbedUrl(videoUrl, platform) {
 export default function VideoGallery() {
   const [videos, setVideos] = useState(FALLBACK_VIDEOS);
   const [selected, setSelected] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!!supabase);
 
   useEffect(() => {
-    if (!supabase) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
+    if (!supabase) return;
+    
     supabase.from('videos').select('*').order('sort_order').order('created_at', { ascending: false }).then(({ data }) => {
       if (data && data.length) setVideos(data);
       setLoading(false);

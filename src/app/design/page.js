@@ -38,15 +38,12 @@ const GALLERY_DATA = [
 export default function DesignGallery() {
   const [gallery, setGallery] = useState(GALLERY_DATA);
   const [lightbox, setLightbox] = useState(null); // { images: [url], index, title }
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!!supabase);
 
   // Hydrate designs + galeri gambar dari Supabase bila aktif.
   useEffect(() => {
-    if (!supabase) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
+    if (!supabase) return;
+    
     (async () => {
       const { data: designs } = await supabase
         .from("designs").select("*")

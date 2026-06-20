@@ -154,25 +154,20 @@ export default function Home() {
   const [projects, setProjects] = useState(DEV_PROJECTS);
   const [projectFilter, setProjectFilter] = useState("all");
   const [certificates, setCertificates] = useState([]);
-  const [certsLoading, setCertsLoading] = useState(true);
-  const [skillsLoading, setSkillsLoading] = useState(true);
-  const [projectsLoading, setProjectsLoading] = useState(true);
+  const [certsLoading, setCertsLoading] = useState(!!supabase);
+  const [skillsLoading, setSkillsLoading] = useState(!!supabase);
+  const [projectsLoading, setProjectsLoading] = useState(!!supabase);
   const mainRef = useRef(null);
 
   // Hydrate dari Supabase bila aktif; jika kosong/gagal, tetap pakai data statis.
   useEffect(() => {
-    if (!supabase) {
-      setCertsLoading(false);
-      setSkillsLoading(false);
-      setProjectsLoading(false);
-      return;
-    }
-    setSkillsLoading(true);
+    if (!supabase) return;
+    
     supabase.from("skills").select("*").order("sort_order").then(({ data }) => {
       if (data && data.length) setSkills(data);
       setSkillsLoading(false);
     });
-    setProjectsLoading(true);
+    
     supabase
       .from("projects")
       .select("*")
@@ -203,7 +198,7 @@ export default function Home() {
         }
         setProjectsLoading(false);
       });
-    setCertsLoading(true);
+    
     supabase.from("certificates").select("*").eq("featured", true).order("sort_order").limit(3).then(({ data }) => {
       if (data) setCertificates(data);
       setCertsLoading(false);

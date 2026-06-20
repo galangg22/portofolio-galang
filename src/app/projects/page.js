@@ -52,14 +52,11 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState(FALLBACK_PROJECTS);
   const [filter, setFilter] = useState("all");
   const [screenshotModal, setScreenshotModal] = useState(null); // { images, index, title }
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!!supabase);
 
   useEffect(() => {
-    if (!supabase) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
+    if (!supabase) return;
+    
     (async () => {
       const { data } = await supabase
         .from("projects").select("*")
