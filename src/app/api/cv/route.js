@@ -8,7 +8,7 @@ export async function GET() {
       'Content-Type': 'application/pdf',
       'Content-Disposition': 'attachment; filename="CV_Galang_Arrauf_Pramudito.pdf"',
       'Content-Length': file.length.toString(),
-      'Cache-Control': 'public, max-age=86400',
+      'Cache-Control': 'no-store',
     },
   });
 }
