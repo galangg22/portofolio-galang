@@ -760,8 +760,7 @@ export default function Home() {
                 Preview CV
               </button>
               <a
-                href="/cv-galang.pdf"
-                download="CV_Galang_Arrauf_Pramudito.pdf"
+                href="/api/cv"
                 className="w-full py-4 border border-white/20 text-white font-bold uppercase tracking-widest rounded-xl hover:bg-white/5 transition-colors text-xs inline-flex items-center justify-center gap-2"
               >
                 <i className="ri-download-line text-base"></i>

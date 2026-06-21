@@ -1,5 +1,14 @@
-import { NextResponse } from 'next/server';
+import { readFile } from 'fs/promises';
+import path from 'path';
 
 export async function GET() {
-  return NextResponse.redirect(new URL('/cv-galang.pdf', process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'), 301);
+  const file = await readFile(path.join(process.cwd(), 'public', 'cv-galang.pdf'));
+  return new Response(file, {
+    headers: {
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'attachment; filename="CV_Galang_Arrauf_Pramudito.pdf"',
+      'Content-Length': file.length.toString(),
+      'Cache-Control': 'public, max-age=86400',
+    },
+  });
 }
