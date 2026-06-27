@@ -21,16 +21,16 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata = {
-  title: "Galang Arrauf — Full-Stack Dev (Laravel + Next.js) · Open to Internship/Freelance",
+  title: "Galang Arrauf — Web Developer · Open to Internship/Freelance",
   description:
-    "Portfolio Galang Arrauf Pramudito — Full-Stack Developer (Laravel, Next.js, Node.js). Mahasiswa D3 Teknik Informatika PENS. Open to internship & freelance. Lihat project, design, dan sertifikat.",
+    "Portfolio Galang Arrauf Pramudito — Web Developer (Laravel, PHP, PostgreSQL). AI Integration & Automation. Open to internship & freelance.",
   keywords:
-    "full-stack developer, laravel, next.js, node.js, react, backend developer, ui/ux design, video editing, portfolio, galang arrauf, pens, internship, freelance",
+    "web developer, laravel, php, postgresql, ai integration, automation, backend developer, portfolio, galang arrauf, pens, internship, freelance",
   authors: [{ name: "Galang Arrauf Pramudito" }],
   openGraph: {
-    title: "Galang Arrauf — Full-Stack Dev (Laravel + Next.js) · Open to Internship/Freelance",
+    title: "Galang Arrauf — Web Developer · Open to Internship/Freelance",
     description:
-      "Portfolio Galang Arrauf Pramudito — Full-Stack Developer specializing in Laravel & Next.js. Open to internship & freelance opportunities.",
+      "Portfolio Galang Arrauf Pramudito — Web Developer specializing in Laravel & PHP with AI Integration. Open to internship & freelance opportunities.",
     url: "https://portofolang.web.id",
     type: "website",
     siteName: "Portofolang — Galang Arrauf Portfolio",
@@ -48,7 +48,7 @@ export default function RootLayout({ children }) {
       lang="id"
       data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} h-full antialiased`}
-      suppressHydrationWarning // Required by next-themes to avoid hydration mismatch
+      suppressHydrationWarning
     >
       <head>
         <meta charSet="utf-8" />
@@ -65,10 +65,16 @@ export default function RootLayout({ children }) {
           href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.1.0/remixicon.min.css"
           fetchPriority="low"
         />
+        {/* FOUC prevention — apply dark class before first paint */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme');document.documentElement.classList.add(t==='light'?'light':'dark')}catch(e){document.documentElement.classList.add('dark')}})()`
+          }}
+        />
       </head>
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <ThemeProviderComponent>
-          <TopLoader color="#8b5cf6" showSpinner={false} />
+          <TopLoader color="#4f46e5" showSpinner={false} />
           {children}
           <DarkModeToggle />
         </ThemeProviderComponent>

@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://galang-arrauf.com/sitemap.xml
+Sitemap: https://portofolang.web.id/sitemap.xml
 
 User-agent: *
 Allow: /

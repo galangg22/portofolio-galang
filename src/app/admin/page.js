@@ -34,9 +34,9 @@ export default async function AdminDashboardPage() {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {stats.map((stat) => (
         <Link href={stat.link} key={stat.label} className="block">
-          <div className="bg-gray-800 p-6 rounded-lg shadow-lg border border-primary-500 hover:border-accent-500 transition-all duration-300 transform hover:scale-105">
+          <div className="bg-gray-800 p-6 rounded-lg shadow-lg border border-primary/50 hover:border-accent transition-all duration-300 transform hover:scale-105">
             <h2 className="text-xl font-semibold text-gray-300 mb-2">{stat.label}</h2>
-            <p className="text-4xl font-bold text-primary-400">{stat.value}</p>
+            <p className="text-4xl font-bold text-primary">{stat.value}</p>
           </div>
         </Link>
       ))}

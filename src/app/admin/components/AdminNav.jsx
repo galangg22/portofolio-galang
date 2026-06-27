@@ -30,7 +30,7 @@ export default function AdminNav() {
     <nav className="bg-gray-800 shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         {/* Logo/Title */}
-        <Link href="/admin" className="text-xl md:text-2xl font-bold text-primary-400">
+        <Link href="/admin" className="text-xl md:text-2xl font-bold text-primary">
           Admin Panel
         </Link>
 
@@ -42,7 +42,7 @@ export default function AdminNav() {
                 href={item.href}
                 className={`py-2 px-3 rounded-md transition duration-200 flex items-center gap-2 text-sm
                   ${pathname === item.href
-                    ? 'bg-primary-600 text-white'
+                    ? 'bg-primary text-white'
                     : 'text-gray-300 hover:bg-gray-700 hover:text-white'
                   }`}
               >
@@ -83,7 +83,7 @@ export default function AdminNav() {
                   onClick={() => setMenuOpen(false)}
                   className={`flex items-center gap-3 px-4 py-3 transition duration-200
                     ${pathname === item.href
-                      ? 'bg-primary-600 text-white'
+                    ? 'bg-primary text-white'
                       : 'text-gray-300 hover:bg-gray-600 hover:text-white'
                     }`}
                 >

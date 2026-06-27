@@ -93,7 +93,7 @@ export default function DesignGallery() {
   };
 
   return (
-    <main className="min-h-screen bg-bg-dark text-white p-4 sm:p-8 md:p-16 relative overflow-x-hidden">
+    <main className="min-h-[100dvh] bg-bg-dark text-white p-4 sm:p-8 md:p-16 relative overflow-x-hidden">
       
       {/* Background Decor */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-10">
@@ -162,13 +162,13 @@ export default function DesignGallery() {
                 />
                 
                 {/* Category Tag */}
-                <div className="absolute top-3 left-3 md:top-4 md:left-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 text-[8px] md:text-[9px] font-bold text-white/80 uppercase tracking-widest transition-all duration-300">
+                <div className="absolute top-3 left-3 md:top-4 md:left-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 text-[10px] md:text-[11px] font-bold text-white/80 uppercase tracking-widest transition-all duration-300">
                   design
                 </div>
 
                 {/* Gallery indicator */}
                 {item.images && item.images.length > 1 && (
-                  <div className="absolute top-3 right-3 md:top-4 md:right-4 bg-black/60 backdrop-blur-md px-2.5 py-1.5 rounded-lg border border-white/10 text-[8px] md:text-[9px] font-bold text-white/80 flex items-center gap-1">
+                  <div className="absolute top-3 right-3 md:top-4 md:right-4 bg-black/60 backdrop-blur-md px-2.5 py-1.5 rounded-lg border border-white/10 text-[10px] md:text-[11px] font-bold text-white/80 flex items-center gap-1">
                     <i className="ri-image-line"></i> {item.images.length}
                   </div>
                 )}
@@ -219,7 +219,7 @@ export default function DesignGallery() {
 
       {/* Footer */}
       <footer className="mt-20 md:mt-32 pb-8 md:pb-16 text-center border-t border-white/5 pt-8 md:pt-10">
-        <p className="text-gray-600 text-[8px] md:text-[9px] font-bold uppercase tracking-[0.4em]">
+        <p className="text-gray-600 text-[10px] md:text-[11px] font-bold uppercase tracking-[0.4em]">
           Galang Arrauf Pramudito • Design Gallery 2026
         </p>
       </footer>

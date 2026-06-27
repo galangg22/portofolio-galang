@@ -30,7 +30,8 @@ export default function PdfThumbnail({ url, width = 600, className = "" }) {
         canvas.width = viewport.width;
         canvas.height = viewport.height;
 
-        await page.render({ canvas, viewport }).promise;
+        const canvasContext = canvas.getContext("2d");
+        await page.render({ canvasContext, viewport }).promise;
         if (!cancelled) setStatus("done");
       } catch (e) {
         if (!cancelled) setStatus("error");

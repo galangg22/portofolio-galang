@@ -43,8 +43,8 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white p-4">
-      <div className="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full border border-primary-500">
-        <h1 className="text-3xl font-bold text-center text-primary-400 mb-6">Admin Login</h1>
+      <div className="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full border border-primary/50">
+        <h1 className="text-3xl font-bold text-center text-primary mb-6">Admin Login</h1>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
@@ -53,7 +53,7 @@ export default function LoginPage() {
             <input
               type="password"
               id="password"
-              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md focus:ring-accent-500 focus:border-accent-500 text-white placeholder-gray-400"
+              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md focus:ring-accent/50 focus:border-accent text-white placeholder-gray-400"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -63,7 +63,7 @@ export default function LoginPage() {
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
           <button
             type="submit"
-            className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            className="w-full bg-primary hover:brightness-110 text-white font-bold py-2 px-4 rounded-md transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             disabled={loading}
           >
             {loading && (

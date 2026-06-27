@@ -28,7 +28,7 @@ export default function CertificatesClient({ certs: initialCerts }) {
   };
 
   return (
-    <main className="min-h-screen bg-bg-dark text-white p-4 sm:p-8 md:p-16 relative overflow-x-hidden">
+    <main className="min-h-[100dvh] bg-bg-dark text-white p-4 sm:p-8 md:p-16 relative overflow-x-hidden">
       <div className="fixed inset-0 z-0 pointer-events-none opacity-10">
         <div className="absolute left-[-20%] top-[-10%] w-[60%] h-[40%] bg-accent blur-[120px] rounded-full"></div>
         <div className="absolute right-[-20%] bottom-[-10%] w-[60%] h-[40%] bg-primary blur-[120px] rounded-full"></div>
@@ -124,7 +124,7 @@ export default function CertificatesClient({ certs: initialCerts }) {
       )}
 
       <footer className="mt-20 md:mt-32 pb-8 md:pb-16 text-center border-t border-white/5 pt-8 md:pt-10">
-        <p className="text-gray-600 text-[8px] md:text-[9px] font-bold uppercase tracking-[0.4em]">
+        <p className="text-gray-600 text-[10px] md:text-[11px] font-bold uppercase tracking-[0.4em]">
           Galang Arrauf Pramudito • Certificates 2026
         </p>
       </footer>

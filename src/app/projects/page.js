@@ -37,10 +37,10 @@ const FALLBACK_PROJECTS = [
 ];
 
 const TYPE_CONFIG = {
-  web: { label: "Web Apps", icon: "ri-global-line", color: "bg-blue-500/20 text-blue-300 border-blue-500/30", gradient: "from-blue-900 via-indigo-800 to-purple-900" },
-  bot: { label: "Service Automation", icon: "ri-robot-2-line", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30", gradient: "from-emerald-900 via-green-800 to-teal-900" },
-  android: { label: "Mobile Apps", icon: "ri-smartphone-line", color: "bg-purple-500/20 text-purple-300 border-purple-500/30", gradient: "from-purple-900 via-violet-800 to-indigo-900" },
-  other: { label: "Other", icon: "ri-code-s-slash-line", color: "bg-gray-500/20 text-gray-300 border-gray-500/30", gradient: "from-gray-800 via-gray-700 to-gray-900" },
+  web: { label: "Web Apps", icon: "ri-global-line", color: "bg-blue-500/20 text-blue-300 border-blue-500/30", gradient: "from-stone-900 via-neutral-900 to-zinc-950" },
+  bot: { label: "Service Automation", icon: "ri-robot-2-line", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30", gradient: "from-neutral-900 via-neutral-800 to-black" },
+  android: { label: "Mobile Apps", icon: "ri-smartphone-line", color: "bg-purple-500/20 text-purple-300 border-purple-500/30", gradient: "from-zinc-900 via-zinc-800 to-black" },
+  other: { label: "Other", icon: "ri-code-s-slash-line", color: "bg-gray-500/20 text-gray-300 border-gray-500/30", gradient: "from-slate-900 via-gray-900 to-black" },
 };
 
 const STATUS_BADGE = {
@@ -106,7 +106,7 @@ export default function ProjectsPage() {
   const filtered = filter === "all" ? projects : projects.filter((p) => (p.type || "web") === filter);
 
   return (
-    <main className="min-h-screen bg-bg-dark p-4 sm:p-8 md:p-16 relative overflow-x-hidden">
+    <main className="min-h-[100dvh] bg-bg-dark p-4 sm:p-8 md:p-16 relative overflow-x-hidden">
       {/* Background Decor */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-10">
         <div className="absolute left-[-20%] top-[-10%] w-[60%] h-[40%] bg-accent blur-[120px] rounded-full"></div>
@@ -142,7 +142,7 @@ export default function ProjectsPage() {
             }`}
           >
             <i className={f.icon}></i> {f.label}
-            <span className="ml-1 text-[9px] opacity-60">
+            <span className="ml-1 text-[10px] opacity-60">
               ({f.key === "all" ? projects.length : projects.filter((p) => (p.type || "web") === f.key).length})
             </span>
           </button>
@@ -298,7 +298,7 @@ export default function ProjectsPage() {
 
       {/* Footer */}
       <footer className="mt-20 md:mt-32 pb-8 md:pb-16 text-center border-t border-white/5 pt-8 md:pt-10">
-        <p className="text-gray-600 text-[8px] md:text-[9px] font-bold uppercase tracking-[0.4em]">
+        <p className="text-gray-600 text-[10px] md:text-[11px] font-bold uppercase tracking-[0.4em]">
           Galang Arrauf Pramudito • Dev Projects 2026
         </p>
       </footer>

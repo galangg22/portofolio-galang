@@ -4,10 +4,9 @@
 @theme {
   --color-bg-dark: #0a0a0a;
   --color-card-bg: #111111;
-  --color-primary: #6366f1; /* Indigo */
-  --color-secondary: #4f46e5;
-  --color-accent: #8b5cf6; /* Violet */
-  --font-display: var(--font-serif), Georgia, serif;
+  --color-primary: #4f46e5; /* Indigo-600 — unified accent */
+  --color-accent: #4f46e5;  /* Indigo-600 */
+  --font-display: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
 }
 
 :root {
@@ -15,15 +14,20 @@
   --foreground: #ededed;
 }
 
-/* ============================================================
-   LIGHT MODE — Final Fix
-   Scope per section ID (#home, #about, dst) dengan !important
-   agar pasti menang lawan Tailwind utility classes.
-   ============================================================ */
+/* ═════════════════════════════════════════
+   LIGHT MODE — Unified Navy-Indigo Palette
+   ── Text scale ──
+   headings: #1e293b (slate-800)
+   body:     #475569 (slate-600)
+   muted:    #64748b (slate-500)
+   subtle:   #94a3b8 (slate-400)
+   ── Accent ──
+   accent:   #4f46e5 (indigo-600)
+   ═════════════════════════════════════════ */
 
 html.light {
-  --background: #f8f9fa;
-  --foreground: #1a1a1a;
+  --background: #f8fafc;
+  --foreground: #1e293b;
   color-scheme: light;
 }
 
@@ -34,12 +38,12 @@ html.dark {
 }
 
 html.light body {
-  background: #f8f9fa !important;
-  color: #1a1a1a;
+  background: #f8fafc !important;
+  color: #1e293b;
 }
 
 /* ── Background utilities ──────────────────────────────────── */
-html.light .bg-bg-dark   { background-color: #f8f9fa !important; }
+html.light .bg-bg-dark   { background-color: #f8fafc !important; }
 html.light .bg-card-bg   { background-color: #ffffff !important; }
 html.light .bg-black\/20 { background-color: rgba(0, 0, 0, 0.04) !important; }
 html.light .bg-white\/5  { background-color: rgba(0, 0, 0, 0.05) !important; }
@@ -52,151 +56,279 @@ html.light .border-white\/5  { border-color: rgba(0, 0, 0, 0.06) !important; }
 html.light .border-white\/10 { border-color: rgba(0, 0, 0, 0.10) !important; }
 html.light .border-white\/20 { border-color: rgba(0, 0, 0, 0.15) !important; }
 
-/* ── HERO (#home) ──────────────────────────────────────────── */
+/* ── GLOBAL TEXT — Unified scale ──────────── */
+html.light .text-accent,
+html.light [class*="text-accent"] { color: #4f46e5 !important; }
+html.light .text-gray-300 { color: #475569 !important; }
+html.light .text-gray-400 { color: #475569 !important; }
+html.light .text-gray-500 { color: #64748b !important; }
+
+/* ── Global accent buttons — selalu putih ─── */
+html.light .bg-accent,
+html.light .bg-accent * { color: #ffffff !important; }
+
+/* ── HERO (#home) ──────────────────────────── */
 html.light #home h1,
 html.light #home p,
-html.light #home .hero-text { color: #1a1a1a !important; }
+html.light #home .hero-el { color: #1e293b !important; }
 
-html.light #home h1 .bg-clip-text,
-html.light #home .text-transparent { color: transparent !important; }
-
-html.light #home .text-accent { color: #6366f1 !important; }
-
-html.light #home .hero-text.inline-flex {
+html.light #home .hero-el.inline-flex {
   background-color: rgba(0, 0, 0, 0.06) !important;
   border-color: rgba(0, 0, 0, 0.12) !important;
 }
 
-html.light #home p span.text-white { color: #1a1a1a !important; }
-
-html.light #home a.bg-white {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-}
-
-html.light #home button.border {
+html.light #home button.border,
+html.light #home button.group {
   border-color: rgba(0, 0, 0, 0.2) !important;
-  color: #1a1a1a !important;
+  color: #1e293b !important;
 }
-html.light #home button.border i { color: #1a1a1a !important; }
-html.light #home button.border:hover {
+html.light #home button.border i,
+html.light #home button.group i { color: #1e293b !important; }
+html.light #home button.border:hover,
+html.light #home button.group:hover {
   background-color: rgba(0, 0, 0, 0.06) !important;
 }
 
-/* ── ABOUT (#about) ────────────────────────────────────────── */
-html.light #about h2,
-html.light #about h2 span { color: #1a1a1a !important; }
+html.light #home .rounded-2xl.overflow-hidden {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  background-color: #ffffff !important;
+}
 
-html.light #about .text-gray-500 { color: #888888 !important; }
-html.light #about p.text-gray-300 { color: #444444 !important; }
-html.light #about span.text-accent { color: #6366f1 !important; }
+/* ── Hero decorative offset border ──────── */
+html.light #home .border-white\/\[0\.04\] {
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+/* ── ABOUT (#about) ────────────────────────── */
+html.light #about h2,
+html.light #about h2 span { color: #1e293b !important; }
+html.light #about p.text-gray-300 { color: #475569 !important; }
+html.light #about p.text-gray-400 { color: #64748b !important; }
 
 html.light #about .bg-white\/5 {
   background-color: rgba(0, 0, 0, 0.05) !important;
   border-color: rgba(0, 0, 0, 0.08) !important;
 }
-html.light #about .bg-white\/5 p.text-white { color: #1a1a1a !important; }
-html.light #about .bg-white\/5 p.text-gray-400 { color: #666666 !important; }
+html.light #about .info-card {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  border-color: rgba(0, 0, 0, 0.10) !important;
+}
+html.light #about .info-card p { color: #1e293b !important; }
+html.light #about .info-card p.text-gray-400 { color: #64748b !important; }
+html.light #about .info-card i { color: #4f46e5 !important; }
 
 html.light #about .absolute.bg-black {
   background-color: #ffffff !important;
   border-color: rgba(0, 0, 0, 0.12) !important;
 }
-html.light #about .absolute.bg-black p.text-gray-400 { color: #666666 !important; }
+html.light #about .absolute.bg-black p.text-gray-400 { color: #64748b !important; }
 
-/* ── SKILLS (#skills) ──────────────────────────────────────── */
-html.light #skills h2 { color: #1a1a1a !important; }
+/* ── SKILLS (#skills) ──────────────────────── */
+html.light #skills h2 { color: #1e293b !important; }
+html.light #skills .skills-desc { color: #475569 !important; }
 
-html.light #skills .bento-card {
+html.light #skills .skill-card {
   background-color: #ffffff !important;
   border-color: rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
 }
-html.light #skills .bento-card h3 { color: #1a1a1a !important; }
-html.light #skills .bento-card .bg-white\/5 {
+html.light #skills .skill-card h3 { color: #1e293b !important; }
+html.light #skills .skill-card.is-highlighted {
+  background-image: linear-gradient(to bottom right, #eef2ff, #ffffff, #e0e7ff) !important;
+  border-color: rgba(79, 70, 229, 0.3) !important;
+  box-shadow: 0 4px 12px -2px rgba(79, 70, 229, 0.10) !important;
+}
+html.light #skills .skill-card .skill-tag { 
+  color: #475569 !important;
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  border-color: rgba(0, 0, 0, 0.10) !important;
+}
+html.light #skills .skill-card p { color: #475569 !important; }
+html.light #skills .skill-card i { color: #4f46e5 !important; }
+html.light #skills .skill-card .keep-accent { color: #ffffff !important; background-color: #4f46e5 !important; }
+
+/* ── PROJECTS (#projects) ──────────────────── */
+html.light #projects .section-title { color: #1e293b !important; }
+
+html.light #projects .work-eyebrow {
+  color: #64748b !important;
+}
+
+html.light #projects p.text-gray-400.max-w-lg,
+html.light #projects p.text-gray-400.max-w-md {
+  color: #475569 !important;
+}
+
+/* Filter tabs — inactive */
+html.light #projects button:not(.text-white) {
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: #64748b !important;
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+html.light #projects button:not(.text-white):hover {
+  border-color: rgba(0, 0, 0, 0.25) !important;
+  color: #1e293b !important;
   background-color: rgba(0, 0, 0, 0.06) !important;
-  border-color: rgba(0, 0, 0, 0.08) !important;
 }
-html.light #skills .bento-card span.text-gray-300 { color: #444444 !important; }
-
-/* ── PROJECTS (#projects) ──────────────────────────────────── */
-html.light #projects > div > div h2,
-html.light #projects > div > div p.text-gray-400 { color: #1a1a1a !important; }
-
-html.light #projects button:not(.bg-accent) {
-  border-color: rgba(0, 0, 0, 0.15) !important;
-  color: #555555 !important;
-  background-color: rgba(0, 0, 0, 0.04) !important;
+/* Active filter tab */
+html.light #projects button.text-white {
+  color: #1e293b !important;
 }
-html.light #projects button:not(.bg-accent):hover {
-  border-color: rgba(0, 0, 0, 0.3) !important;
-  color: #1a1a1a !important;
+html.light #projects button.text-white .absolute.inset-0 {
+  background-color: #4f46e5 !important;
+  opacity: 0.10 !important;
+  border-color: #4f46e5 !important;
+  border-width: 1px !important;
 }
 
-html.light #projects .section-title { color: #1a1a1a !important; }
-
-/* PROJECT CARD — tetap dark */
-html.light .project-card h3 { color: #ffffff !important; }
-html.light .project-card p  { color: #d1d5db !important; }
-html.light .project-card .bg-white\/5 {
-  background-color: rgba(255, 255, 255, 0.08) !important;
+/* View All / Full Gallery buttons */
+html.light .work-viewall-btn {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: #1e293b !important;
+}
+html.light .work-viewall-btn:hover {
+  background-color: #4f46e5 !important;
+  border-color: #4f46e5 !important;
   color: #ffffff !important;
 }
+html.light .work-viewall-btn .rounded-full.bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
+html.light .work-viewall-btn:hover .rounded-full.bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.10) !important;
+}
 
-/* CREATIVE CARD — tetap dark */
-html.light .creative-card h4  { color: #ffffff !important; }
-html.light .creative-card p   { color: #d1d5db !important; }
-html.light .creative-card span { color: #8b5cf6 !important; }
+/* ═══ WORK CARDS — Double-Bezel ═══ */
+html.light .work-card {
+  background-color: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+}
+html.light .work-card:hover,
+html.light .work-card.group\/card:hover {
+  border-color: rgba(79, 70, 229, 0.25) !important;
+}
 
-/* ── CERTIFICATES (#certificates) ─────────────────────────── */
+html.light .work-card .bg-card-bg {
+  background-color: #ffffff !important;
+}
+
+html.light .work-card [class*="bg-\\[linear-gradient\\(to_right"] {
+  background-image: linear-gradient(to right, transparent 30%, rgba(255,255,255,0.4) 65%, #ffffff 88%) !important;
+}
+html.light .work-card [class*="bg-gradient-to-t\\.from-card-bg"] {
+  background-image: linear-gradient(to top, #ffffff, rgba(255,255,255,0.4), transparent) !important;
+}
+
+html.light .work-card h3 { color: #1e293b !important; }
+html.light .work-card p { color: #475569 !important; }
+html.light .work-card .text-gray-400 { color: #64748b !important; }
+
+html.light .work-card .backdrop-blur-md.px-3,
+html.light .work-card .backdrop-blur-md.px-2\.5 {
+  backdrop-filter: blur(12px) !important;
+}
+
+html.light .work-card .work-tag {
+  color: #64748b !important;
+  background-color: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+html.light .work-card .work-btn-ghost {
+  color: #1e293b !important;
+  background-color: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.10) !important;
+}
+html.light .work-card .work-btn-ghost:hover {
+  background-color: rgba(0, 0, 0, 0.10) !important;
+  color: #1e293b !important;
+}
+
+html.light .work-card a:not([class*="bg-accent"]),
+html.light .work-card button:not([class*="bg-accent"]) {
+  color: #1e293b !important;
+}
+
+html.light .work-card .rounded-full.bg-black\/10 {
+  background-color: rgba(0, 0, 0, 0.10) !important;
+}
+
+/* ═══ VISUAL CARDS ═══ */
+html.light .visual-card h4 { color: #1e293b !important; }
+html.light .visual-card p { color: #475569 !important; }
+html.light .visual-card .text-accent { color: #4f46e5 !important; }
+
+html.light .visual-card .rounded-full.bg-black\/30 {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+html.light .visual-card .rounded-full.bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ── CERTIFICATES (#certificates) ──────────── */
 html.light #certificates h2,
-html.light #certificates p.text-gray-400 { color: #1a1a1a !important; }
+html.light #certificates p.text-gray-400 { color: #1e293b !important; }
 
 html.light #certificates .bento-card {
   background-color: #ffffff !important;
   border-color: rgba(0, 0, 0, 0.1) !important;
 }
-html.light #certificates .bento-card h3 { color: #1a1a1a !important; }
-html.light #certificates .bento-card p.text-gray-400 { color: #555555 !important; }
-html.light #certificates .bento-card p.text-gray-500 { color: #777777 !important; }
+html.light #certificates .bento-card h3 { color: #1e293b !important; }
+html.light #certificates .bento-card p.text-gray-400 { color: #475569 !important; }
+html.light #certificates .bento-card p.text-gray-500 { color: #64748b !important; }
 
-/* ── CONTACT (#contact) ────────────────────────────────────── */
+/* ── CONTACT (#contact) ────────────────────── */
 html.light #contact .bg-card-bg\/50 {
   background-color: rgba(255, 255, 255, 0.95) !important;
   border-color: rgba(0, 0, 0, 0.1) !important;
 }
-html.light #contact h2 { color: #1a1a1a !important; }
-html.light #contact p  { color: #555555 !important; }
+html.light #contact h2 { color: #1e293b !important; }
+html.light #contact p  { color: #475569 !important; }
 
 html.light #contact input,
 html.light #contact textarea {
-  color: #1a1a1a !important;
+  color: #1e293b !important;
   background-color: rgba(0, 0, 0, 0.05) !important;
   border-color: rgba(0, 0, 0, 0.15) !important;
 }
 html.light #contact input::placeholder,
-html.light #contact textarea::placeholder { color: #888888 !important; }
+html.light #contact textarea::placeholder { color: #94a3b8 !important; }
 
 html.light #contact button[type="submit"] {
-  background-color: #1a1a1a !important;
+  background-color: #1e293b !important;
   color: #ffffff !important;
 }
 html.light #contact button[type="submit"]:hover {
-  background-color: #8b5cf6 !important;
+  background-color: #4f46e5 !important;
 }
 
-/* ── FOOTER ────────────────────────────────────────────────── */
+/* ── FOOTER ────────────────────────────────── */
 html.light footer { border-color: rgba(0, 0, 0, 0.08) !important; }
-html.light footer a { color: #555555 !important; }
-html.light footer a:hover { color: #1a1a1a !important; }
-html.light footer p { color: #888888 !important; }
+html.light footer a { color: #64748b !important; }
+html.light footer a:hover { color: #1e293b !important; }
+html.light footer p { color: #94a3b8 !important; }
 
-/* ── /projects page ─────────────────────────────────────────── */
+html.light footer {
+  background-color: transparent;
+  border-color: #e5e5e5;
+}
+html.light footer p {
+  color: #94a3b8;
+}
+html.light footer a.hover\:text-white:hover {
+  color: #1e293b !important;
+}
+
+/* ── /projects page ─────────────────────────── */
 html.light .min-h-screen.bg-bg-dark h1,
-html.light .min-h-screen.bg-bg-dark p.text-gray-400 { color: #1a1a1a !important; }
+html.light .min-h-screen.bg-bg-dark p.text-gray-400 { color: #1e293b !important; }
 
-html.light .min-h-screen.bg-bg-dark .group h3 { color: #1a1a1a !important; }
-html.light .min-h-screen.bg-bg-dark .group p.text-gray-400 { color: #555555 !important; }
-html.light .min-h-screen.bg-bg-dark .group span.text-gray-400 { color: #666666 !important; }
+html.light .min-h-screen.bg-bg-dark .group h3 { color: #1e293b !important; }
+html.light .min-h-screen.bg-bg-dark .group p.text-gray-400 { color: #475569 !important; }
+html.light .min-h-screen.bg-bg-dark .group span.text-gray-400 { color: #64748b !important; }
 
 html.light .min-h-screen.bg-bg-dark .bg-card-bg {
   background-color: #ffffff !important;
@@ -205,18 +337,73 @@ html.light .min-h-screen.bg-bg-dark .bg-card-bg {
 
 html.light .min-h-screen.bg-bg-dark button:not(.bg-accent) {
   border-color: rgba(0, 0, 0, 0.15) !important;
-  color: #555555 !important;
+  color: #64748b !important;
   background-color: rgba(0, 0, 0, 0.04) !important;
 }
 
-html.light .min-h-screen.bg-bg-dark a.text-accent { color: #6366f1 !important; }
-html.light .min-h-screen.bg-bg-dark footer p { color: #888888 !important; }
+html.light .min-h-screen.bg-bg-dark a.text-accent { color: #4f46e5 !important; }
+html.light .min-h-screen.bg-bg-dark footer p { color: #94a3b8 !important; }
 
-/* ── Global accent buttons — selalu putih ───────────────────── */
-html.light .bg-accent,
-html.light .bg-accent * { color: #ffffff !important; }
+/* ── Empty states ────────────────────────── */
+html.light #projects p.text-center.text-gray-500,
+html.light #certificates p.text-center.text-gray-500 {
+  color: #64748b !important;
+}
 
-/* Animasi untuk background text gradient */
+/* ═══ CERTIFICATE MODAL ═══ */
+html.light .z-\[200\] .bg-card-bg {
+  background-color: #ffffff !important;
+}
+html.light .z-\[200\] h4.text-white {
+  color: #1e293b !important;
+}
+html.light .z-\[200\] dd.text-white {
+  color: #1e293b !important;
+}
+html.light .z-\[200\] dd.text-gray-300 {
+  color: #475569 !important;
+}
+html.light .z-\[200\] dt.text-gray-500 {
+  color: #64748b !important;
+}
+html.light .z-\[200\] a.hover\:text-white:hover {
+  color: #475569 !important;
+}
+html.light .z-\[200\] .md\:bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.10) !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+html.light .z-\[200\] .md\:bg-white\/10:hover {
+  background-color: #ef4444 !important;
+}
+html.light .z-\[200\] .bg-accent\/80 {
+  background-color: #4f46e5 !important;
+}
+
+/* ═══ CV/RESUME MODAL ═══ */
+html.light .z-\[10001\] .bg-card-bg {
+  background-color: #ffffff !important;
+}
+html.light .z-\[10001\] h3.text-white {
+  color: #1e293b !important;
+}
+html.light .z-\[10001\] p.text-gray-400 {
+  color: #475569 !important;
+}
+html.light .z-\[10001\] a.text-white {
+  color: #1e293b !important;
+}
+html.light .z-\[10001\] a.text-white:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+html.light .z-\[10001\] button.text-gray-500 {
+  color: #64748b !important;
+}
+html.light .z-\[10001\] button.hover\:text-white:hover {
+  color: #1e293b !important;
+}
+
+/* ── Animasi ───────────────────────────────── */
 @keyframes gradient {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -227,12 +414,10 @@ html.light .bg-accent * { color: #ffffff !important; }
   font-family: var(--font-display);
 }
 
-/* Glow text effect */
 .text-glow {
-  text-shadow: 0 0 24px rgba(139, 92, 246, 0.4);
+  text-shadow: 0 0 40px rgba(79, 70, 229, 0.2);
 }
 
-/* Modal entrance animation */
 @keyframes scaleInCenter {
   0%   { transform: scale(0.8); opacity: 0; }
   100% { transform: scale(1);   opacity: 1; }
@@ -241,7 +426,6 @@ html.light .bg-accent * { color: #ffffff !important; }
   animation: scaleInCenter 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
-/* Slide-in toast animation */
 @keyframes slideIn {
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
@@ -251,53 +435,27 @@ html.light .bg-accent * { color: #ffffff !important; }
 }
 
 html.light .text-glow {
-  text-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
+  text-shadow: 0 0 30px rgba(79, 70, 229, 0.15);
 }
 
-/* Menyembunyikan scrollbar tapi tetap bisa scroll (untuk filter gallery) */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+/* ── No-scrollbar ──────────────────────────── */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* ============================================================
-   HOVER CERDAS: Hanya aktif di perangkat dengan pointer/kursor
-   Di mobile (touch-only), efek hover diabaikan sepenuhnya.
-   Gunakan class .card-hover-border dan .btn-hover di JSX.
-   ============================================================ */
+/* ── Hover (pointer devices only) ──────────── */
 @media (hover: hover) and (pointer: fine) {
   .card-hover-border:hover {
-    border-color: rgba(139, 92, 246, 0.3) !important;
+    border-color: rgba(79, 70, 229, 0.3) !important;
   }
-
   .btn-hover:hover {
-    background-color: #8b5cf6;
+    background-color: #4f46e5;
     color: #ffffff;
   }
 }
 
-/* Footer */
-html.light footer {
-  background-color: transparent;
-  border-color: #e5e5e5;
-}
-
-html.light footer p {
-  color: #666666;
-}
-
-/* Grid background dots pattern in light mode */
-html.light .bg-grid {
-  opacity: 0.03;
-}
-
-/* Absolute blur elements */
-html.light .rounded-full.opacity-20 {
-  opacity: 0.08;
-}
+/* ── Grid & blur ───────────────────────────── */
+html.light .bg-grid { opacity: 0.03; }
+html.light .rounded-full.opacity-20 { opacity: 0.08; }
 
 body {
   background: var(--background);
@@ -309,4 +467,9 @@ body {
 
 html {
   scroll-behavior: smooth;
+}
+
+/* Smooth scroll offset for fixed navbar */
+html {
+  scroll-padding-top: 80px;
 }

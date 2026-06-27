@@ -113,7 +113,7 @@ export default function VideoGallery() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-bg-dark text-white p-4 sm:p-8 md:p-16">
+    <main className="min-h-[100dvh] bg-bg-dark text-white p-4 sm:p-8 md:p-16 relative overflow-x-hidden">
       <div className="max-w-6xl mx-auto">
         <Link href="/" className="inline-flex items-center gap-3 text-accent font-bold uppercase text-[10px] tracking-[0.2em] mb-8 md:mb-12 hover:text-black dark:hover:text-white transition-colors group">
           <div className="w-8 h-8 rounded-full border border-accent flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-all">
@@ -166,7 +166,7 @@ export default function VideoGallery() {
                   </div>
                   {/* Platform badge */}
                   {v.platform && (
-                    <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10 text-[8px] font-bold text-white/80 uppercase tracking-widest">
+                    <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10 text-[10px] font-bold text-white/80 uppercase tracking-widest">
                       {v.platform === 'youtube' && <><i className="ri-youtube-line mr-1"></i>YouTube</>}
                       {v.platform === 'drive' && <><i className="ri-drive-line mr-1"></i>Drive</>}
                       {v.platform === 'vimeo' && <><i className="ri-vimeo-line mr-1"></i>Vimeo</>}
@@ -197,7 +197,7 @@ export default function VideoGallery() {
       )}
 
       <footer className="mt-20 md:mt-32 pb-8 md:pb-16 text-center border-t border-white/5 pt-8 md:pt-10">
-        <p className="text-gray-600 text-[8px] md:text-[9px] font-bold uppercase tracking-[0.4em]">
+        <p className="text-gray-600 text-[10px] md:text-[11px] font-bold uppercase tracking-[0.4em]">
           Galang Arrauf Pramudito • Video Showcase 2026
         </p>
       </footer>
