@@ -14,6 +14,7 @@ const nextConfig = {
     minimumCacheTTL: 86400, // 24 jam
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    qualities: [75, 80], // ✅ Support quality 75 & 80
   },
   headers: async () => {
     return [
@@ -41,6 +42,8 @@ const nextConfig = {
     config.resolve.alias.canvas = false;
     return config;
   },
+  // Mengizinkan akses dari Local IP & Ngrok
+  allowedDevOrigins: ['192.168.1.8', 'localhost'],
 };
 
 export default nextConfig;

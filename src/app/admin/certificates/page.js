@@ -3,19 +3,16 @@
 import CrudManager from '@/app/admin/CrudManager'
 
 const certificateFields = [
-  { key: 'title', label: 'Judul Sertifikat', type: 'text', required: true },
-  { key: 'issuer', label: 'Penerbit', type: 'text', required: true },
-  { key: 'credential_id', label: 'Credential ID (opsional)', type: 'text' },
-  { key: 'credential_url', label: 'Link Verifikasi Credential (opsional)', type: 'url' },
-  { key: 'issue_date', label: 'Tanggal Terbit (kosongkan jika tidak ada)', type: 'date' },
-  { key: 'image_url', label: 'Gambar Sertifikat', type: 'image' },
-  { key: 'verify_url', label: 'Link PDF Sertifikat (GDrive / storage)', type: 'url' },
-  { key: 'description', label: 'Deskripsi', type: 'textarea' },
-  { key: 'featured', label: 'Featured di Homepage', type: 'checkbox' },
-  { key: 'sort_order', label: 'Urutan', type: 'number' },
+  { key: 'title', label: 'Judul Sertifikat', type: 'text', required: true, group: 'Informasi Utama' },
+  { key: 'issuer', label: 'Penerbit', type: 'text', required: true, group: 'Informasi Utama' },
+  { key: 'issue_date', label: 'Tanggal Terbit (kosongkan jika tidak ada)', type: 'date', group: 'Informasi Utama' },
+  { key: 'credential_id', label: 'Credential ID (opsional)', type: 'text', group: 'Detail Kredensial' },
+  { key: 'credential_url', label: 'Link Verifikasi Credential (opsional)', type: 'url', group: 'Detail Kredensial' },
+  { key: 'verify_url', label: 'Link PDF Sertifikat (GDrive / storage)', type: 'url', group: 'Media & Deskripsi' },
+  { key: 'description', label: 'Deskripsi', type: 'textarea', group: 'Media & Deskripsi' },
 ]
 
-const certificateColumns = ['title', 'issuer', 'issue_date', 'featured', 'sort_order']
+const certificateColumns = ['title', 'issuer', 'issue_date']
 
 const relatedSection = {
   table: 'certificate_images',
@@ -33,6 +30,7 @@ export default function CertificatesPage() {
       fields={certificateFields}
       columns={certificateColumns}
       relatedSection={relatedSection}
+      featuredLimit={3}
     />
   )
 }

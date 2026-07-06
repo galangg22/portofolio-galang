@@ -1,12 +1,18 @@
 import AdminNav from './components/AdminNav'
+import { ToastProvider } from './components/ToastProvider'
+import { ErrorBoundary } from './components/ErrorBoundary'
 
 export default function AdminLayout({ children }) {
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      <AdminNav />
-      <main className="container mx-auto p-4">
-        {children}
-      </main>
-    </div>
+    <ErrorBoundary>
+      <ToastProvider>
+        <div className="min-h-screen bg-gray-950 text-white">
+          <AdminNav />
+          <main className="px-4 py-6">
+            {children}
+          </main>
+        </div>
+      </ToastProvider>
+    </ErrorBoundary>
   )
 }

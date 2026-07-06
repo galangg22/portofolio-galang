@@ -1,23 +1,31 @@
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { ThemeProviderComponent } from "./providers";
-import { DarkModeToggle } from "./components/DarkModeToggle";
 import { TopLoader } from "next-top-loader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap", // ✅ Prevent FOIT (Flash of Invisible Text)
+  preload: true,
+  adjustFontFallback: true,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
+  preload: true,
+  adjustFontFallback: true,
 });
 
 const instrumentSerif = Instrument_Serif({
   variable: "--font-serif",
   subsets: ["latin"],
   weight: "400",
+  display: "swap",
+  preload: false, // ✅ Serif font tidak critical, lazy load
+  adjustFontFallback: true,
 });
 
 export const metadata = {
@@ -59,24 +67,24 @@ export default function RootLayout({ children }) {
         <link rel="manifest" href="/manifest.json" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        {/* Remixicon Icon Library — fetchPriority low agar tidak memblokir LCP */}
+        {/* Remixicon Icon Library */}
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.1.0/remixicon.min.css"
           fetchPriority="low"
         />
-        {/* FOUC prevention — apply dark class before first paint */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('theme');document.documentElement.classList.add(t==='light'?'light':'dark')}catch(e){document.documentElement.classList.add('dark')}})()`
-          }}
-        />
+        {/* ✅ PERF: Preconnect ke Supabase storage untuk mempercepat image loading */}
+        <link rel="preconnect" href="https://pnaimynitzvxylloknvp.supabase.co" />
+        <link rel="dns-prefetch" href="https://pnaimynitzvxylloknvp.supabase.co" />
+        {/* ✅ PERF: Preconnect ke CDN Simple Icons untuk tech stack icons */}
+        <link rel="preconnect" href="https://cdn.simpleicons.org" />
+        <link rel="dns-prefetch" href="https://cdn.simpleicons.org" />
+
       </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <ThemeProviderComponent>
           <TopLoader color="#4f46e5" showSpinner={false} />
           {children}
-          <DarkModeToggle />
         </ThemeProviderComponent>
       </body>
     </html>

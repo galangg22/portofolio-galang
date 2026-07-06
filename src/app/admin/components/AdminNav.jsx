@@ -1,108 +1,154 @@
 "use client"
 
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useState } from 'react'
+import { useSafeNavigation } from '../hooks/useNavigation'
 
 export default function AdminNav() {
   const pathname = usePathname()
-  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const { navigate } = useSafeNavigation()
 
-  if (pathname === '/admin/login') return null;
+  if (pathname === '/admin/login') return null
 
   const handleLogout = async () => {
+    if (!confirm('Yakin ingin logout?')) return
+    
     setLoading(true)
-    await fetch('/api/admin/logout', { method: 'POST' })
-    window.location.href = '/admin/login';
+    try {
+      const res = await fetch('/api/admin/logout', { method: 'POST' })
+      if (res.ok) {
+        navigate('/admin/login', { replace: true })
+      } else {
+        navigate('/admin/login', { replace: true })
+      }
+    } catch (error) {
+      console.error('Logout error:', error)
+      navigate('/admin/login', { replace: true })
+    } finally {
+      setLoading(false)
+    }
   }
 
   const navItems = [
-    { href: '/admin', label: 'Dashboard', icon: 'ri-dashboard-line' },
+    { href: '/admin', label: 'Dashboard', icon: 'ri-dashboard-3-line', exact: true },
+    { href: '/admin/profile', label: 'Profile', icon: 'ri-user-settings-line' },
     { href: '/admin/projects', label: 'Projects', icon: 'ri-code-box-line' },
-    { href: '/admin/design', label: 'Designs', icon: 'ri-palette-line' },
-    { href: '/admin/video', label: 'Videos', icon: 'ri-video-line' },
+    { href: '/admin/project_types', label: 'Jenis Project', icon: 'ri-list-settings-line' },
     { href: '/admin/certificates', label: 'Certificates', icon: 'ri-award-line' },
   ]
 
-  return (
-    <nav className="bg-gray-800 shadow-md sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-        {/* Logo/Title */}
-        <Link href="/admin" className="text-xl md:text-2xl font-bold text-primary">
-          Admin Panel
-        </Link>
+  const isActive = (href, exact = false) => {
+    if (exact) return pathname === href
+    return pathname.startsWith(href) && href !== '/admin'
+  }
 
-        {/* Desktop Menu */}
-        <ul className="hidden md:flex items-center space-x-2">
-          {navItems.map((item) => (
-            <li key={item.href}>
-              <Link
-                href={item.href}
-                className={`py-2 px-3 rounded-md transition duration-200 flex items-center gap-2 text-sm
-                  ${pathname === item.href
-                    ? 'bg-primary text-white'
-                    : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                  }`}
-              >
-                <i className={item.icon}></i>
-                {item.label}
-              </Link>
-            </li>
-          ))}
-          <li>
+  return (
+    <nav 
+      className="bg-gray-900 border-b border-gray-800 sticky top-0 z-50"
+      role="navigation"
+      aria-label="Admin navigation"
+    >
+      <div className="max-w-5xl mx-auto px-4">
+        <div className="flex items-center justify-between h-14">
+          {/* Logo */}
+          <Link 
+            href="/admin" 
+            className="text-sm font-semibold text-gray-200 tracking-wide uppercase"
+            aria-label="Admin Dashboard Home"
+          >
+            Admin
+          </Link>
+
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center gap-1">
+            {navItems.map((item) => {
+              const active = isActive(item.href, item.exact)
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`
+                    px-3 py-1.5 rounded-md text-sm transition-colors
+                    ${active 
+                      ? 'bg-gray-800 text-white' 
+                      : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                    }
+                  `}
+                  aria-current={active ? 'page' : undefined}
+                >
+                  {item.label}
+                </Link>
+              )
+            })}
+            
+            <div className="w-px h-5 bg-gray-800 mx-2"></div>
+            
             <button
               onClick={handleLogout}
               disabled={loading}
-              className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 disabled:opacity-50 text-sm"
+              className="px-3 py-1.5 text-gray-500 hover:text-red-400 text-sm transition-colors disabled:opacity-50"
+              aria-label="Logout from admin panel"
             >
               {loading ? 'Logging out...' : 'Logout'}
             </button>
-          </li>
-        </ul>
+          </div>
 
-        {/* Mobile Hamburger */}
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="md:hidden w-10 h-10 flex items-center justify-center text-white bg-gray-700 rounded-md hover:bg-gray-600 transition"
-          aria-label="Toggle menu"
-        >
-          <i className={menuOpen ? 'ri-close-line text-xl' : 'ri-menu-line text-xl'}></i>
-        </button>
+          {/* Mobile Hamburger */}
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="md:hidden w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white transition-colors"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
+          >
+            <i className={`${menuOpen ? 'ri-close-line' : 'ri-menu-line'} text-xl`} aria-hidden="true"></i>
+          </button>
+        </div>
       </div>
 
-      {/* Mobile Menu Dropdown */}
+      {/* Mobile Menu */}
       {menuOpen && (
-        <div className="md:hidden bg-gray-700 border-t border-gray-600">
-          <ul className="py-2">
-            {navItems.map((item) => (
-              <li key={item.href}>
+        <div 
+          id="mobile-menu"
+          className="md:hidden border-t border-gray-800"
+          role="menu"
+        >
+          <div className="max-w-5xl mx-auto px-4 py-2 space-y-1">
+            {navItems.map((item) => {
+              const active = isActive(item.href, item.exact)
+              return (
                 <Link
+                  key={item.href}
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 transition duration-200
-                    ${pathname === item.href
-                    ? 'bg-primary text-white'
-                      : 'text-gray-300 hover:bg-gray-600 hover:text-white'
-                    }`}
+                  className={`
+                    block px-3 py-2 rounded-md text-sm transition-colors
+                    ${active
+                      ? 'bg-gray-800 text-white'
+                      : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
+                    }
+                  `}
+                  role="menuitem"
+                  aria-current={active ? 'page' : undefined}
                 >
-                  <i className={`${item.icon} text-lg`}></i>
-                  <span className="font-medium">{item.label}</span>
+                  {item.label}
                 </Link>
-              </li>
-            ))}
-            <li className="border-t border-gray-600 mt-2 pt-2 px-4">
-              <button
-                onClick={handleLogout}
-                disabled={loading}
-                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                <i className="ri-logout-box-line"></i>
-                {loading ? 'Logging out...' : 'Logout'}
-              </button>
-            </li>
-          </ul>
+              )
+            })}
+            
+            <button
+              onClick={handleLogout}
+              disabled={loading}
+              className="w-full text-left px-3 py-2 text-gray-500 hover:text-red-400 text-sm transition-colors disabled:opacity-50"
+              role="menuitem"
+              aria-label="Logout from admin panel"
+            >
+              {loading ? 'Logging out...' : 'Logout'}
+            </button>
+          </div>
         </div>
       )}
     </nav>

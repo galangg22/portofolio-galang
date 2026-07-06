@@ -1,88 +1,116 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
-// Fallback data
-const FALLBACK_PROJECTS = [
-  {
-    id: "f1", title: "Bot WA Reminder Absensi", type: "bot", status: "completed",
-    tags: ["Node.js", "Baileys API", "Automation"],
-    description: "Sistem automasi backend untuk memonitor jadwal dan mengirimkan pengingat absensi secara otomatis via WhatsApp.",
-    github_url: "https://github.com/galangpramudito/bot-presensi",
-  },
-  {
-    id: "f2", title: "Sistem Web TPQ Al-Hikmah", type: "web", status: "completed",
-    tags: ["Web Dev", "HTML", "CSS"],
-    description: "Platform sistem informasi manajemen untuk digitalisasi administrasi santri dan guru.",
-    github_url: "https://github.com/galangpramudito/alhikmah",
-  },
-  {
-    id: "f3", title: "ThriftyFinds E-Commerce", type: "web", status: "completed",
-    tags: ["React/Next.js", "Tailwind", "E-Commerce"],
-    description: "Katalog e-commerce modern untuk produk thrifting.",
-    thumbnail_url: "/image/TOKO TUNAI BGDARK mockup fix.png",
-    github_url: "https://github.com/galangpramudito/thriftyfinds",
-    demo_url: "#",
-  },
-  {
-    id: "f4", title: "HeartHorizon / Online Class", type: "web", status: "completed",
-    tags: ["LMS", "Fullstack", "Database"],
-    description: "Aplikasi e-learning interaktif.",
-    thumbnail_url: "/image/Photo by Pankaj Patel on Unsplash.jpg",
-    github_url: "https://github.com/galangpramudito/hearthorizon",
-  },
-];
-
 const TYPE_CONFIG = {
-  web: { label: "Web Apps", icon: "ri-global-line", color: "bg-blue-500/20 text-blue-300 border-blue-500/30", gradient: "from-stone-900 via-neutral-900 to-zinc-950" },
-  bot: { label: "Service Automation", icon: "ri-robot-2-line", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30", gradient: "from-neutral-900 via-neutral-800 to-black" },
-  android: { label: "Mobile Apps", icon: "ri-smartphone-line", color: "bg-purple-500/20 text-purple-300 border-purple-500/30", gradient: "from-zinc-900 via-zinc-800 to-black" },
-  other: { label: "Other", icon: "ri-code-s-slash-line", color: "bg-gray-500/20 text-gray-300 border-gray-500/30", gradient: "from-slate-900 via-gray-900 to-black" },
+  website: { label: "Website", icon: "ri-global-line", color: "bg-blue-500/20 text-blue-300 border-blue-500/30", gradient: "from-stone-900 via-neutral-900 to-zinc-950" },
+  aplikasi: { label: "Aplikasi", icon: "ri-smartphone-line", color: "bg-purple-500/20 text-purple-300 border-purple-500/30", gradient: "from-zinc-900 via-zinc-800 to-black" },
+  desain: { label: "Desain", icon: "ri-palette-line", color: "bg-amber-500/20 text-amber-300 border-amber-500/30", gradient: "from-amber-950 via-neutral-900 to-amber-950/40" },
+  'video editing': { label: "Video Editing", icon: "ri-video-line", color: "bg-rose-500/20 text-rose-300 border-rose-500/30", gradient: "from-red-950 via-neutral-900 to-red-950/40" },
+  // Legacy mappings:
+  web: { label: "Website", icon: "ri-global-line", color: "bg-blue-500/20 text-blue-300 border-blue-500/30", gradient: "from-stone-900 via-neutral-900 to-zinc-950" },
+  bot: { label: "Aplikasi", icon: "ri-smartphone-line", color: "bg-purple-500/20 text-purple-300 border-purple-500/30", gradient: "from-neutral-900 via-neutral-800 to-black" },
+  android: { label: "Aplikasi", icon: "ri-smartphone-line", color: "bg-purple-500/20 text-purple-300 border-purple-500/30", gradient: "from-zinc-900 via-zinc-800 to-black" },
+  design: { label: "Desain", icon: "ri-palette-line", color: "bg-amber-500/20 text-amber-300 border-amber-500/30", gradient: "from-amber-950 via-neutral-900 to-amber-950/40" },
+  video: { label: "Video Editing", icon: "ri-video-line", color: "bg-rose-500/20 text-rose-300 border-rose-500/30", gradient: "from-red-950 via-neutral-900 to-red-950/40" },
+  other: { label: "Lainnya", icon: "ri-code-s-slash-line", color: "bg-gray-500/20 text-gray-300 border-gray-500/30", gradient: "from-slate-900 via-gray-900 to-black" },
 };
+
+function getTypeConfig(type) {
+  const t = (type || "other").toLowerCase();
+  if (TYPE_CONFIG[t]) return TYPE_CONFIG[t];
+  return {
+    label: type.charAt(0).toUpperCase() + type.slice(1),
+    icon: "ri-code-box-line",
+    color: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
+    gradient: "from-cyan-950 via-neutral-900 to-cyan-950/40"
+  };
+}
 
 const STATUS_BADGE = {
   completed: "bg-green-500/20 text-green-300 border-green-500/30",
   wip: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
 };
 
-export default function ProjectsPage() {
-  const [projects, setProjects] = useState(FALLBACK_PROJECTS);
+function ProjectsPageContent() {
+  const [projects, setProjects] = useState([]);
   const [filter, setFilter] = useState("all");
   const [screenshotModal, setScreenshotModal] = useState(null); // { images, index, title }
-  const [loading, setLoading] = useState(!!supabase);
+  const [selectedVideo, setSelectedVideo] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const searchParams = useSearchParams();
+  const typeParam = searchParams.get("type") || searchParams.get("category");
 
   useEffect(() => {
-    if (!supabase) return;
-    
     (async () => {
-      const { data } = await supabase
-        .from("projects").select("*")
+      setLoading(true);
+      
+      // Fetch all projects except private
+      const { data: projectsData } = await supabase
+        .from("projects")
+        .select("*, project_types(id, name, slug)")
         .neq("status", "private")
         .order("featured", { ascending: false })
         .order("sort_order")
         .order("created_at", { ascending: false });
-      if (data && data.length) setProjects(data);
 
-      // Load project_images for android projects
-      const { data: imgs } = await supabase.from("project_images").select("*").order("sort_order");
-      if (imgs && imgs.length) {
-        setProjects((prev) => prev.map((p) => ({
-          ...p,
-          _images: imgs.filter((im) => im.project_id === p.id),
-        })));
+      if (projectsData) {
+        // Fetch all project images
+        const { data: imagesData } = await supabase
+          .from("project_images")
+          .select("*")
+          .order("sort_order");
+
+        const processed = projectsData.map((p) => {
+          let projectType = "website";
+          if (p.project_types) {
+            projectType = p.project_types.slug;
+          } else {
+            projectType = p.project_type || p.type || "website";
+          }
+          projectType = projectType.toLowerCase();
+          
+          // Unify legacy values
+          if (projectType === "web") projectType = "website";
+          if (projectType === "bot" || projectType === "android") projectType = "aplikasi";
+          if (projectType === "design") projectType = "desain";
+          if (projectType === "video" || projectType === "video-editing") projectType = "video editing";
+
+          return {
+            ...p,
+            project_type: projectType,
+            _images: imagesData ? imagesData.filter((img) => img.project_id === p.id) : [],
+            tags: (p.tags || []).filter(t => !['web', 'bot', 'android'].includes(t.toLowerCase())),
+          };
+        });
+
+        setProjects(processed);
       }
       setLoading(false);
     })();
   }, []);
+
+  // Update filter based on URL category/type parameter once projects are loaded
+  useEffect(() => {
+    if (typeParam) {
+      let cleanParam = typeParam.toLowerCase();
+      if (cleanParam === "design") cleanParam = "desain";
+      if (cleanParam === "video") cleanParam = "video editing";
+      setFilter(cleanParam);
+    }
+  }, [typeParam]);
 
   // Handle keyboard events (Escape to close, Arrows to paginate screenshots)
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
         setScreenshotModal(null);
+        setSelectedVideo(null);
       }
       if (screenshotModal && screenshotModal.images.length > 1) {
         if (e.key === "ArrowLeft") {
@@ -96,14 +124,18 @@ export default function ProjectsPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [screenshotModal]);
 
-  // Get available types from data
-  const availableTypes = [...new Set(projects.map((p) => p.type || "web"))];
+  // Dynamically get available types from loaded projects
+  const availableTypes = [...new Set(projects.map((p) => p.project_type || "website"))];
+  
   const filterTabs = [
-    { key: "all", label: "All Projects", icon: "ri-apps-line" },
-    ...availableTypes.map((t) => ({ key: t, label: TYPE_CONFIG[t]?.label || t, icon: TYPE_CONFIG[t]?.icon || "ri-code-line" })),
+    { key: "all", label: "Semua Project", icon: "ri-apps-line" },
+    ...availableTypes.map((t) => {
+      const config = getTypeConfig(t);
+      return { key: t, label: config.label, icon: config.icon };
+    }),
   ];
 
-  const filtered = filter === "all" ? projects : projects.filter((p) => (p.type || "web") === filter);
+  const filtered = filter === "all" ? projects : projects.filter((p) => (p.project_type || "website").toLowerCase() === filter);
 
   return (
     <main className="min-h-[100dvh] bg-bg-dark p-4 sm:p-8 md:p-16 relative overflow-x-hidden">
@@ -115,17 +147,17 @@ export default function ProjectsPage() {
 
       {/* Header */}
       <div className="max-w-6xl mx-auto mb-8 md:mb-16 relative z-10 pt-4 md:pt-0">
-        <Link href="/" className="inline-flex items-center gap-3 text-accent font-bold uppercase text-[10px] tracking-[0.2em] mb-8 md:mb-12 hover:text-black dark:hover:text-white transition-colors group">
-          <div className="w-8 h-8 rounded-full border border-accent flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-all">
+        <Link href="/" className="inline-flex items-center gap-3 text-accent font-bold uppercase text-[10px] tracking-[0.2em] mb-8 md:mb-12 hover:text-white transition-colors group">
+          <div className="w-8 h-8 rounded-full border border-accent flex items-center justify-center group-hover:bg-accent group-hover:text-bg-dark transition-all">
             <i className="ri-arrow-left-line"></i>
           </div>
           Back to Home
         </Link>
-        <h1 className="font-display text-4xl md:text-6xl font-normal mb-3 md:mb-4 tracking-tight leading-tight">
-          Dev <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Projects</span>
+        <h1 className="font-display text-4xl md:text-6xl font-normal mb-3 md:mb-4 tracking-tight leading-tight text-white">
+          My <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">Portfolio</span>
         </h1>
         <p className="text-gray-400 max-w-xl text-sm md:text-base font-light leading-relaxed">
-          Koleksi lengkap project development — web apps, service automation, bots, dan mobile apps.
+          Katalog lengkap project, desain UI/UX, dan kreasi video. Gunakan filter di bawah untuk menelusuri kategori.
         </p>
       </div>
 
@@ -137,13 +169,13 @@ export default function ProjectsPage() {
             onClick={() => setFilter(f.key)}
             className={`shrink-0 px-5 md:px-6 py-2.5 rounded-full border text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${
               filter === f.key
-                ? "bg-accent text-white border-accent"
+                ? "bg-accent text-bg-dark border-accent"
                 : "border-white/10 text-gray-500 hover:border-white/30 hover:text-white bg-white/5"
             }`}
           >
             <i className={f.icon}></i> {f.label}
             <span className="ml-1 text-[10px] opacity-60">
-              ({f.key === "all" ? projects.length : projects.filter((p) => (p.type || "web") === f.key).length})
+              ({f.key === "all" ? projects.length : projects.filter((p) => (p.project_type || "website").toLowerCase() === f.key).length})
             </span>
           </button>
         ))}
@@ -169,12 +201,18 @@ export default function ProjectsPage() {
           ))
         ) : (
           filtered.map((project, idx) => {
-            const typeInfo = TYPE_CONFIG[project.type] || TYPE_CONFIG.other;
+            const typeInfo = getTypeConfig(project.project_type);
             const statusInfo = STATUS_BADGE[project.status] || "";
+            const isVideo = ['video editing', 'video'].includes(project.project_type?.toLowerCase() || '');
+            const isDesign = ['desain', 'design'].includes(project.project_type?.toLowerCase() || '');
+            
             return (
               <div key={project.id} className="group bg-card-bg border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all flex flex-col">
                 {/* Thumbnail */}
-                <div className="relative w-full aspect-video bg-black overflow-hidden">
+                <div 
+                  className={`relative w-full aspect-video bg-black overflow-hidden ${isVideo ? "cursor-pointer" : ""}`}
+                  onClick={() => isVideo && project.video_url ? setSelectedVideo(project.video_url) : null}
+                >
                   {project.thumbnail_url ? (
                     <Image src={project.thumbnail_url} alt={project.title} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" priority={idx < 3} />
@@ -184,23 +222,27 @@ export default function ProjectsPage() {
                     </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                  
+                  {/* Play Overlay for Video */}
+                  {isVideo && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="p-1 bg-black/40 rounded-full group-hover:bg-accent/90 group-hover:scale-110 transition-all duration-300 border border-white/10">
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center">
+                          <i className="ri-play-fill text-white text-lg ml-0.5 group-hover:text-bg-dark transition-colors"></i>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Type Badge */}
-                  <div className="absolute top-3 left-3 flex items-center gap-2">
-                    <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase border flex items-center gap-1 ${typeInfo.color}`}>
+                  <div className="absolute top-3 left-3 flex flex-wrap items-center gap-1.5 max-w-[80%]">
+                    <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase border flex items-center gap-1.5 backdrop-blur-md ${typeInfo.color}`}>
                       <i className={typeInfo.icon}></i> {typeInfo.label}
                     </span>
                     {project.status === "wip" && (
                       <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase border ${statusInfo}`}>WIP</span>
                     )}
                   </div>
-                  {/* Featured Badge */}
-                  {project.featured && (
-                    <div className="absolute top-3 right-3">
-                      <span className="px-2.5 py-1 rounded-full text-[9px] font-bold uppercase bg-accent/20 text-accent border border-accent/30">
-                        <i className="ri-star-fill mr-1"></i>Featured
-                      </span>
-                    </div>
-                  )}
                 </div>
 
                 {/* Content */}
@@ -225,7 +267,7 @@ export default function ProjectsPage() {
                     )}
                     {project.demo_url && (
                       <a href={project.demo_url} target="_blank" rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-sm font-bold text-white bg-accent px-4 py-2 rounded-xl hover:scale-105 transition-transform">
+                        className="inline-flex items-center gap-2 text-sm font-bold text-bg-dark bg-accent px-4 py-2 rounded-xl hover:scale-105 transition-transform">
                         <i className="ri-external-link-line"></i> Demo
                       </a>
                     )}
@@ -241,11 +283,18 @@ export default function ProjectsPage() {
                         <i className="ri-download-line"></i> APK
                       </a>
                     )}
-                    {/* Screenshots button for android */}
+                    {isVideo && project.video_url && (
+                      <button onClick={() => setSelectedVideo(project.video_url)}
+                        className="inline-flex items-center gap-2 text-sm font-bold text-white bg-accent/20 border border-accent/35 px-4 py-2 rounded-xl hover:bg-accent hover:text-bg-dark transition-colors">
+                        <i className="ri-play-circle-line"></i> Play Video
+                      </button>
+                    )}
+                    {/* Screenshots / gallery button */}
                     {project._images && project._images.length > 0 && (
                       <button onClick={() => setScreenshotModal({ images: project._images, index: 0, title: project.title })}
                         className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/5 border border-white/10 px-4 py-2 rounded-xl hover:border-accent/40 transition-colors">
-                        <i className="ri-screenshot-2-line"></i> Screenshots ({project._images.length})
+                        <i className={isDesign ? "ri-image-line" : "ri-screenshot-2-line"}></i>
+                        {isDesign ? "View Gallery" : "Screenshots"} ({project._images.length})
                       </button>
                     )}
                   </div>
@@ -256,6 +305,22 @@ export default function ProjectsPage() {
         )}
         {!loading && !filtered.length && <p className="text-gray-500 text-sm col-span-full text-center py-12">Tidak ada project untuk kategori ini.</p>}
       </div>
+
+      {/* Video Lightbox */}
+      {selectedVideo && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-10">
+          <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" onClick={() => setSelectedVideo(null)}></div>
+          <div className="relative w-full max-w-5xl aspect-video bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl z-[201]">
+            <button
+              onClick={() => setSelectedVideo(null)}
+              className="absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 md:w-12 md:h-12 bg-black/60 md:bg-white/10 backdrop-blur-md md:hover:bg-red-500 text-white rounded-full flex items-center justify-center z-[202] transition-all active:scale-90 border border-white/20 md:border-transparent shadow-xl"
+            >
+              <i className="ri-close-line text-xl md:text-2xl"></i>
+            </button>
+            <iframe src={selectedVideo} className="w-full h-full border-none" allow="autoplay" allowFullScreen></iframe>
+          </div>
+        </div>
+      )}
 
       {/* Screenshot Lightbox */}
       {screenshotModal && (
@@ -299,9 +364,21 @@ export default function ProjectsPage() {
       {/* Footer */}
       <footer className="mt-20 md:mt-32 pb-8 md:pb-16 text-center border-t border-white/5 pt-8 md:pt-10">
         <p className="text-gray-600 text-[10px] md:text-[11px] font-bold uppercase tracking-[0.4em]">
-          Galang Arrauf Pramudito • Dev Projects 2026
+          Galang Arrauf Pramudito • Portfolio 2026
         </p>
       </footer>
     </main>
+  );
+}
+
+export default function ProjectsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-bg-dark flex items-center justify-center">
+        <i className="ri-loader-4-line animate-spin text-3xl text-gray-400"></i>
+      </div>
+    }>
+      <ProjectsPageContent />
+    </Suspense>
   );
 }
