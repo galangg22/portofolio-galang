@@ -249,9 +249,8 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
       gsap.registerPlugin(ScrollTrigger);
       ScrollTrigger.refresh();
       ctx = gsap.context(() => {
-        if (window.innerWidth >= 768) {
-          gsap.from(".hero-el", { y: 40, opacity: 0, duration: 1.2, stagger: 0.2, ease: "power4.out", delay: 0.2 });
-        }
+        // ✅ PERF: Removed .GSAP animation to fix LCP/Speed Index issues
+        // Hero elements will now render immediately without opacity delay
         gsap.utils.toArray("section").forEach((section) => {
           const title = section.querySelector(".section-title");
           if (title) {
@@ -327,7 +326,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
         <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col lg:grid lg:grid-cols-12 gap-8 lg:gap-16 items-center">
           {/* ✅ MOBILE/TABLET: Foto di atas (order-first) */}
           <div className="order-first lg:order-last lg:col-span-5 flex justify-center lg:justify-end w-full">
-            <div className="hero-el relative w-full max-w-[240px] sm:max-w-[280px] lg:max-w-[380px]">
+            <div className="relative w-full max-w-[240px] sm:max-w-[280px] lg:max-w-[380px]">
               <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden border border-white/10 bg-card-bg shadow-2xl">
                 <Image 
                   src={initialProfile?.avatar_url || "/image/gambar galang 2.jpg"} 
@@ -346,10 +345,10 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
 
           {/* ✅ MOBILE/TABLET: Teks di bawah (order-last), centered */}
           <div className="order-last lg:order-first lg:col-span-7 space-y-5 md:space-y-8 text-center lg:text-left w-full">
-            <div className="hero-el inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06] text-gray-400 text-xs font-medium">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06] text-gray-400 text-xs font-medium">
               <span className={`w-1.5 h-1.5 rounded-full ${availability.color}`}></span> {availability.text}
             </div>
-            <h1 className="hero-el text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-[-0.03em] leading-[1.05]">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-[-0.03em] leading-[1.05]">
               {(() => {
                 const nameParts = (initialProfile?.full_name || 'Galang Pramudito').split(' ');
                 const first = nameParts[0];
@@ -361,10 +360,10 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                 );
               })()}
             </h1>
-            <p className="hero-el text-base md:text-lg text-gray-400 font-light max-w-xl mx-auto lg:mx-0 leading-relaxed">
+            <p className="text-base md:text-lg text-gray-400 font-light max-w-xl mx-auto lg:mx-0 leading-relaxed">
               Crafting robust web solutions &amp; intelligent automation from Sidoarjo.
             </p>
-            <div className="hero-el flex flex-wrap gap-3 md:gap-4 pt-2 justify-center lg:justify-start">
+            <div className="flex flex-wrap gap-3 md:gap-4 pt-2 justify-center lg:justify-start">
               <a href="#projects" className="px-6 md:px-8 py-3 md:py-3.5 bg-accent text-white font-bold text-sm rounded-full hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-accent/20">View My Work</a>
               <button onClick={() => setIsCvModalOpen(true)} className="group px-6 md:px-8 py-3 md:py-3.5 border border-white/10 text-white text-sm font-medium rounded-full hover:bg-white/10 hover:border-white/20 transition-all cursor-pointer z-20 relative inline-flex items-center gap-2">
                 <i className="ri-file-user-line text-lg group-hover:text-accent transition-colors"></i>
@@ -532,7 +531,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
               <div className="max-w-6xl mx-auto relative z-10">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
                   <div>
-                    <p className="work-eyebrow text-[11px] uppercase tracking-[0.22em] text-gray-500 font-mono mb-4">Kategori Project</p>
+                    <p className="work-eyebrow text-[11px] uppercase tracking-[0.22em] text-gray-400 font-mono mb-4">Kategori Project</p>
                     <h2 className="section-title text-4xl md:text-5xl font-bold tracking-tight leading-[1.08]">
                       {section.name.split(' ').map((word, i, arr) => (
                         i === arr.length - 1 ? <span key={i} className="text-accent">{word}</span> : <span key={i}>{word} </span>
@@ -821,11 +820,11 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
 
       <footer className="py-10 text-center border-t border-white/5">
         <div className="flex justify-center gap-8 mb-8">
-          <a href="https://github.com/galangpramudito" target="_blank" rel="noopener noreferrer" aria-label="GitHub Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-github-fill"></i></a>
-          <a href="https://www.linkedin.com/in/galang-arrauf-pramudito/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-linkedin-fill"></i></a>
-          <a href="mailto:galangarrauf22@gmail.com" aria-label="Email Galang Arrauf" className="text-gray-500 hover:text-white text-2xl transition-colors"><i className="ri-mail-line"></i></a>
+          <a href="https://github.com/galangpramudito" target="_blank" rel="noopener noreferrer" aria-label="GitHub Galang Arrauf" className="text-gray-400 hover:text-white text-2xl transition-colors"><i className="ri-github-fill"></i></a>
+          <a href="https://www.linkedin.com/in/galang-arrauf-pramudito/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Galang Arrauf" className="text-gray-400 hover:text-white text-2xl transition-colors"><i className="ri-linkedin-fill"></i></a>
+          <a href="mailto:galangarrauf22@gmail.com" aria-label="Email Galang Arrauf" className="text-gray-400 hover:text-white text-2xl transition-colors"><i className="ri-mail-line"></i></a>
         </div>
-        <p className="text-gray-500 text-[10px] md:text-[11px] font-medium tracking-[0.3em] uppercase">© 2026 Galang Arrauf Pramudito</p>
+        <p className="text-gray-400 text-[10px] md:text-[11px] font-medium tracking-[0.3em] uppercase">© 2026 Galang Arrauf Pramudito</p>
       </footer>
 
       {isCvModalOpen && (
