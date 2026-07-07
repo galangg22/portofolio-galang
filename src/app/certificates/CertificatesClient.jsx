@@ -75,47 +75,45 @@ export default function CertificatesClient({ certs: initialCerts }) {
       </div>
 
       {modal && (
-        <div className="fixed inset-0 z-[200] flex md:items-center md:justify-center md:p-10">
-          <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" onClick={() => setModal(null)}></div>
-          <div className="relative z-10 w-full md:max-w-4xl bg-card-bg md:border border-white/10 md:rounded-2xl overflow-y-auto md:max-h-[90vh] grid md:grid-cols-2">
-            <button onClick={() => setModal(null)} className="fixed md:absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 md:w-11 md:h-11 bg-black/80 md:bg-white/10 backdrop-blur-md md:hover:bg-red-500 text-white rounded-full flex items-center justify-center z-[300] transition-all active:scale-90 border border-white/20 md:border-transparent shadow-xl md:shadow-none">
-              <i className="ri-close-line text-xl md:text-2xl"></i>
-            </button>
-            {/* PDF Preview */}
-            <div className="bg-white/5 flex items-start justify-center overflow-y-auto">
+        <div className="fixed inset-0 z-[400] flex flex-col md:flex md:items-center md:justify-center md:p-10">
+          <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" onClick={() => setModal(null)} />
+          <button onClick={() => setModal(null)} className="fixed top-4 right-4 z-[300] w-12 h-12 md:w-11 md:h-11 bg-black/80 md:bg-white/10 backdrop-blur-md md:hover:bg-red-500 text-white rounded-full flex items-center justify-center border border-white/20 md:border-transparent shadow-xl">
+            <i className="ri-close-line text-xl md:text-2xl" />
+          </button>
+          <div className="relative z-10 w-full h-full md:h-auto md:max-w-4xl bg-card-bg overflow-y-auto md:border md:border-white/10 md:rounded-2xl md:max-h-[90vh] grid grid-cols-1 md:grid-cols-2 pt-14 md:pt-0">
+            <div className="bg-white/5 flex items-start justify-center overflow-y-auto min-h-[200px]">
               {modal.verify_url?.endsWith('.pdf') ? (
                 <PdfThumbnail url={modal.verify_url} width={900} />
               ) : modal.image_url ? (
                 <Image src={modal.image_url} alt={modal.title} width={900} height={636} className="w-full h-auto" />
               ) : (
                 <div className="w-full aspect-[1/1.414] bg-gradient-to-br from-primary/40 to-accent/30 flex items-center justify-center">
-                  <i className="ri-award-fill text-8xl text-white/40"></i>
+                  <i className="ri-award-fill text-8xl text-white/40" />
                 </div>
               )}
             </div>
-            {/* Detail */}
             <div className="p-6 flex flex-col">
-              <h4 className="font-bold text-xl text-white mb-4 pr-10">{modal.title}</h4>
+              <h4 className="font-bold text-xl text-white mb-4">{modal.title}</h4>
               <dl className="space-y-3 text-sm flex-1">
                 <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Penerbit</dt><dd className="text-white">{modal.issuer}</dd></div>
                 {modal.credential_id && <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Credential ID</dt><dd className="text-white break-all">{modal.credential_id}</dd></div>}
-                {modal.credential_url && <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Credential Link</dt><dd><a href={modal.credential_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:text-white transition-colors break-all">{modal.credential_url} <i className="ri-external-link-line text-xs"></i></a></dd></div>}
+                {modal.credential_url && <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Credential Link</dt><dd><a href={modal.credential_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:text-white transition-colors break-all">{modal.credential_url} <i className="ri-external-link-line text-xs" /></a></dd></div>}
                 {modal.issue_date && <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Tanggal Terbit</dt><dd className="text-white">{modal.issue_date}</dd></div>}
                 {modal.description && <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Deskripsi</dt><dd className="text-gray-300 leading-relaxed">{modal.description}</dd></div>}
               </dl>
               <div className="flex flex-wrap gap-3 mt-6">
                 {modal.verify_url && (
                   <a href={modal.verify_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-bold text-white bg-accent px-5 py-2.5 rounded-xl hover:scale-105 transition-transform">
-                    View PDF <i className="ri-file-pdf-2-line"></i>
+                    View PDF <i className="ri-file-pdf-2-line" />
                   </a>
                 )}
                 {modal.credential_url && (
                   <a href={modal.credential_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-bold text-white bg-accent/80 px-5 py-2.5 rounded-xl hover:scale-105 transition-transform">
-                    Verify Credential <i className="ri-external-link-line"></i>
+                    Verify Credential <i className="ri-external-link-line" />
                   </a>
                 )}
                 <button onClick={() => share(modal)} className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/5 border border-white/10 px-5 py-2.5 rounded-xl hover:border-accent/40 transition-colors">
-                  <i className="ri-link"></i> {copied ? "Tersalin!" : "Share Link"}
+                  <i className="ri-link" /> {copied ? "Tersalin!" : "Share Link"}
                 </button>
               </div>
             </div>

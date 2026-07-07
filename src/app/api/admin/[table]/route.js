@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { NextResponse } from 'next/server'
+import { generateSlug } from '@/lib/project-utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -102,8 +103,13 @@ export async function POST(req, { params }) {
     const { id, created_at, updated_at, ...safeBody } = body
 
     // Validate required fields based on table
-    if (table === 'projects' && (!safeBody.title || !safeBody.project_type_id)) {
-      return badRequestResponse('Title and project_type_id are required')
+    if (table === 'projects') {
+      if (!safeBody.title || !safeBody.project_type_id) {
+        return badRequestResponse('Title and project_type_id are required')
+      }
+      if (!safeBody.slug) {
+        safeBody.slug = generateSlug(safeBody.title)
+      }
     }
     if (table === 'project_types') {
       if (!safeBody.name) {
@@ -124,7 +130,7 @@ export async function POST(req, { params }) {
     }
 
     // Sanitize URL fields to prevent XSS
-    const urlFields = ['demo_url', 'play_store_url', 'apk_url', 'repo_url', 'credential_link', 'video_url', 'image_url', 'thumbnail_url', 'cover_image_url']
+    const urlFields = ['demo_url', 'play_store_url', 'apk_url', 'repo_url', 'credential_link', 'video_url', 'image_url', 'thumbnail_url', 'cover_image_url', 'github_url']
     for (const field of urlFields) {
       if (safeBody[field] && typeof safeBody[field] === 'string') {
         // Basic URL validation
@@ -168,6 +174,12 @@ export async function PUT(req, { params }) {
       return badRequestResponse('Valid ID is required')
     }
 
+    if (table === 'projects') {
+      if (safeBody.title && !safeBody.slug) {
+        safeBody.slug = generateSlug(safeBody.title)
+      }
+    }
+
     if (table === 'project_types') {
       if (safeBody.name && !safeBody.slug) {
         safeBody.slug = safeBody.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
@@ -175,7 +187,7 @@ export async function PUT(req, { params }) {
     }
 
     // Sanitize URL fields
-    const urlFields = ['demo_url', 'play_store_url', 'apk_url', 'repo_url', 'credential_link', 'video_url', 'image_url', 'thumbnail_url', 'cover_image_url']
+    const urlFields = ['demo_url', 'play_store_url', 'apk_url', 'repo_url', 'credential_link', 'video_url', 'image_url', 'thumbnail_url', 'cover_image_url', 'github_url']
     for (const field of urlFields) {
       if (safeBody[field] && typeof safeBody[field] === 'string') {
         try {

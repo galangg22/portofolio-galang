@@ -52,14 +52,14 @@ export default function ProjectsPage() {
     { key: 'thumbnail_url', label: 'Thumbnail / Cover Image', type: 'image', group: 'Informasi Umum' },
     
     // URLs for developers / apps
-    { key: 'github_url', label: 'GitHub URL', type: 'url', showWhen: (f) => ['website', 'aplikasi'].includes(getSelectedTypeSlug(f)), group: 'Tautan & Eksternal' },
-    { key: 'demo_url', label: 'Demo URL (Web)', type: 'url', showWhen: (f) => getSelectedTypeSlug(f) === 'website', group: 'Tautan & Eksternal' },
-    { key: 'play_store_url', label: 'Play Store URL', type: 'url', showWhen: (f) => getSelectedTypeSlug(f) === 'aplikasi', group: 'Tautan & Eksternal' },
-    { key: 'apk_url', label: 'Download APK URL', type: 'url', showWhen: (f) => getSelectedTypeSlug(f) === 'aplikasi', group: 'Tautan & Eksternal' },
+    { key: 'github_url', label: 'GitHub URL', type: 'url', group: 'Tautan & Eksternal' },
+    { key: 'demo_url', label: 'Demo URL (Web)', type: 'url', group: 'Tautan & Eksternal' },
+    { key: 'play_store_url', label: 'Play Store URL', type: 'url', group: 'Tautan & Eksternal' },
+    { key: 'apk_url', label: 'Download APK URL', type: 'url', group: 'Tautan & Eksternal' },
     
     // Video fields
-    { key: 'video_url', label: 'URL Video (Drive/YouTube/Vimeo)', type: 'url', showWhen: (f) => getSelectedTypeSlug(f) === 'video-editing', group: 'Tautan & Eksternal' },
-    { key: 'platform', label: 'Platform Video', type: 'select', options: ['youtube', 'drive', 'vimeo'], showWhen: (f) => getSelectedTypeSlug(f) === 'video-editing', group: 'Tautan & Eksternal' },
+    { key: 'video_url', label: 'URL Video (Drive/YouTube/Vimeo)', type: 'url', group: 'Tautan & Eksternal' },
+    { key: 'platform', label: 'Platform Video', type: 'select', options: ['youtube', 'drive', 'vimeo'], group: 'Tautan & Eksternal' },
     
     // General status
     { key: 'status', label: 'Status', type: 'select', options: ['completed', 'wip', 'private'], group: 'Visibilitas & Status' },
@@ -101,8 +101,9 @@ export default function ProjectsPage() {
       filterField={{
         key: 'project_type_id',
         label: 'Jenis Project',
-        options: types.map(t => ({ value: String(t.id), label: t.name }))
+        options: [{ value: 'all', label: 'Semua' }, ...types.map(t => ({ value: String(t.id), label: t.name }))]
       }}
+      enableFeaturedDrag={true}
     />
   )
 }

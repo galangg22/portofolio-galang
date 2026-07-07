@@ -291,7 +291,7 @@ function RelatedImages({ parentId, table, foreignKey, label, addLabel, hasCaptio
 }
 
 // Komponen utama CrudManager
-export default function CrudManager({ table, fields, columns, relatedSection = null, filterField = null, featuredLimit = null }) {
+export default function CrudManager({ table, fields, columns, relatedSection = null, filterField = null, featuredLimit = null, enableFeaturedDrag = false }) {
   const [data, setData] = useState([])
   const [formData, setFormData] = useState({})
   const [editingId, setEditingId] = useState(null)
@@ -478,6 +478,18 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
       if (typeof dataToSubmit[key] === 'string') {
         dataToSubmit[key] = dataToSubmit[key].trim()
       }
+    }
+
+    // Ensure array fields (like tags, items) are always sent as proper arrays, not strings
+    const arrayFields = fields.filter(f => f.type === 'tags').map(f => f.key)
+    for (const key of arrayFields) {
+      const val = dataToSubmit[key]
+      if (val === undefined || val === null || val === '') {
+        dataToSubmit[key] = []
+      } else if (typeof val === 'string') {
+        dataToSubmit[key] = val.split(',').map(v => v.trim()).filter(Boolean)
+      }
+      // If already an array, leave it as is
     }
 
     // Handle image upload if a new file is selected
@@ -976,7 +988,7 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
       <div className="flex flex-col xl:flex-row gap-6 items-start relative">
         
         {/* Main List Column (Master) */}
-        <div className={`w-full transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${(showForm || editingId) ? 'xl:w-7/12' : 'w-full'}`}>
+        <div className={`w-full transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${(showForm || editingId) ? 'hidden xl:block xl:w-7/12' : 'w-full'}`}>
           <div className="bg-gray-800/80 backdrop-blur-md rounded-2xl border border-gray-700 overflow-hidden shadow-lg">
             <div className="px-6 py-5 border-b border-gray-700 bg-gray-800/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <h2 className="text-base font-semibold text-white flex items-center gap-2">
@@ -1029,6 +1041,7 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
                   getTypeIcon={getTypeIcon}
                   columns={columns}
                   featuredLimit={featuredLimit}
+                  enableFeaturedDrag={enableFeaturedDrag}
                 />
               )}
             </div>

@@ -21,7 +21,7 @@ async function getPortfolioData() {
     supabase.from("projects")
       .select("*, project_types(id, name, slug)")
       .neq("status", "private")
-      .order("featured", { ascending: false })
+      .eq("featured", true)
       .order("sort_order"),
       
     supabase.from("certificates")
@@ -50,10 +50,13 @@ async function getPortfolioData() {
       if (typeSlug === "web") typeSlug = "website";
       if (typeSlug === "bot" || typeSlug === "android") typeSlug = "aplikasi";
       if (typeSlug === "design") typeSlug = "desain";
-      if (typeSlug === "video" || typeSlug === "video-editing") typeSlug = "video editing";
+      if (typeSlug === "video" || typeSlug === "video editing") typeSlug = "video-editing";
+
+      const slug = p.slug || p.title.toLowerCase().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
 
       return {
         id: p.id,
+        slug,
         title: p.title,
         image: p.thumbnail_url || null,
         gradient: p.thumbnail_url ? null : "from-neutral-900 via-neutral-800 to-black",

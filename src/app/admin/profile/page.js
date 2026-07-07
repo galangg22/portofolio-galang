@@ -175,7 +175,7 @@ CREATE POLICY "Enable all access for authenticated users" ON profile FOR ALL USI
         {/* Foto Profil */}
         <div>
           <label className="block text-sm font-medium text-gray-400 mb-2">Foto Profil (Avatar)</label>
-          <div className="flex items-start gap-6">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
             <div className="w-24 h-24 rounded-2xl bg-gray-800 border border-gray-700 overflow-hidden flex items-center justify-center shrink-0">
               {profile.avatar_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -184,7 +184,7 @@ CREATE POLICY "Enable all access for authenticated users" ON profile FOR ALL USI
                 <i className="ri-user-line text-3xl text-gray-500"></i>
               )}
             </div>
-            <div className="flex-1 space-y-3">
+            <div className="flex-1 w-full space-y-3">
               <input 
                 type="url" 
                 value={profile.avatar_url || ''} 
@@ -252,7 +252,7 @@ CREATE POLICY "Enable all access for authenticated users" ON profile FOR ALL USI
               className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent"
               placeholder="https://... atau upload PDF"
             />
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <div className="relative">
                 <input 
                   type="file" 

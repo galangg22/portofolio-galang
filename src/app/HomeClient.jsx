@@ -169,13 +169,41 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [selectedCert, setSelectedCert] = useState(null);
   
-  const [skills, setSkills] = useState(initialSkills?.length ? initialSkills : SKILLS_DATA);
-  const [projects, setProjects] = useState(initialProjects?.length ? initialProjects : DEV_PROJECTS);
+  const [skills, setSkills] = useState(initialSkills ?? SKILLS_DATA);
+  const [projects, setProjects] = useState(initialProjects ?? DEV_PROJECTS);
   const [certificates, setCertificates] = useState(initialCertificates || []);
   
-  // Compute dynamic sections based on project_types
-  // Determine if a type is "visual" based on keywords
-  const getIsVisual = (slug) => ['desain', 'design', 'video', 'video-editing', 'visual', 'ui-ux'].includes(slug?.toLowerCase());
+  // Helper to safely format video URLs for embedding (YouTube & GDrive)
+  const getEmbedUrl = (url) => {
+    if (!url) return '';
+    try {
+      if (url.includes('youtube.com/watch') || url.includes('youtu.be/')) {
+        const videoId = url.includes('youtu.be/') 
+          ? url.split('youtu.be/')[1].split('?')[0] 
+          : new URLSearchParams(new URL(url).search).get('v');
+        return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1` : url;
+      }
+      if (url.includes('drive.google.com/file/d/')) {
+        return url.replace(/\/view.*$/, '/preview');
+      }
+      return url;
+    } catch (e) {
+      return url;
+    }
+  };
+  
+  // Determine if a category should use the "Visual" layout dynamically.
+  // A category is considered visual if the majority of its projects do NOT have dev-related URLs.
+  const getIsVisual = (categoryProjects) => {
+    if (!categoryProjects || categoryProjects.length === 0) return false;
+    let visualCount = 0;
+    categoryProjects.forEach(p => {
+      if (!p.github_url && !p.demo_url && !p.play_store_url && !p.apk_url) {
+        visualCount++;
+      }
+    });
+    return visualCount > categoryProjects.length / 2;
+  };
   
   const fallbackTypes = [
     { name: 'Website', slug: 'website' },
@@ -184,13 +212,29 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
     { name: 'Video Editing', slug: 'video-editing' }
   ];
 
-  const typesToUse = initialProjectTypes?.length > 0 ? initialProjectTypes : fallbackTypes;
+  const typesToUse = initialProjectTypes?.length > 0 ? [...initialProjectTypes] : [...fallbackTypes];
+  
+  // Ensure legacy orphaned projects still show up by adding their categories if missing
+  projects.forEach(p => {
+    let pSlug = p.project_type?.toLowerCase() || '';
+    if (pSlug === 'web') pSlug = 'website';
+    if (pSlug === 'bot' || pSlug === 'android') pSlug = 'aplikasi';
+    if (pSlug === 'design') pSlug = 'desain';
+    if (pSlug === 'video' || pSlug === 'video editing') pSlug = 'video-editing';
+    
+    if (pSlug && !typesToUse.find(t => t.slug?.toLowerCase() === pSlug)) {
+      typesToUse.push({
+        name: pSlug.charAt(0).toUpperCase() + pSlug.slice(1).replace(/-/g, ' '),
+        slug: pSlug
+      });
+    }
+  });
   
   const dynamicSections = typesToUse.map(type => {
     // Filter projects for this type
     const typeProjects = projects.filter(p => {
       const pSlug = p.project_type?.toLowerCase() || '';
-      return pSlug === type.slug?.toLowerCase() || (pSlug === 'web' && type.slug === 'website') || (['bot', 'android'].includes(pSlug) && type.slug === 'aplikasi');
+      return pSlug === type.slug?.toLowerCase() || (pSlug === 'web' && type.slug === 'website') || (['bot', 'android'].includes(pSlug) && type.slug === 'aplikasi') || ((pSlug === 'video' || pSlug === 'video editing') && type.slug === 'video-editing');
     });
 
     if (typeProjects.length === 0) return null;
@@ -198,7 +242,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
     return {
       id: type.slug,
       name: type.name,
-      isVisual: getIsVisual(type.slug),
+      isVisual: getIsVisual(typeProjects),
       projects: typeProjects
     };
   }).filter(Boolean); // Remove empty sections
@@ -515,7 +559,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
           const rest = section.projects.slice(1);
           
           return (
-            <section key={section.id} className="py-24 px-6 relative z-10 border-t border-white/[0.02]">
+            <section key={section.id} className="py-12 md:py-16 px-6 relative z-10 border-t border-white/[0.02]">
               <div className="absolute inset-0 pointer-events-none overflow-hidden">
                 {idx % 2 === 0 ? (
                   <>
@@ -563,25 +607,34 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                             <Image src={item.image || '/image/TOKO TUNAI BGDARK mockup fix.png'} alt={item.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover group-hover:scale-[1.06] transition-transform duration-1000 ease-out" loading="lazy" />
                           </div>
                         ) : (
-                          <div className="w-full h-full overflow-hidden rounded-[1.75rem] relative z-10 [&_[data-rmiz-wrap]]:w-full [&_[data-rmiz-wrap]]:h-full">
+                          <div className="w-full h-full overflow-hidden rounded-[1.75rem] relative z-10 [&_[data-rmiz-wrap]]:w-full [&_[data-rmiz-wrap]]:h-full [&_[data-rmiz-wrap]]:relative">
                             <Zoom zoomMargin={30} wrapElement="div">
-                              <Image src={item.image || '/image/TOKO TUNAI BGDARK mockup fix.png'} alt={item.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover group-hover:scale-[1.06] transition-transform duration-1000 ease-out" loading="lazy" />
+                              <Image src={item.image || '/image/TOKO TUNAI BGDARK mockup fix.png'} alt={item.title} width={800} height={500} className="w-full h-full object-cover group-hover:scale-[1.06] transition-transform duration-1000 ease-out" loading="lazy" />
                             </Zoom>
                           </div>
                         )}
-                        {/* Gradasi dihapus */}
+
+                        {/* Subtle Premium Overlay */}
+                        <div className="absolute inset-x-0 bottom-0 h-3/4 md:h-1/2 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none"></div>
+                        
                         {item.video_url && (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="p-1 bg-black/30 rounded-full group-hover:bg-accent/90 group-hover:scale-110 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] border border-white/20 group-hover:border-accent/50">
-                              <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
-                                <i className="ri-play-fill text-white text-xl ml-0.5 group-hover:text-bg-dark transition-colors duration-500"></i>
+                          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+                            <div className="p-1 bg-black/30 backdrop-blur-md rounded-full group-hover:bg-accent group-hover:scale-110 transition-all duration-500 ease-out border border-white/20 group-hover:border-accent">
+                              <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/10 flex items-center justify-center">
+                                <i className="ri-play-fill text-white text-xl md:text-2xl ml-1 group-hover:text-bg-dark transition-colors duration-500"></i>
                               </div>
                             </div>
                           </div>
                         )}
-                        <div className="absolute bottom-0 left-0 right-0 p-8 translate-y-2 group-hover:translate-y-0 transition-transform duration-700 ease-[cubic-bezier(0.32,0.72,0,1)]">
-                          <h4 className="text-white font-bold text-lg mb-1.5">{item.title}</h4>
-                          <p className="text-gray-300 text-xs leading-relaxed opacity-0 group-hover:opacity-100 transition-opacity duration-700 delay-100 max-w-sm line-clamp-2">{item.desc}</p>
+                        
+                        {/* Expanding Text Content */}
+                        <div className="absolute inset-x-0 bottom-0 p-5 md:p-8 z-20 pointer-events-none flex flex-col justify-end">
+                          <div className="transform translate-y-0 md:translate-y-6 md:group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]">
+                            <h4 className="text-white font-bold text-lg md:text-xl drop-shadow-md">{item.title}</h4>
+                            <div className="grid grid-rows-[1fr] md:grid-rows-[0fr] md:group-hover:grid-rows-[1fr] transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]">
+                              <p className="text-gray-300 text-xs md:text-[13px] leading-relaxed overflow-hidden mt-1.5 md:mt-0 md:group-hover:mt-2 line-clamp-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-500 delay-75">{item.desc}</p>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -594,7 +647,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                       <div className="rounded-[calc(2rem-0.375rem)] overflow-hidden bg-card-bg grid lg:grid-cols-12 shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)]">
                         <div className="lg:col-span-7 relative h-64 lg:h-[420px] overflow-hidden">
                           {spotlight.image ? (
-                            <Image src={spotlight.image} alt={spotlight.title} fill sizes="(max-width: 1024px) 100vw, 58vw" className="object-cover group-hover/card:scale-[1.04] transition-transform duration-1000 ease-out" />
+                            <Image src={spotlight.image} alt={spotlight.title} fill sizes="(max-width: 1024px) 100vw, 58vw" className="object-cover group-hover/card:scale-[1.04] transition-transform duration-1000 ease-out" priority fetchPriority="high" />
                           ) : (
                             <div className={`w-full h-full bg-gradient-to-br ${spotlight.gradient || 'from-neutral-900 to-black'} flex items-center justify-center relative`}>
                               <i className={`${spotlight.icon || 'ri-code-s-slash-line'} text-8xl text-white/15`}></i>
@@ -609,7 +662,18 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                               <span key={tag} className="work-tag px-3 py-1 bg-white/[0.04] border border-white/[0.08] rounded-full text-[10px] text-gray-400 font-semibold uppercase tracking-wider">{tag}</span>
                             ))}
                           </div>
-                          <h3 className="text-2xl lg:text-3xl font-bold mb-4 text-white tracking-tight leading-tight">{spotlight.title}</h3>
+                          <h3 className="text-2xl lg:text-3xl font-bold mb-4 text-white tracking-tight leading-tight">
+                            {spotlight.id ? (
+                              <Link
+                                href={`/projects/${(spotlight.slug || spotlight.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 60))}/${spotlight.id}`}
+                                className="hover:text-accent transition-colors"
+                              >
+                                {spotlight.title}
+                              </Link>
+                            ) : (
+                              spotlight.title
+                            )}
+                          </h3>
                           <p className="text-gray-400 text-sm leading-relaxed mb-8 max-w-md line-clamp-3">{spotlight.desc}</p>
                           <div className="flex flex-wrap gap-3">
                             {spotlight.github_url && (
@@ -629,6 +693,14 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                               <a href={spotlight.play_store_url} target="_blank" rel="noopener noreferrer" className="work-btn-ghost group/btn inline-flex items-center gap-1.5 text-white font-bold text-sm bg-white/[0.06] px-5 py-2.5 rounded-full hover:bg-white/[0.12] border border-white/[0.08]">
                                 <i className="ri-google-play-fill text-base"></i> Play Store
                               </a>
+                            )}
+                            {spotlight.id && (
+                              <Link
+                                href={`/projects/${(spotlight.slug || spotlight.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 60))}/${spotlight.id}`}
+                                className="work-btn-ghost group/btn inline-flex items-center gap-2 text-white font-bold text-sm bg-white/[0.06] px-5 py-2.5 rounded-full hover:bg-white/[0.12] border border-white/[0.08]"
+                              >
+                                <i className="ri-eye-line text-base" /> Details
+                              </Link>
                             )}
                           </div>
                         </div>
@@ -658,7 +730,18 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                                       <span key={tag} className="work-tag px-2.5 py-0.5 bg-white/[0.03] border border-white/[0.06] rounded-full text-[9px] text-gray-500 font-semibold uppercase tracking-wider">{tag}</span>
                                     ))}
                                   </div>
-                                  <h3 className="text-base font-bold mb-2 text-white tracking-tight">{project.title}</h3>
+                                  <h3 className="text-base font-bold mb-2 text-white tracking-tight">
+                                    {project.id ? (
+                                      <Link
+                                        href={`/projects/${(project.slug || project.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 60))}/${project.id}`}
+                                        className="hover:text-accent transition-colors"
+                                      >
+                                        {project.title}
+                                      </Link>
+                                    ) : (
+                                      project.title
+                                    )}
+                                  </h3>
                                   <p className="text-gray-400 text-xs mb-5 flex-1 leading-relaxed line-clamp-2">{project.desc}</p>
                                   <div className="flex flex-wrap gap-2 mt-auto">
                                     {project.github_url && (
@@ -670,6 +753,14 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                                       <a href={project.demo_url} target="_blank" rel="noopener noreferrer" className="group/btn inline-flex items-center gap-2 bg-accent text-white font-semibold text-xs px-4 py-2 rounded-full hover:scale-[1.02]">
                                         <span>Demo</span>
                                       </a>
+                                    )}
+                                    {project.id && (
+                                      <Link
+                                        href={`/projects/${(project.slug || project.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 60))}/${project.id}`}
+                                        className="inline-flex items-center gap-1.5 text-gray-300 font-semibold text-xs bg-white/[0.04] px-4 py-2 rounded-full hover:bg-white/[0.10] hover:text-white border border-white/[0.06]"
+                                      >
+                                        <i className="ri-eye-line text-sm"></i> Details
+                                      </Link>
                                     )}
                                   </div>
                                 </div>
@@ -688,16 +779,19 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
       </div>
 
       {selectedVideo && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 md:p-10">
-          <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" onClick={() => setSelectedVideo(null)}></div>
-          <div className="relative w-full max-w-5xl aspect-video bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl z-[1001]">
-            <button
-              onClick={() => setSelectedVideo(null)}
-              className="absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 md:w-12 md:h-12 bg-black/60 md:bg-white/10 backdrop-blur-md md:hover:bg-red-500 text-white rounded-full flex items-center justify-center z-[1002] transition-all active:scale-90 border border-white/20 md:border-transparent shadow-xl md:shadow-none"
-            >
-              <i className="ri-close-line text-xl md:text-2xl"></i>
-            </button>
-            <iframe src={selectedVideo} className="w-full h-full border-none" allow="autoplay" allowFullScreen></iframe>
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-0 md:p-10">
+          <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" onClick={() => setSelectedVideo(null)} />
+          <button
+            onClick={() => setSelectedVideo(null)}
+            className="fixed top-4 right-4 z-[301] w-12 h-12 md:w-11 md:h-11 bg-black/80 md:bg-white/10 backdrop-blur-md md:hover:bg-red-500 text-white rounded-full flex items-center justify-center border border-white/20 md:border-transparent shadow-xl"
+          >
+            <i className="ri-close-line text-xl md:text-2xl" />
+          </button>
+          <div className="relative w-full h-full md:h-auto md:max-w-5xl md:aspect-video bg-black md:rounded-2xl overflow-hidden border-0 md:border md:border-white/10">
+            <div className="absolute inset-0 flex items-center justify-center z-0">
+              <i className="ri-loader-4-line animate-spin text-3xl text-gray-400" />
+            </div>
+            <iframe src={getEmbedUrl(selectedVideo)} className="relative w-full h-full border-0 z-10" allow="autoplay; fullscreen" allowFullScreen />
           </div>
         </div>
       )}
@@ -760,39 +854,39 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
       </section>
 
       {selectedCert && (
-        <div className="fixed inset-0 z-[1000] flex md:items-center md:justify-center md:p-10">
-          <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" onClick={() => setSelectedCert(null)}></div>
-          <div className="relative z-10 w-full md:max-w-4xl bg-card-bg md:border border-white/10 md:rounded-2xl overflow-y-auto md:max-h-[90vh] grid md:grid-cols-2">
-            <button onClick={() => setSelectedCert(null)} className="fixed md:absolute top-4 right-4 md:top-6 md:right-6 w-10 h-10 md:w-11 md:h-11 bg-black/80 md:bg-white/10 backdrop-blur-md md:hover:bg-red-500 text-white rounded-full flex items-center justify-center z-[1001] transition-all active:scale-90 border border-white/20 md:border-transparent shadow-xl md:shadow-none">
-              <i className="ri-close-line text-xl md:text-2xl"></i>
-            </button>
-            <div className="bg-white/5 flex items-start justify-center overflow-y-auto">
+        <div className="fixed inset-0 z-[400] flex flex-col md:flex md:items-center md:justify-center md:p-10">
+          <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" onClick={() => setSelectedCert(null)} />
+          <button onClick={() => setSelectedCert(null)} className="fixed top-4 right-4 z-[401] w-12 h-12 md:w-11 md:h-11 bg-black/80 md:bg-white/10 backdrop-blur-md md:hover:bg-red-500 text-white rounded-full flex items-center justify-center border border-white/20 md:border-transparent shadow-xl">
+            <i className="ri-close-line text-xl md:text-2xl" />
+          </button>
+          <div className="relative z-10 w-full h-full md:h-auto md:max-w-4xl bg-card-bg overflow-y-auto md:border md:border-white/10 md:rounded-2xl md:max-h-[90vh] grid grid-cols-1 md:grid-cols-2 pt-14 md:pt-0">
+            <div className="bg-white/5 flex items-start justify-center overflow-y-auto min-h-[200px]">
               {selectedCert.verify_url?.endsWith('.pdf') ? (
                 <PdfThumbnail url={selectedCert.verify_url} width={900} />
               ) : (
                 <div className="w-full aspect-[1/1.414] bg-gradient-to-br from-primary/40 to-accent/30 flex items-center justify-center">
-                  <i className="ri-award-fill text-8xl text-white/40"></i>
+                  <i className="ri-award-fill text-8xl text-white/40" />
                 </div>
               )}
             </div>
             <div className="p-6 flex flex-col">
-              <h4 className="font-bold text-xl text-white mb-4 pr-10">{selectedCert.title}</h4>
+              <h4 className="font-bold text-xl text-white mb-4">{selectedCert.title}</h4>
               <dl className="space-y-3 text-sm flex-1">
                 <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Penerbit</dt><dd className="text-white">{selectedCert.issuer}</dd></div>
                 {selectedCert.credential_id && <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Credential ID</dt><dd className="text-white break-all">{selectedCert.credential_id}</dd></div>}
-                {selectedCert.credential_url && <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Credential Link</dt><dd><a href={selectedCert.credential_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:text-white transition-colors break-all">{selectedCert.credential_url} <i className="ri-external-link-line text-xs"></i></a></dd></div>}
+                {selectedCert.credential_url && <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Credential Link</dt><dd><a href={selectedCert.credential_url} target="_blank" rel="noopener noreferrer" className="text-accent hover:text-white transition-colors break-all">{selectedCert.credential_url} <i className="ri-external-link-line text-xs" /></a></dd></div>}
                 {selectedCert.issue_date && <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Tanggal Terbit</dt><dd className="text-white">{selectedCert.issue_date}</dd></div>}
                 {selectedCert.description && <div><dt className="text-gray-500 text-xs uppercase tracking-widest">Deskripsi</dt><dd className="text-gray-300 leading-relaxed">{selectedCert.description}</dd></div>}
               </dl>
               <div className="flex flex-wrap gap-3 mt-6">
                 {selectedCert.verify_url && (
                   <a href={selectedCert.verify_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-bold text-white bg-accent px-5 py-2.5 rounded-xl hover:scale-105 transition-transform">
-                    View PDF <i className="ri-file-pdf-2-line"></i>
+                    View PDF <i className="ri-file-pdf-2-line" />
                   </a>
                 )}
                 {selectedCert.credential_url && (
                   <a href={selectedCert.credential_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-bold text-white bg-accent/80 px-5 py-2.5 rounded-xl hover:scale-105 transition-transform">
-                    Verify Credential <i className="ri-external-link-line"></i>
+                    Verify Credential <i className="ri-external-link-line" />
                   </a>
                 )}
               </div>
@@ -828,11 +922,18 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
       </footer>
 
       {isCvModalOpen && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 md:p-10">
-          <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={() => setIsCvModalOpen(false)}></div>
-          <div className="relative bg-card-bg border border-white/10 p-8 rounded-2xl max-w-sm w-full text-center shadow-[0_0_50px_rgba(0,0,0,0.8)] z-10 scale-in-center">
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 md:p-10">
+          <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={() => setIsCvModalOpen(false)} />
+          <button
+            onClick={() => setIsCvModalOpen(false)}
+            className="fixed top-4 right-4 z-[501] w-12 h-12 bg-black/80 md:bg-white/10 backdrop-blur-md md:hover:bg-red-500 text-white rounded-full flex items-center justify-center border border-white/20 md:border-transparent shadow-xl"
+            aria-label="Close CV modal"
+          >
+            <i className="ri-close-line text-xl md:text-2xl" />
+          </button>
+          <div className="relative bg-card-bg border border-white/10 p-8 md:p-10 rounded-2xl w-full max-w-md mx-4 md:mx-0 text-center shadow-[0_0_50px_rgba(0,0,0,0.8)] z-10 scale-in-center">
             <div className="w-16 h-16 bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-6">
-              <i className="ri-file-user-line text-accent text-3xl"></i>
+              <i className="ri-file-user-line text-accent text-3xl" />
             </div>
             <h3 className="text-2xl font-bold text-white mb-2">Resume</h3>
             <p className="text-gray-400 text-sm mb-8 leading-relaxed">Curriculum Vitae Galang Arrauf Pramudito dalam format PDF.</p>
@@ -840,18 +941,18 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
               <button
                 onClick={() => {
                   setIsCvModalOpen(false);
-                  setIsPreviewModalOpen(true);
+                  setTimeout(() => setIsPreviewModalOpen(true), 100);
                 }}
                 className="w-full py-4 bg-accent text-bg-dark font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-transform text-xs inline-flex items-center justify-center gap-2"
               >
-                <i className="ri-eye-line text-base"></i>
+                <i className="ri-eye-line text-base" />
                 Preview CV
               </button>
               <a href={initialProfile?.cv_url || "/api/cv"} target="_blank" rel="noopener noreferrer" className="w-full py-4 border border-white/20 text-white font-bold uppercase tracking-widest rounded-xl hover:bg-white/5 transition-colors text-xs inline-flex items-center justify-center gap-2">
-                <i className="ri-download-line text-base"></i>
+                <i className="ri-download-line text-base" />
                 Download CV
               </a>
-              <button onClick={() => setIsCvModalOpen(false)} className="mt-3 text-gray-500 text-xs font-bold uppercase tracking-widest hover:text-white transition-colors">
+              <button onClick={() => setIsCvModalOpen(false)} className="mt-3 text-gray-500 text-xs font-bold uppercase tracking-widest hover:text-white transition-colors py-2">
                 Tutup
               </button>
             </div>
@@ -860,16 +961,52 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
       )}
 
       {isPreviewModalOpen && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" onClick={() => setIsPreviewModalOpen(false)}></div>
-          <div className="relative w-full max-w-4xl h-[90vh] bg-card-bg border border-white/10 rounded-2xl overflow-hidden flex flex-col scale-in-center">
-            <div className="p-4 border-b border-white/10 flex justify-between items-center bg-black/50">
-              <h3 className="text-white font-bold">CV - Galang Arrauf Pramudito</h3>
-              <button onClick={() => setIsPreviewModalOpen(false)} className="w-10 h-10 md:w-11 md:h-11 bg-black/60 md:bg-white/10 border border-white/20 md:border-transparent md:hover:bg-red-500 text-white rounded-full flex items-center justify-center transition-all active:scale-90">
-                <i className="ri-close-line text-xl md:text-2xl"></i>
-              </button>
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-0 md:p-6">
+          <div className="absolute inset-0 bg-black/95 backdrop-blur-xl" onClick={() => setIsPreviewModalOpen(false)} />
+          <button
+            onClick={() => setIsPreviewModalOpen(false)}
+            className="fixed top-4 right-4 z-[501] w-12 h-12 bg-black/80 md:bg-white/10 backdrop-blur-md md:hover:bg-red-500 text-white rounded-full flex items-center justify-center border border-white/20 md:border-transparent shadow-xl"
+            aria-label="Close preview"
+          >
+            <i className="ri-close-line text-xl md:text-2xl" />
+          </button>
+          <div className="relative z-10 w-full max-w-5xl h-full md:aspect-[4/3] md:max-h-[85vh] bg-card-bg md:border md:border-white/10 md:rounded-2xl overflow-hidden flex flex-col scale-in-center pt-14 md:pt-0">
+            <div className="p-3 md:p-4 border-b border-white/10 flex items-center bg-black/50 shrink-0">
+              <h3 className="text-white font-bold text-sm md:text-base truncate">CV - Galang Arrauf Pramudito</h3>
+              <a
+                href={initialProfile?.cv_url || "/cv-galang.pdf"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-auto text-accent text-xs font-bold uppercase tracking-widest hover:text-white transition-colors md:hidden"
+              >
+                Buka
+              </a>
             </div>
-            <iframe src={initialProfile?.cv_url || "/cv-galang.pdf"} className="w-full flex-1 border-0"></iframe>
+            <div className="flex-1 relative min-h-[300px] bg-white/5">
+              <iframe
+                src={initialProfile?.cv_url || "/cv-galang.pdf"}
+                className="w-full h-full border-0 hidden md:block"
+                title="CV Preview"
+              />
+              <div className="absolute inset-0 flex items-center justify-center p-6 md:hidden">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i className="ri-file-pdf-2-line text-accent text-3xl" />
+                  </div>
+                  <h4 className="text-white font-bold mb-2">CV Galang Arrauf</h4>
+                  <p className="text-gray-400 text-sm mb-6">Buka PDF di tab baru untuk melihat CV</p>
+                  <a
+                    href={initialProfile?.cv_url || "/cv-galang.pdf"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-accent text-white font-bold rounded-xl hover:scale-105 transition-transform"
+                  >
+                    <i className="ri-external-link-line" />
+                    Buka PDF
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
