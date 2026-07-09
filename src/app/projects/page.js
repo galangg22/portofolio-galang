@@ -1,404 +1,69 @@
-"use client";
+import { createClient } from "@supabase/supabase-js";
+import { normalizeProjectType, generateSlug } from "@/lib/project-utils";
+import ProjectsClient from "./ProjectsClient";
 
-import { useState, useEffect, Suspense } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { supabase } from "@/lib/supabase";
-import {
-  getTypeConfig,
-  getEmbedUrl,
-  normalizeProjectType,
-  STATUS_BADGE,
-} from "@/lib/project-utils";
+export const metadata = {
+  title: "Projects",
+  description: "Daftar proyek dan portofolio yang pernah dikerjakan oleh Galang Arrauf Pramudito, meliputi website, API, dan integrasi AI.",
+  alternates: {
+    canonical: '/projects',
+  },
+  openGraph: {
+    title: "Projects — Galang Arrauf Pramudito",
+    description: "Daftar proyek dan portofolio yang pernah dikerjakan oleh Galang Arrauf Pramudito, meliputi website, API, dan integrasi AI.",
+    url: '/projects',
+  },
+};
 
-function GenerateSlug(title) {
-  const base = title
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 60);
-  return base;
-}
+export const revalidate = 3600;
 
-function ProjectsPageContent() {
-  const [projects, setProjects] = useState([]);
-  const [filter, setFilter] = useState("all");
-  const [selectedVideo, setSelectedVideo] = useState(null);
-  const [videoLoading, setVideoLoading] = useState(false);
-  const [loading, setLoading] = useState(true);
+async function getProjects() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  const searchParams = useSearchParams();
-  const typeParam = searchParams.get("type") || searchParams.get("category");
+  if (!url || !key) return [];
 
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      const { data: projectsData } = await supabase
-        .from("projects")
-        .select("*, project_types(id, name, slug)")
-        .neq("status", "private")
-        .order("featured", { ascending: false })
-        .order("sort_order")
-        .order("created_at", { ascending: false });
+  const supabase = createClient(url, key);
 
-      if (projectsData) {
-        const { data: imagesData } = await supabase
-          .from("project_images")
-          .select("*")
-          .order("sort_order");
+  const { data: projectsData } = await supabase
+    .from("projects")
+    .select("*, project_types(id, name, slug)")
+    .neq("status", "private")
+    .order("featured", { ascending: false })
+    .order("sort_order")
+    .order("created_at", { ascending: false });
 
-        const processed = projectsData.map((p) => {
-          const projectType = normalizeProjectType(
-            p.project_types?.slug || p.project_type || p.type
-          );
-          const slug = p.slug || GenerateSlug(p.title);
+  if (!projectsData) return [];
 
-          return {
-            id: p.id,
-            slug,
-            title: p.title,
-            description: p.description,
-            project_type: projectType,
-            tags: (p.tags || []).filter(
-              (t) => !["web", "bot", "android"].includes(t.toLowerCase())
-            ),
-            thumbnail_url: p.thumbnail_url,
-            status: p.status,
-            github_url: p.github_url,
-            demo_url: p.demo_url,
-            play_store_url: p.play_store_url,
-            apk_url: p.apk_url,
-            video_url: p.video_url,
-            featured: p.featured,
-            images: imagesData
-              ? imagesData.filter((img) => img.project_id === p.id)
-              : [],
-          };
-        });
+  return projectsData.map((p) => {
+    const projectType = normalizeProjectType(
+      p.project_types?.slug || p.project_type || p.type
+    );
+    const slug = p.slug || generateSlug(p.title);
 
-        setProjects(processed);
-      }
-      setLoading(false);
-    })();
-  }, []);
-
-  useEffect(() => {
-    if (typeParam) {
-      setFilter(normalizeProjectType(typeParam));
-    }
-  }, [typeParam]);
-
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === "Escape") {
-        setSelectedVideo(null);
-      }
+    return {
+      id: p.id,
+      slug,
+      title: p.title,
+      description: p.description,
+      project_type: projectType,
+      tags: (p.tags || []).filter(
+        (t) => !["web", "bot", "android"].includes(t.toLowerCase())
+      ),
+      thumbnail_url: p.thumbnail_url,
+      status: p.status,
+      github_url: p.github_url,
+      demo_url: p.demo_url,
+      play_store_url: p.play_store_url,
+      apk_url: p.apk_url,
+      video_url: p.video_url,
+      featured: p.featured,
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
-
-  const availableTypes = [
-    ...new Set(projects.map((p) => p.project_type || "website")),
-  ];
-
-  const filterTabs = [
-    { key: "all", label: "Semua Project", icon: "ri-apps-line" },
-    ...availableTypes.map((t) => {
-      const config = getTypeConfig(t);
-      return { key: t, label: config.label, icon: config.icon };
-    }),
-  ];
-
-  const filtered =
-    filter === "all"
-      ? projects
-      : projects.filter(
-          (p) =>
-            (p.project_type || "website").toLowerCase() === filter
-        );
-
-  return (
-    <main className="min-h-[100dvh] bg-bg-dark p-4 sm:p-8 md:p-16 relative overflow-x-hidden">
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-10">
-        <div className="absolute left-[-20%] top-[-10%] w-[60%] h-[40%] bg-accent blur-[120px] rounded-full" />
-        <div className="absolute right-[-20%] bottom-[-10%] w-[60%] h-[40%] bg-primary blur-[120px] rounded-full" />
-      </div>
-
-      <div className="max-w-6xl mx-auto mb-8 md:mb-16 relative z-10 pt-4 md:pt-0">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-3 text-accent font-bold uppercase text-[10px] tracking-[0.2em] mb-8 md:mb-12 hover:text-white transition-colors group"
-        >
-          <div className="w-8 h-8 rounded-full border border-accent flex items-center justify-center group-hover:bg-accent group-hover:text-bg-dark transition-all">
-            <i className="ri-arrow-left-line" />
-          </div>
-          Back to Home
-        </Link>
-        <h1 className="font-display text-4xl md:text-6xl font-normal mb-3 md:mb-4 tracking-tight leading-tight text-white">
-          Galang Arrauf Pramudito{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
-            Portfolio
-          </span>
-        </h1>
-        <p className="text-gray-400 max-w-xl text-sm md:text-base font-light leading-relaxed">
-          Katalog lengkap project buatan Galang Arrauf Pramudito — dari aplikasi web, desain UI/UX, hingga kreasi video. Gunakan filter
-          di bawah untuk menelusuri kategori.
-        </p>
-      </div>
-
-      <div className="max-w-6xl mx-auto flex gap-2 md:gap-3 mb-10 md:mb-12 overflow-x-auto pb-4 relative z-10 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-        {filterTabs.map((f) => (
-          <button
-            key={f.key}
-            onClick={() => setFilter(f.key)}
-            className={`shrink-0 px-5 md:px-6 py-2.5 rounded-full border text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${
-              filter === f.key
-                ? "bg-accent text-bg-dark border-accent"
-                : "border-white/10 text-gray-500 hover:border-white/30 hover:text-white bg-white/5"
-            }`}
-          >
-            <i className={f.icon} /> {f.label}
-            <span className="ml-1 text-[10px] opacity-60">
-              ({f.key === "all" ? projects.length : projects.filter((p) => (p.project_type || "website").toLowerCase() === f.key).length})
-            </span>
-          </button>
-        ))}
-      </div>
-
-      <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
-        {loading ? (
-          Array.from({ length: 6 }).map((_, idx) => (
-            <div
-              key={idx}
-              className="bg-card-bg border border-white/10 rounded-2xl overflow-hidden flex flex-col animate-pulse"
-            >
-              <div className="relative w-full aspect-video bg-white/5" />
-              <div className="p-5 flex flex-col flex-1 space-y-3">
-                <div className="h-6 bg-white/10 rounded-md w-3/4" />
-                <div className="flex gap-1.5 flex-wrap">
-                  <div className="h-4 bg-white/5 rounded-md w-12" />
-                  <div className="h-4 bg-white/5 rounded-md w-16" />
-                </div>
-                <div className="h-4 bg-white/5 rounded-md w-full" />
-                <div className="h-4 bg-white/5 rounded-md w-5/6" />
-                <div className="h-10 bg-white/5 border border-white/10 rounded-xl w-1/3 mt-auto" />
-              </div>
-            </div>
-          ))
-        ) : (
-          filtered.map((project, idx) => {
-            const typeInfo = getTypeConfig(project.project_type);
-            const statusInfo = STATUS_BADGE[project.status] || "";
-            const isVideo = ["video-editing", "video"].includes(
-              project.project_type?.toLowerCase() || ""
-            );
-            const detailUrl = `/projects/${project.slug || GenerateSlug(project.title)}/${project.id}`;
-
-            return (
-              <div key={project.id} className="group bg-card-bg border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all flex flex-col">
-                <Link href={detailUrl} className="relative w-full aspect-video bg-black overflow-hidden block">
-                  {project.thumbnail_url ? (
-                    <Image
-                      src={project.thumbnail_url}
-                      alt={project.title}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
-                      priority={idx < 3}
-                    />
-                  ) : (
-                    <div
-                      className={`w-full h-full bg-gradient-to-br ${typeInfo.gradient} flex items-center justify-center`}
-                    >
-                      <i className={`${typeInfo.icon} text-5xl text-white/20`} />
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-
-                  {isVideo && (
-                    <div
-                      className="absolute inset-0 flex items-center justify-center"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (project.video_url) {
-                          setVideoLoading(true);
-                          setSelectedVideo(project.video_url);
-                        }
-                      }}
-                    >
-                      <div className="p-1 bg-black/40 rounded-full group-hover:bg-accent/90 group-hover:scale-110 transition-all duration-300 border border-white/10">
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center">
-                          <i className="ri-play-fill text-white text-lg ml-0.5 group-hover:text-bg-dark transition-colors" />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="absolute top-3 left-3 flex flex-wrap items-center gap-1.5 max-w-[80%]">
-                    <span
-                      className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase border flex items-center gap-1.5 backdrop-blur-md ${typeInfo.color}`}
-                    >
-                      <i className={typeInfo.icon} /> {typeInfo.label}
-                    </span>
-                    {project.status === "wip" && (
-                      <span
-                        className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase border ${statusInfo}`}
-                      >
-                        WIP
-                      </span>
-                    )}
-                  </div>
-                </Link>
-
-                <div className="p-5 flex flex-col flex-1">
-                  <Link href={detailUrl}>
-                    <h3 className="font-bold text-base md:text-lg text-white mb-2 hover:text-accent transition-colors">
-                      {project.title}
-                    </h3>
-                  </Link>
-                  {project.tags && project.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mb-3">
-                      {project.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-2 py-0.5 bg-white/5 border border-white/10 rounded-md text-[9px] font-bold text-gray-400 uppercase"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  <p className="text-gray-400 text-sm leading-relaxed mb-4 flex-1 line-clamp-3">
-                    {project.description}
-                  </p>
-
-                  <div className="flex flex-wrap gap-2 mt-auto">
-                    {project.github_url && (
-                      <a
-                        href={project.github_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/5 border border-white/10 px-4 py-2 rounded-xl hover:border-accent/40 transition-colors"
-                      >
-                        <i className="ri-github-fill" /> GitHub
-                      </a>
-                    )}
-                    {project.demo_url && (
-                      <a
-                        href={project.demo_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-sm font-bold text-bg-dark bg-accent px-4 py-2 rounded-xl hover:scale-105 transition-transform"
-                      >
-                        <i className="ri-external-link-line" /> Demo
-                      </a>
-                    )}
-                    {project.play_store_url && (
-                      <a
-                        href={project.play_store_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/5 border border-white/10 px-4 py-2 rounded-xl hover:border-accent/40 transition-colors"
-                      >
-                        <i className="ri-google-play-fill" /> Play Store
-                      </a>
-                    )}
-                    {project.apk_url && (
-                      <a
-                        href={project.apk_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/5 border border-white/10 px-4 py-2 rounded-xl hover:border-accent/40 transition-colors"
-                      >
-                        <i className="ri-download-line" /> APK
-                      </a>
-                    )}
-                    {isVideo && project.video_url && (
-                      <button
-                        onClick={() => {
-                          setVideoLoading(true);
-                          setSelectedVideo(project.video_url);
-                        }}
-                        className="inline-flex items-center gap-2 text-sm font-bold text-white bg-accent/20 border border-accent/35 px-4 py-2 rounded-xl hover:bg-accent hover:text-bg-dark transition-colors"
-                      >
-                        <i className="ri-play-circle-line" /> Play Video
-                      </button>
-                    )}
-                    <Link
-                      href={detailUrl}
-                      className="inline-flex items-center gap-2 text-sm font-bold text-white bg-white/5 border border-white/10 px-4 py-2 rounded-xl hover:border-accent/40 hover:text-accent transition-colors"
-                    >
-                      <i className="ri-eye-line" /> Details
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            );
-          })
-        )}
-        {!loading && !filtered.length && (
-          <p className="text-gray-500 text-sm col-span-full text-center py-12">
-            Tidak ada project untuk kategori ini.
-          </p>
-        )}
-      </div>
-
-      {selectedVideo && (
-        <div className="fixed inset-0 z-[300] flex items-center justify-center p-0 md:p-10">
-          <div
-            className="absolute inset-0 bg-black/95 backdrop-blur-xl"
-            onClick={() => {
-              setSelectedVideo(null);
-              setVideoLoading(false);
-            }}
-          />
-          <button
-            onClick={() => {
-              setSelectedVideo(null);
-              setVideoLoading(false);
-            }}
-            className="fixed top-4 right-4 z-[301] w-12 h-12 md:w-11 md:h-11 bg-black/80 md:bg-white/10 backdrop-blur-md md:hover:bg-red-500 text-white rounded-full flex items-center justify-center border border-white/20 md:border-transparent shadow-xl"
-          >
-            <i className="ri-close-line text-xl md:text-2xl" />
-          </button>
-          <div className="relative w-full h-full md:h-auto md:max-w-5xl md:aspect-video bg-black md:rounded-2xl overflow-hidden border-0 md:border md:border-white/10">
-            {videoLoading && (
-              <div className="absolute inset-0 flex items-center justify-center z-0">
-                <i className="ri-loader-4-line animate-spin text-3xl text-gray-400" />
-              </div>
-            )}
-            <iframe
-              src={getEmbedUrl(selectedVideo)}
-              className={`relative w-full h-full border-0 transition-opacity duration-300 ${videoLoading ? "opacity-0" : "opacity-100 z-10"}`}
-              allow="autoplay; fullscreen"
-              allowFullScreen
-              onLoad={() => setVideoLoading(false)}
-            />
-          </div>
-        </div>
-      )}
-
-      <footer className="mt-20 md:mt-32 pb-8 md:pb-16 text-center border-t border-white/5 pt-8 md:pt-10">
-        <p className="text-gray-600 text-[10px] md:text-[11px] font-bold uppercase tracking-[0.4em]">
-          Galang Arrauf Pramudito • Portfolio 2026
-        </p>
-      </footer>
-    </main>
-  );
+  });
 }
 
-export default function ProjectsPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-bg-dark flex items-center justify-center">
-        <i className="ri-loader-4-line animate-spin text-3xl text-gray-400"></i>
-      </div>
-    }>
-      <ProjectsPageContent />
-    </Suspense>
-  );
+export default async function ProjectsPage() {
+  const projects = await getProjects();
+
+  return <ProjectsClient initialProjects={projects} />;
 }

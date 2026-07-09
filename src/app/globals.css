@@ -51,8 +51,6 @@ html.light .bg-white\/10 { background-color: rgba(0, 0, 0, 0.08) !important; }
 html.light .bg-white\/20 { background-color: rgba(0, 0, 0, 0.12) !important; }
 html.light .bg-black\/70 { background-color: rgba(0, 0, 0, 0.08) !important; }
 
-html.light .bg-\[\#1e293b\] { filter: invert(1); }
-
 /* ── Border utilities ──────────────────────────────────────── */
 html.light .border-white\/5  { border-color: rgba(0, 0, 0, 0.06) !important; }
 html.light .border-white\/10 { border-color: rgba(0, 0, 0, 0.10) !important; }
@@ -325,26 +323,26 @@ html.light footer a.hover\:text-white:hover {
 }
 
 /* ── /projects page ─────────────────────────── */
-html.light .min-h-screen.bg-bg-dark h1,
-html.light .min-h-screen.bg-bg-dark p.text-gray-400 { color: #1e293b !important; }
+html.light .bg-bg-dark:is(.min-h-screen, .min-h-\[100dvh\]) h1,
+html.light .bg-bg-dark:is(.min-h-screen, .min-h-\[100dvh\]) p.text-gray-400 { color: #1e293b !important; }
 
-html.light .min-h-screen.bg-bg-dark .group h3 { color: #1e293b !important; }
-html.light .min-h-screen.bg-bg-dark .group p.text-gray-400 { color: #475569 !important; }
-html.light .min-h-screen.bg-bg-dark .group span.text-gray-400 { color: #64748b !important; }
+html.light .bg-bg-dark:is(.min-h-screen, .min-h-\[100dvh\]) .group h3 { color: #1e293b !important; }
+html.light .bg-bg-dark:is(.min-h-screen, .min-h-\[100dvh\]) .group p.text-gray-400 { color: #475569 !important; }
+html.light .bg-bg-dark:is(.min-h-screen, .min-h-\[100dvh\]) .group span.text-gray-400 { color: #64748b !important; }
 
-html.light .min-h-screen.bg-bg-dark .bg-card-bg {
+html.light .bg-bg-dark:is(.min-h-screen, .min-h-\[100dvh\]) .bg-card-bg {
   background-color: #ffffff !important;
   border-color: rgba(0, 0, 0, 0.1) !important;
 }
 
-html.light .min-h-screen.bg-bg-dark button:not(.bg-accent) {
+html.light .bg-bg-dark:is(.min-h-screen, .min-h-\[100dvh\]) button:not(.bg-accent) {
   border-color: rgba(0, 0, 0, 0.15) !important;
   color: #64748b !important;
   background-color: rgba(0, 0, 0, 0.04) !important;
 }
 
-html.light .min-h-screen.bg-bg-dark a.text-accent { color: #4f46e5 !important; }
-html.light .min-h-screen.bg-bg-dark footer p { color: #94a3b8 !important; }
+html.light .bg-bg-dark:is(.min-h-screen, .min-h-\[100dvh\]) a.text-accent { color: #4f46e5 !important; }
+html.light .bg-bg-dark:is(.min-h-screen, .min-h-\[100dvh\]) footer p { color: #94a3b8 !important; }
 
 /* ── Empty states ────────────────────────── */
 html.light #projects p.text-center.text-gray-500,

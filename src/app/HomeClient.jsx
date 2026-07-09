@@ -8,6 +8,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import dynamic from "next/dynamic";
 import LazyRender from "@/app/components/LazyRender";
 import { DarkModeToggle } from "@/app/components/DarkModeToggle";
+import { FixedLogo } from "@/app/components/FixedLogo";
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
 
@@ -355,13 +356,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
       {/* ✅ PERF: Entrance animation removed for better LCP */}
 
       {/* Fixed Logo */}
-      <Link href="/" aria-label="Home" className="fixed top-5 left-5 md:top-8 md:left-8 z-[100] hover:scale-110 active:scale-95 transition-transform duration-300 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
-        <div 
-          className="w-9 h-9 md:w-11 md:h-11 bg-[#1e293b] dark:bg-white transition-colors duration-300" 
-          style={{ WebkitMaskImage: "url('/logo-dark.svg')", maskImage: "url('/logo-dark.svg')", WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", WebkitMaskPosition: "center", maskPosition: "center" }} 
-          aria-label="Logo"
-        />
-      </Link>
+      <FixedLogo />
 
       <DynamicIsland activeSection={activeSection} />
       <DarkModeToggle />

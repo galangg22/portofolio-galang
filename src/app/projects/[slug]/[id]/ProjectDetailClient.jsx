@@ -4,6 +4,9 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { getTypeConfig, getEmbedUrl } from "@/lib/project-utils";
+import { FixedLogo } from "@/app/components/FixedLogo";
+import { BackButton } from "@/app/components/BackButton";
+import { DarkModeToggle } from "@/app/components/DarkModeToggle";
 
 function ScreenshotLightbox({ images, initialIndex, title, onClose }) {
   const [index, setIndex] = useState(initialIndex);
@@ -159,21 +162,15 @@ export default function ProjectDetailClient({ project }) {
 
   return (
     <main className="min-h-[100dvh] bg-bg-dark text-white relative overflow-x-hidden">
+      <FixedLogo />
+      <DarkModeToggle />
       <div className="fixed inset-0 z-0 pointer-events-none opacity-10">
         <div className="absolute left-[-20%] top-[-10%] w-[60%] h-[40%] bg-accent blur-[120px] rounded-full" />
         <div className="absolute right-[-20%] bottom-[-10%] w-[60%] h-[40%] bg-primary blur-[120px] rounded-full" />
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-8 md:px-16 pt-4 md:pt-8 pb-16">
-        <Link
-          href="/projects"
-          className="inline-flex items-center gap-3 text-accent font-bold uppercase text-[10px] tracking-[0.2em] mb-6 md:mb-8 hover:text-white transition-colors group"
-        >
-          <div className="w-8 h-8 rounded-full border border-accent flex items-center justify-center group-hover:bg-accent group-hover:text-bg-dark transition-all">
-            <i className="ri-arrow-left-line" />
-          </div>
-          Back to Projects
-        </Link>
+        <BackButton href="/projects" label="Back to Projects" />
 
         <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border border-white/10 mb-8">
           {project.image ? (

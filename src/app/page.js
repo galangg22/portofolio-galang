@@ -94,9 +94,17 @@ export async function generateMetadata() {
   const topProjectsStr = data.projects ? data.projects.slice(0, 3).map(p => p.title).join(', ') : '';
   
   return {
-    title: 'Galang Arrauf — Web Developer',
+    title: 'Galang Arrauf Pramudito — Web Developer',
     description: `Portfolio Galang Arrauf Pramudito — Web Developer. Categories: ${projectTypesStr}. Featured projects: ${topProjectsStr}. Open to internship & freelance.`,
     keywords: `web developer, laravel, php, postgresql, ai integration, ${projectTypesStr}`,
+    alternates: {
+      canonical: '/',
+    },
+    openGraph: {
+      title: 'Galang Arrauf Pramudito — Web Developer',
+      description: `Portfolio Galang Arrauf Pramudito — Web Developer. Categories: ${projectTypesStr}. Featured projects: ${topProjectsStr}. Open to internship & freelance.`,
+      url: '/',
+    }
   };
 }
 

@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import PdfThumbnail from "@/app/components/PdfThumbnail";
+import { FixedLogo } from "@/app/components/FixedLogo";
+import { BackButton } from "@/app/components/BackButton";
+import { DarkModeToggle } from "@/app/components/DarkModeToggle";
 
 export default function CertificatesClient({ certs: initialCerts }) {
   const [certs] = useState(initialCerts);
@@ -29,27 +31,15 @@ export default function CertificatesClient({ certs: initialCerts }) {
 
   return (
     <main className="min-h-[100dvh] bg-bg-dark text-white p-4 sm:p-8 md:p-16 relative overflow-x-hidden">
-      {/* Fixed Logo */}
-      <Link href="/" aria-label="Home" className="fixed top-5 left-5 md:top-8 md:left-8 z-[100] hover:scale-110 active:scale-95 transition-transform duration-300 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] hidden md:block">
-        <div 
-          className="w-9 h-9 md:w-11 md:h-11 bg-[#1e293b] dark:bg-white transition-colors duration-300" 
-          style={{ WebkitMaskImage: "url('/logo-dark.svg')", maskImage: "url('/logo-dark.svg')", WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", WebkitMaskPosition: "center", maskPosition: "center" }} 
-          aria-label="Logo"
-        />
-      </Link>
-
+      <FixedLogo />
+      <DarkModeToggle />
       <div className="fixed inset-0 z-0 pointer-events-none opacity-10">
         <div className="absolute left-[-20%] top-[-10%] w-[60%] h-[40%] bg-accent blur-[120px] rounded-full"></div>
         <div className="absolute right-[-20%] bottom-[-10%] w-[60%] h-[40%] bg-primary blur-[120px] rounded-full"></div>
       </div>
 
       <div className="max-w-5xl mx-auto mb-8 md:mb-16 relative z-10 pt-4 md:pt-0">
-        <Link href="/" className="inline-flex items-center gap-3 text-accent font-bold uppercase text-[10px] tracking-[0.2em] mb-8 md:mb-12 hover:text-black dark:hover:text-white transition-colors group">
-          <div className="w-8 h-8 rounded-full border border-accent flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-all">
-            <i className="ri-arrow-left-line"></i>
-          </div>
-          Back to Home
-        </Link>
+        <BackButton href="/" label="Back to Home" />
         <h1 className="font-display text-4xl md:text-6xl font-normal mb-3 md:mb-4 tracking-tight leading-tight">Certificates</h1>
         <p className="text-gray-400 max-w-xl text-sm md:text-base font-light leading-relaxed">
           Sertifikat dan pencapaian dari berbagai program, pelatihan, dan kompetisi.

@@ -2,14 +2,17 @@ import { createClient } from "@supabase/supabase-js";
 import CertificatesClient from "./CertificatesClient";
 
 export const metadata = {
-  title: "Certificates — Galang Arrauf Pramudito",
+  title: "Certificates",
   description:
     "Sertifikat dan pencapaian dari berbagai program, pelatihan, dan kompetisi oleh Galang Arrauf Pramudito.",
+  alternates: {
+    canonical: '/certificates',
+  },
   openGraph: {
     title: "Certificates — Galang Arrauf Pramudito",
     description:
       "Koleksi sertifikat dan pencapaian dari berbagai program, pelatihan, dan kompetisi.",
-    url: "https://galangpramudito.web.id/certificates",
+    url: "/certificates",
     type: "website",
   },
 };

@@ -29,22 +29,32 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata = {
-  title: "Galang Arrauf — Web Developer · Open to Internship/Freelance",
+  metadataBase: new URL("https://galangpramudito.web.id"),
+  title: {
+    default: "Galang Arrauf Pramudito — Web Developer",
+    template: "%s — Galang Arrauf Pramudito",
+  },
   description:
     "Portfolio Galang Arrauf Pramudito — Web Developer (Laravel, PHP, PostgreSQL). AI Integration & Automation. Open to internship & freelance.",
   keywords:
     "web developer, laravel, php, postgresql, ai integration, automation, backend developer, portfolio, galang arrauf, pens, internship, freelance",
   authors: [{ name: "Galang Arrauf Pramudito" }],
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
-    title: "Galang Arrauf — Web Developer · Open to Internship/Freelance",
+    title: {
+      default: "Galang Arrauf Pramudito — Web Developer",
+      template: "%s — Galang Arrauf Pramudito",
+    },
     description:
       "Portfolio Galang Arrauf Pramudito — Web Developer specializing in Laravel & PHP with AI Integration. Open to internship & freelance opportunities.",
-    url: "https://galangpramudito.web.id",
+    url: "/",
     type: "website",
     siteName: "Galang Arrauf Pramudito Portfolio",
     images: [
       {
-        url: "https://galangpramudito.web.id/og-image.jpg",
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Galang Arrauf Portfolio Preview",
@@ -53,9 +63,9 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Galang Arrauf — Full-Stack Dev (Laravel + Next.js)",
+    title: "Galang Arrauf Pramudito — Full-Stack Dev (Laravel + Next.js)",
     description: "Portfolio Galang Arrauf Pramudito — Open to internship & freelance",
-    images: ["https://galangpramudito.web.id/og-image.jpg"],
+    images: ["/og-image.jpg"],
   },
 };
 
@@ -78,21 +88,9 @@ export default function RootLayout({ children }) {
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         {/* Remixicon Icon Library */}
         <link
-          rel="preload"
+          rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.1.0/remixicon.min.css"
-          as="style"
           fetchPriority="low"
-        />
-        <script
-          type="text/javascript"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                var p = document.querySelector('link[href*="remixicon"]');
-                if (p) p.onload = function() { this.rel = 'stylesheet'; };
-              })();
-            `
-          }}
         />
         {/* ✅ PERF: Preconnect ke Supabase storage untuk mempercepat image loading */}
         <link rel="preconnect" href="https://pnaimynitzvxylloknvp.supabase.co" />
