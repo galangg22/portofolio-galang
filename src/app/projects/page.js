@@ -139,13 +139,13 @@ function ProjectsPageContent() {
           Back to Home
         </Link>
         <h1 className="font-display text-4xl md:text-6xl font-normal mb-3 md:mb-4 tracking-tight leading-tight text-white">
-          My{" "}
+          Galang Arrauf Pramudito{" "}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
             Portfolio
           </span>
         </h1>
         <p className="text-gray-400 max-w-xl text-sm md:text-base font-light leading-relaxed">
-          Katalog lengkap project, desain UI/UX, dan kreasi video. Gunakan filter
+          Katalog lengkap project buatan Galang Arrauf Pramudito — dari aplikasi web, desain UI/UX, hingga kreasi video. Gunakan filter
           di bawah untuk menelusuri kategori.
         </p>
       </div>

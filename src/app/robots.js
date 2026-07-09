@@ -7,6 +7,6 @@ export default function robots() {
         disallow: ['/api/', '/admin/'],
       },
     ],
-    sitemap: 'https://portofolang.web.id/sitemap.xml',
+    sitemap: 'https://galangpramudito.web.id/sitemap.xml',
   };
 }

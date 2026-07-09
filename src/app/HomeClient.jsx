@@ -354,6 +354,15 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
 
       {/* ✅ PERF: Entrance animation removed for better LCP */}
 
+      {/* Fixed Logo */}
+      <Link href="/" aria-label="Home" className="fixed top-5 left-5 md:top-8 md:left-8 z-[100] hover:scale-110 active:scale-95 transition-transform duration-300 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+        <div 
+          className="w-9 h-9 md:w-11 md:h-11 bg-[#1e293b] dark:bg-white transition-colors duration-300" 
+          style={{ WebkitMaskImage: "url('/logo-dark.svg')", maskImage: "url('/logo-dark.svg')", WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", WebkitMaskPosition: "center", maskPosition: "center" }} 
+          aria-label="Logo"
+        />
+      </Link>
+
       <DynamicIsland activeSection={activeSection} />
       <DarkModeToggle />
 
@@ -374,7 +383,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
               <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden border border-white/10 bg-card-bg shadow-2xl">
                 <Image 
                   src={initialProfile?.avatar_url || "/image/gambar galang 2.jpg"} 
-                  alt={initialProfile?.full_name || "Galang Pramudito"} 
+                  alt={initialProfile?.full_name || "Galang Arrauf Pramudito"} 
                   fill 
                   sizes="(max-width: 640px) 240px, (max-width: 1024px) 280px, 380px" 
                   className="object-cover scale-105 hover:scale-100 transition-transform duration-700" 
@@ -394,7 +403,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-[-0.03em] leading-[1.05]">
               {(() => {
-                const nameParts = (initialProfile?.full_name || 'Galang Pramudito').split(' ');
+                const nameParts = (initialProfile?.full_name || 'Galang Arrauf Pramudito').split(' ');
                 const first = nameParts[0];
                 const rest = nameParts.slice(1).join(' ');
                 return (
@@ -575,12 +584,15 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
               <div className="max-w-6xl mx-auto relative z-10">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
                   <div>
-                    <p className="work-eyebrow text-[11px] uppercase tracking-[0.22em] text-gray-400 font-mono mb-4">Kategori Project</p>
+                    <p className="work-eyebrow text-[11px] uppercase tracking-[0.22em] text-gray-400 font-mono mb-4">Proyek Galang Arrauf Pramudito</p>
                     <h2 className="section-title text-4xl md:text-5xl font-bold tracking-tight leading-[1.08]">
                       {section.name.split(' ').map((word, i, arr) => (
                         i === arr.length - 1 ? <span key={i} className="text-accent">{word}</span> : <span key={i}>{word} </span>
                       ))}
                     </h2>
+                    <p className="text-gray-400 text-sm md:text-base mt-3 max-w-lg leading-relaxed">
+                      Proyek {section.name.toLowerCase()} buatan Galang Arrauf Pramudito — dari backend, frontend, hingga integrasi AI.
+                    </p>
                   </div>
                   <Link
                     href={`/projects?type=${section.id}`}
@@ -914,9 +926,9 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
 
       <footer className="py-10 text-center border-t border-white/5">
         <div className="flex justify-center gap-8 mb-8">
-          <a href="https://github.com/galangpramudito" target="_blank" rel="noopener noreferrer" aria-label="GitHub Galang Arrauf" className="text-gray-400 hover:text-white text-2xl transition-colors"><i className="ri-github-fill"></i></a>
-          <a href="https://www.linkedin.com/in/galang-arrauf-pramudito/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Galang Arrauf" className="text-gray-400 hover:text-white text-2xl transition-colors"><i className="ri-linkedin-fill"></i></a>
-          <a href="mailto:galangarrauf22@gmail.com" aria-label="Email Galang Arrauf" className="text-gray-400 hover:text-white text-2xl transition-colors"><i className="ri-mail-line"></i></a>
+          <a href="https://github.com/galangpramudito" target="_blank" rel="noopener noreferrer" aria-label="GitHub Galang Arrauf Pramudito" className="text-gray-400 hover:text-white text-2xl transition-colors"><i className="ri-github-fill"></i></a>
+          <a href="https://www.linkedin.com/in/galang-arrauf-pramudito/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Galang Arrauf Pramudito" className="text-gray-400 hover:text-white text-2xl transition-colors"><i className="ri-linkedin-fill"></i></a>
+          <a href="mailto:galangarrauf22@gmail.com" aria-label="Email Galang Arrauf Pramudito" className="text-gray-400 hover:text-white text-2xl transition-colors"><i className="ri-mail-line"></i></a>
         </div>
         <p className="text-gray-400 text-[10px] md:text-[11px] font-medium tracking-[0.3em] uppercase">© 2026 Galang Arrauf Pramudito</p>
       </footer>
@@ -993,7 +1005,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                   <div className="w-16 h-16 bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i className="ri-file-pdf-2-line text-accent text-3xl" />
                   </div>
-                  <h4 className="text-white font-bold mb-2">CV Galang Arrauf</h4>
+                  <h4 className="text-white font-bold mb-2">CV Galang Arrauf Pramudito</h4>
                   <p className="text-gray-400 text-sm mb-6">Buka PDF di tab baru untuk melihat CV</p>
                   <a
                     href={initialProfile?.cv_url || "/cv-galang.pdf"}

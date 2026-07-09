@@ -2,7 +2,7 @@
 
 Modern portfolio website built with **Next.js 16**, **React 19**, **Tailwind CSS v4**, and **GSAP** animations. Full CMS via Supabase + admin panel — manage everything without touching code.
 
-**Live:** https://portofolang.web.id/
+**Live:** https://galangpramudito.web.id/
 
 ---
 

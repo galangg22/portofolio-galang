@@ -9,7 +9,7 @@ export const metadata = {
     title: "Certificates — Galang Arrauf Pramudito",
     description:
       "Koleksi sertifikat dan pencapaian dari berbagai program, pelatihan, dan kompetisi.",
-    url: "https://portofolang.web.id/certificates",
+    url: "https://galangpramudito.web.id/certificates",
     type: "website",
   },
 };

@@ -29,6 +29,15 @@ export default function CertificatesClient({ certs: initialCerts }) {
 
   return (
     <main className="min-h-[100dvh] bg-bg-dark text-white p-4 sm:p-8 md:p-16 relative overflow-x-hidden">
+      {/* Fixed Logo */}
+      <Link href="/" aria-label="Home" className="fixed top-5 left-5 md:top-8 md:left-8 z-[100] hover:scale-110 active:scale-95 transition-transform duration-300 drop-shadow-[0_0_15px_rgba(255,255,255,0.1)] hidden md:block">
+        <div 
+          className="w-9 h-9 md:w-11 md:h-11 bg-[#1e293b] dark:bg-white transition-colors duration-300" 
+          style={{ WebkitMaskImage: "url('/logo-dark.svg')", maskImage: "url('/logo-dark.svg')", WebkitMaskSize: "contain", maskSize: "contain", WebkitMaskRepeat: "no-repeat", maskRepeat: "no-repeat", WebkitMaskPosition: "center", maskPosition: "center" }} 
+          aria-label="Logo"
+        />
+      </Link>
+
       <div className="fixed inset-0 z-0 pointer-events-none opacity-10">
         <div className="absolute left-[-20%] top-[-10%] w-[60%] h-[40%] bg-accent blur-[120px] rounded-full"></div>
         <div className="absolute right-[-20%] bottom-[-10%] w-[60%] h-[40%] bg-primary blur-[120px] rounded-full"></div>

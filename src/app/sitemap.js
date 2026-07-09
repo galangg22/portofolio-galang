@@ -1,5 +1,5 @@
 export default function sitemap() {
-  const baseUrl = 'https://portofolang.web.id';
+  const baseUrl = 'https://galangpramudito.web.id';
 
   return [
     {
