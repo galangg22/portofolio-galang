@@ -67,6 +67,15 @@ export const metadata = {
     description: "Portfolio Galang Arrauf Pramudito — Open to internship & freelance",
     images: ["/og-image.jpg"],
   },
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/logo-dark.svg', type: 'image/svg+xml' }
+    ],
+    apple: [
+      { url: '/logo-dark.svg' }
+    ]
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -82,7 +91,6 @@ export default function RootLayout({ children }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0a0a" />
         <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f8f9fa" />
-        <link rel="icon" href="/logo-dark.svg" type="image/svg+xml" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
