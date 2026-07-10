@@ -169,18 +169,18 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
   const [isCvModalOpen, setIsCvModalOpen] = useState(false);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [selectedCert, setSelectedCert] = useState(null);
-  
+
   const [skills, setSkills] = useState(initialSkills ?? SKILLS_DATA);
   const [projects, setProjects] = useState(initialProjects ?? DEV_PROJECTS);
   const [certificates, setCertificates] = useState(initialCertificates || []);
-  
+
   // Helper to safely format video URLs for embedding (YouTube & GDrive)
   const getEmbedUrl = (url) => {
     if (!url) return '';
     try {
       if (url.includes('youtube.com/watch') || url.includes('youtu.be/')) {
-        const videoId = url.includes('youtu.be/') 
-          ? url.split('youtu.be/')[1].split('?')[0] 
+        const videoId = url.includes('youtu.be/')
+          ? url.split('youtu.be/')[1].split('?')[0]
           : new URLSearchParams(new URL(url).search).get('v');
         return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1` : url;
       }
@@ -192,7 +192,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
       return url;
     }
   };
-  
+
   // Determine if a category should use the "Visual" layout dynamically.
   // A category is considered visual if the majority of its projects do NOT have dev-related URLs.
   const getIsVisual = (categoryProjects) => {
@@ -205,7 +205,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
     });
     return visualCount > categoryProjects.length / 2;
   };
-  
+
   const fallbackTypes = [
     { name: 'Website', slug: 'website' },
     { name: 'Aplikasi', slug: 'aplikasi' },
@@ -214,7 +214,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
   ];
 
   const typesToUse = initialProjectTypes?.length > 0 ? [...initialProjectTypes] : [...fallbackTypes];
-  
+
   // Ensure legacy orphaned projects still show up by adding their categories if missing
   projects.forEach(p => {
     let pSlug = p.project_type?.toLowerCase() || '';
@@ -222,7 +222,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
     if (pSlug === 'bot' || pSlug === 'android') pSlug = 'aplikasi';
     if (pSlug === 'design') pSlug = 'desain';
     if (pSlug === 'video' || pSlug === 'video editing') pSlug = 'video-editing';
-    
+
     if (pSlug && !typesToUse.find(t => t.slug?.toLowerCase() === pSlug)) {
       typesToUse.push({
         name: pSlug.charAt(0).toUpperCase() + pSlug.slice(1).replace(/-/g, ' '),
@@ -230,7 +230,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
       });
     }
   });
-  
+
   const dynamicSections = typesToUse.map(type => {
     // Filter projects for this type
     const typeProjects = projects.filter(p => {
@@ -251,7 +251,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
   const [certsLoading, setCertsLoading] = useState(false);
   const [skillsLoading, setSkillsLoading] = useState(false);
   const [projectsLoading, setProjectsLoading] = useState(false);
-  
+
   const mainRef = useRef(null);
 
   useEffect(() => {
@@ -376,13 +376,13 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
           <div className="order-first lg:order-last lg:col-span-5 flex justify-center lg:justify-end w-full">
             <div className="relative w-full max-w-[240px] sm:max-w-[280px] lg:max-w-[380px]">
               <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden border border-white/10 bg-card-bg shadow-2xl">
-                <Image 
-                  src={initialProfile?.avatar_url || "/image/gambar galang 2.jpg"} 
-                  alt={initialProfile?.full_name || "Galang Arrauf Pramudito"} 
-                  fill 
-                  sizes="(max-width: 640px) 240px, (max-width: 1024px) 280px, 380px" 
-                  className="object-cover scale-105 hover:scale-100 transition-transform duration-700" 
-                  priority 
+                <Image
+                  src={initialProfile?.avatar_url || "/image/gambar galang 2.jpg"}
+                  alt={initialProfile?.full_name || "Galang Arrauf Pramudito"}
+                  fill
+                  sizes="(max-width: 640px) 240px, (max-width: 1024px) 280px, 380px"
+                  className="object-cover scale-105 hover:scale-100 transition-transform duration-700"
+                  priority
                   fetchPriority="high"
                   quality={80}
                 />
@@ -474,20 +474,29 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
             <h2 className="section-title text-3xl md:text-5xl font-bold mb-6 tracking-tight leading-[1.15]">
               Halo, saya <span className="text-accent">{initialProfile?.full_name ? initialProfile.full_name.split(' ')[0] : 'Galang'}</span>
             </h2>
+
             <p className="text-base md:text-lg text-gray-300 mb-8 leading-relaxed">
-              Web developer yang fokus di backend — <span className="text-indigo-400 font-semibold">Laravel, PHP, PostgreSQL</span>. Sehari-hari saya merancang arsitektur aplikasi, mengelola database relasional, dan mengintegrasikan AI ke dalam sistem produksi.
+              Web developer yang berfokus pada pengembangan backend menggunakan <span className="text-indigo-400 font-semibold">Laravel dan PHP</span>. Saya terbiasa merancang arsitektur sistem yang tangguh, mengelola database yang efisien, serta mengintegrasikan AI untuk meningkatkan kapabilitas aplikasi.
             </p>
+
             <p className="text-sm md:text-base text-gray-400 mb-8 leading-relaxed">
-              Sisi kuat saya: logika sistem yang terstruktur, dokumentasi teknis yang rapi, dan kemampuan menghubungkan teknologi yang berbeda menjadi satu kesatuan yang fungsional. Setiap project adalah solusi, bukan sekadar kumpulan fitur.
+              Saya percaya bahwa setiap kode yang ditulis harus memberikan solusi nyata. Dengan pendekatan logika yang terstruktur dan dokumentasi yang rapi, saya memastikan sistem yang saya bangun tidak hanya fungsional, tetapi juga skalabel dan mudah dikelola.
             </p>
+
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="info-card p-4 bg-white/[0.03] rounded-xl border border-white/[0.06] flex items-center gap-3">
                 <i className="ri-server-line text-2xl text-accent"></i>
-                <div><p className="text-gray-400 text-xs uppercase tracking-widest">Core Stack</p><p className="font-bold text-white text-sm">Laravel + PHP + PostgreSQL</p></div>
+                <div>
+                  <p className="text-gray-400 text-xs uppercase tracking-widest">Main Stack</p>
+                  <p className="font-bold text-white text-sm">Laravel, PHP, MySQL</p>
+                </div>
               </div>
               <div className="info-card p-4 bg-white/[0.03] rounded-xl border border-white/[0.06] flex items-center gap-3">
                 <i className="ri-brain-line text-2xl text-accent"></i>
-                <div><p className="text-gray-400 text-xs uppercase tracking-widest">Differentiator</p><p className="font-bold text-white text-sm">AI Integration &amp; Automation</p></div>
+                <div>
+                  <p className="text-gray-400 text-xs uppercase tracking-widest">Specialization</p>
+                  <p className="font-bold text-white text-sm">AI Integration & Automation</p>
+                </div>
               </div>
             </div>
           </div>
@@ -522,11 +531,10 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
               {skills.map((skill, idx) => (
                 <div
                   key={idx}
-                  className={`skill-card rounded-2xl border p-6 transition-all duration-300 ${
-                    skill.highlight
-                      ? 'is-highlighted border-accent/20 bg-gradient-to-br from-card-bg via-card-bg to-accent/5 ring-1 ring-accent/20'
-                      : 'border-white/10 bg-card-bg hover:border-white/20'
-                  }`}
+                  className={`skill-card rounded-2xl border p-6 transition-all duration-300 ${skill.highlight
+                    ? 'is-highlighted border-accent/20 bg-gradient-to-br from-card-bg via-card-bg to-accent/5 ring-1 ring-accent/20'
+                    : 'border-white/10 bg-card-bg hover:border-white/20'
+                    }`}
                 >
                   <div className="flex items-start gap-4 mb-4">
                     <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${skill.color} flex items-center justify-center shrink-0`}>
@@ -561,7 +569,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
           const isVisual = section.isVisual;
           const spotlight = section.projects[0];
           const rest = section.projects.slice(1);
-          
+
           return (
             <section key={section.id} className="py-12 md:py-16 px-6 relative z-10 border-t border-white/[0.02]">
               <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -623,7 +631,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
 
                         {/* Subtle Premium Overlay */}
                         <div className="absolute inset-x-0 bottom-0 h-3/4 md:h-1/2 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-500 z-10 pointer-events-none"></div>
-                        
+
                         {item.video_url && (
                           <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
                             <div className="p-1 bg-black/30 backdrop-blur-md rounded-full group-hover:bg-accent group-hover:scale-110 transition-all duration-500 ease-out border border-white/20 group-hover:border-accent">
@@ -633,7 +641,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                             </div>
                           </div>
                         )}
-                        
+
                         {/* Expanding Text Content */}
                         <div className="absolute inset-x-0 bottom-0 p-5 md:p-8 z-20 pointer-events-none flex flex-col justify-end">
                           <div className="transform translate-y-0 md:translate-y-6 md:group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]">
@@ -718,7 +726,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                     {rest.length > 0 && (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         {rest.map((project) => {
-                           return (
+                          return (
                             <div key={project.id} className="work-card p-1 bg-white/[0.02] rounded-2xl border border-white/[0.06] group/card hover:border-accent/20 transition-all duration-700">
                               <div className="rounded-[calc(1.5rem-0.25rem)] overflow-hidden bg-card-bg flex flex-col h-full shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)]">
                                 <div className="relative h-48 overflow-hidden">
@@ -773,7 +781,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                                 </div>
                               </div>
                             </div>
-                           )
+                          )
                         })}
                       </div>
                     )}
