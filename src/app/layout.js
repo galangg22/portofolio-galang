@@ -68,13 +68,8 @@ export const metadata = {
     images: ["/og-image.jpg"],
   },
   icons: {
-    icon: [
-      { url: '/favicon.ico' },
-      { url: '/logo-dark.svg', type: 'image/svg+xml' }
-    ],
-    apple: [
-      { url: '/logo-dark.svg' }
-    ]
+    icon: '/favicon.ico',
+    apple: '/favicon.ico'
   },
 };
 
