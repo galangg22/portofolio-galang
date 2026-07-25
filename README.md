@@ -18,8 +18,9 @@ Modern portfolio website built with **Next.js 16**, **React 19**, **Tailwind CSS
 - **GSAP Animations** — ScrollTrigger entrance animations, smooth scroll
 - **SEO** — Dynamic sitemap, robots.txt, Open Graph, meta tags
 - **PWA Ready** — Web app manifest, mobile-optimized
-- **Security & Performance** — Rate-limited login, httpOnly cookies, security headers, server-only secrets, lightweight IntersectionObserver page scroll tracking
+- **Security & Performance** — Rate-limited login, httpOnly cookies, security headers, server-only secrets, lightweight IntersectionObserver page scroll tracking, LCP-optimized image loading (priority fetched & instant paint).
 - **Dark/Light Mode** — Premium high-contrast layout transition with a modular scoping approach (keeping dark elements readable while flipping main UI theme colors)
+- **High-End UI/UX Aesthetics** — Monochrome styling, cubic-bezier spring animations, micro-interactions, avoiding cheap/generic components.
 
 ## Tech Stack
 

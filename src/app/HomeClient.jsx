@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import gsap from "gsap";
@@ -28,7 +28,7 @@ const SKILLS_DATA = [
     category: "Backend & Architecture",
     icon: "ri-server-line",
     items: ["PHP Laravel", "Routing & State Management", "System Architecture", "Scalable Backend"],
-    color: "from-accent to-emerald-400",
+    color: "bg-white/10 border border-white/5",
     highlight: true,
     desc: "Keahlian utama — membangun arsitektur aplikasi web tangguh dan dapat diskalakan."
   },
@@ -36,7 +36,7 @@ const SKILLS_DATA = [
     category: "Database & Optimization",
     icon: "ri-database-2-line",
     items: ["PostgreSQL", "SQLite", "Schema Design", "Query Optimization", "Connection Pooling"],
-    color: "from-emerald-400 to-teal-400",
+    color: "bg-white/10 border border-white/5",
     highlight: true,
     desc: "Perancangan skema relasional dan optimalisasi kueri untuk performa tinggi."
   },
@@ -44,28 +44,28 @@ const SKILLS_DATA = [
     category: "AI Integration",
     icon: "ri-brain-line",
     items: ["Ollama / DeepSeek", "Cloud AI API", "Custom AI Assistants", "Prompt Engineering"],
-    color: "from-amber-400 to-orange-400",
+    color: "bg-white/5 border border-white/5",
     desc: "Menanamkan AI ke dalam ekosistem aplikasi — lokal maupun cloud."
   },
   {
     category: "Frontend & Visual",
     icon: "ri-layout-3-line",
     items: ["Blade Templates", "Tailwind CSS", "Livewire", "UI/UX Awareness"],
-    color: "from-primary to-purple-400",
+    color: "bg-white/5 border border-white/5",
     desc: "Interface yang fungsional sekaligus visual — gabungan kode dan estetika."
   },
   {
     category: "DevOps & Automation",
     icon: "ri-git-branch-line",
     items: ["GitHub Actions CI/CD", "API Integration", "Local Tunneling", "Environment Config"],
-    color: "from-blue-400 to-cyan-400",
+    color: "bg-white/5 border border-white/5",
     desc: "Workflow profesional — otomasi, deploy, dan integrasi layanan pihak ketiga."
   },
   {
     category: "Technical Documentation",
     icon: "ri-file-text-line",
     items: ["Technical Writing", "Data Architecture Docs", "Project Reporting"],
-    color: "from-gray-400 to-slate-400",
+    color: "bg-white/5 border border-white/5",
     desc: "Dokumentasi teknis terstruktur agar proyek mudah dipelihara."
   },
 ];
@@ -170,8 +170,8 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [selectedCert, setSelectedCert] = useState(null);
 
-  const [skills, setSkills] = useState(initialSkills ?? SKILLS_DATA);
-  const [projects, setProjects] = useState(initialProjects ?? DEV_PROJECTS);
+  const [skills, setSkills] = useState((initialSkills && initialSkills.length > 0) ? initialSkills : SKILLS_DATA);
+  const [projects, setProjects] = useState((initialProjects && initialProjects.length > 0) ? initialProjects : DEV_PROJECTS);
   const [certificates, setCertificates] = useState(initialCertificates || []);
 
   // Helper to safely format video URLs for embedding (YouTube & GDrive)
@@ -256,19 +256,22 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
 
   useEffect(() => {
     const sectionIds = ["home", "about", "skills", "projects", "certificates", "contact"];
-    const observers = [];
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      { rootMargin: "-40% 0px -55% 0px", threshold: 0 }
+    );
+
     sectionIds.forEach((id) => {
       const el = document.getElementById(id);
-      if (!el) return;
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) setActiveSection(id);
-        },
-        { rootMargin: "-40% 0px -55% 0px", threshold: 0 }
-      );
-      observer.observe(el);
-      observers.push(observer);
+      if (el) observer.observe(el);
     });
+
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
         setSelectedVideo(null);
@@ -279,7 +282,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => {
-      observers.forEach((o) => o.disconnect());
+      observer.disconnect();
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
@@ -292,27 +295,48 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
 
     const initAnimations = () => {
       gsap.registerPlugin(ScrollTrigger);
-      ScrollTrigger.refresh();
       ctx = gsap.context(() => {
-        // ✅ PERF: Removed .GSAP animation to fix LCP/Speed Index issues
-        // Hero elements will now render immediately without opacity delay
-        gsap.utils.toArray("section").forEach((section) => {
-          const title = section.querySelector(".section-title");
-          if (title) {
-            gsap.from(title, {
-              opacity: 0, x: -50, duration: 0.8, ease: "power3.out",
-              scrollTrigger: { trigger: section, start: "top 80%" }
-            });
-          }
-        });
-        gsap.utils.toArray(".bento-card, .work-card, .visual-card").forEach((el, i) => {
-          gsap.from(el, {
-            opacity: 0, y: 40, duration: 0.8, ease: "power3.out",
-            delay: i * 0.06,
-            scrollTrigger: { trigger: el, start: "top 88%" },
+        const mm = gsap.matchMedia();
+
+        // ♿ PERF & ACCESSIBILITY: Only animate if user hasn't requested reduced motion
+        mm.add("(prefers-reduced-motion: no-preference)", () => {
+          // Section titles animation
+          gsap.utils.toArray("section").forEach((section) => {
+            const title = section.querySelector(".section-title");
+            if (title) {
+              gsap.from(title, {
+                opacity: 0,
+                x: -40,
+                duration: 0.7,
+                ease: "power2.out",
+                scrollTrigger: { trigger: section, start: "top 82%", once: true }
+              });
+            }
+          });
+
+          // ⚡ PERF: Batch cards together to reduce ScrollTrigger listener overhead
+          ScrollTrigger.batch(".bento-card, .work-card, .visual-card, .info-card, .skill-card, .contact-card", {
+            start: "top bottom-=40px",
+            once: true,
+            onEnter: (batch) => {
+              gsap.fromTo(batch,
+                { opacity: 0, y: 30 },
+                {
+                  opacity: 1,
+                  y: 0,
+                  duration: 0.7,
+                  stagger: 0.07,
+                  ease: "power2.out",
+                  overwrite: "auto",
+                  clearProps: "transform"
+                }
+              );
+            }
           });
         });
       }, mainRef);
+
+      ScrollTrigger.refresh();
     };
 
     // Use requestIdleCallback untuk defer heavy animations, fallback ke setTimeout
@@ -339,16 +363,15 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
     };
   }, [skillsLoading, projectsLoading, certsLoading]);
 
-  const getAvailabilityStatus = (status) => {
-    switch (status) {
+  const availability = useMemo(() => {
+    switch (initialProfile?.availability_status) {
       case 'available': return { color: 'bg-accent', text: 'Available for Internship & Freelance' };
       case 'freelance_only': return { color: 'bg-green-500', text: 'Available for Freelance' };
       case 'internship_only': return { color: 'bg-blue-500', text: 'Available for Internship' };
       case 'unavailable': return { color: 'bg-red-500', text: 'Not Available Currently' };
       default: return { color: 'bg-accent', text: 'Available for Internship & Freelance' };
     }
-  };
-  const availability = getAvailabilityStatus(initialProfile?.availability_status);
+  }, [initialProfile?.availability_status]);
 
   return (
     <main ref={mainRef} className="bg-bg-dark selection:bg-accent selection:text-bg-dark relative overflow-x-hidden">
@@ -372,7 +395,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
           <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/8 blur-[120px]"></div>
         </div>
         <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col lg:grid lg:grid-cols-12 gap-8 lg:gap-16 items-center">
-          {/* ✅ MOBILE/TABLET: Foto di atas (order-first) */}
+          {/* ✅ MOBILE/TABLET: Foto di atas (order-first) - PERF: Removed opacity-0 and animationDelay to fix LCP */}
           <div className="order-first lg:order-last lg:col-span-5 flex justify-center lg:justify-end w-full">
             <div className="relative w-full max-w-[240px] sm:max-w-[280px] lg:max-w-[380px]">
               <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden border border-white/10 bg-card-bg shadow-2xl">
@@ -393,10 +416,10 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
 
           {/* ✅ MOBILE/TABLET: Teks di bawah (order-last), centered */}
           <div className="order-last lg:order-first lg:col-span-7 space-y-5 md:space-y-8 text-center lg:text-left w-full">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06] text-gray-400 text-xs font-medium">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] border border-white/[0.06] text-gray-400 text-xs font-medium animate-fade-in-up opacity-0" style={{ animationDelay: '100ms' }}>
               <span className={`w-1.5 h-1.5 rounded-full ${availability.color}`}></span> {availability.text}
             </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-[-0.03em] leading-[1.05]">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-[-0.03em] leading-[1.05] animate-fade-in-up opacity-0" style={{ animationDelay: '200ms' }}>
               {(() => {
                 const nameParts = (initialProfile?.full_name || 'Galang Arrauf Pramudito').split(' ');
                 const first = nameParts[0];
@@ -408,11 +431,11 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                 );
               })()}
             </h1>
-            <p className="text-base md:text-lg text-gray-400 font-light max-w-xl mx-auto lg:mx-0 leading-relaxed">
+            <p className="text-base md:text-lg text-gray-400 font-light max-w-xl mx-auto lg:mx-0 leading-relaxed animate-fade-in-up opacity-0" style={{ animationDelay: '300ms' }}>
               Crafting robust web solutions &amp; intelligent automation from Sidoarjo.
             </p>
-            <div className="flex flex-wrap gap-3 md:gap-4 pt-2 justify-center lg:justify-start">
-              <a href="#projects" className="px-6 md:px-8 py-3 md:py-3.5 bg-accent text-white font-bold text-sm rounded-full hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-accent/20">View My Work</a>
+            <div className="flex flex-wrap gap-3 md:gap-4 pt-2 justify-center lg:justify-start animate-fade-in-up opacity-0" style={{ animationDelay: '400ms' }}>
+              <a href="#projects" className="px-6 md:px-8 py-3 md:py-3.5 bg-accent text-bg-dark font-bold text-sm rounded-full hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl hover:opacity-90">View My Work</a>
               <button onClick={() => setIsCvModalOpen(true)} className="group px-6 md:px-8 py-3 md:py-3.5 border border-white/10 text-white text-sm font-medium rounded-full hover:bg-white/10 hover:border-white/20 transition-all cursor-pointer z-20 relative inline-flex items-center gap-2">
                 <i className="ri-file-user-line text-lg group-hover:text-accent transition-colors"></i>
                 My Resume
@@ -425,10 +448,10 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
       <section id="about" className="py-24 px-6 relative z-10">
         <div className="max-w-5xl mx-auto grid lg:grid-cols-12 gap-16 items-center">
           <div className="lg:col-span-5 relative">
-            <div className="relative aspect-[4/5] rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-br from-card-bg via-card-bg to-accent/5 shadow-xl p-8">
+            <div className="relative aspect-[4/5] rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-br from-[#18181b] via-[#18181b] to-accent/20 shadow-xl p-8">
               <div className="h-full flex flex-col justify-between">
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500 mb-6">Tech Stack</p>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-6">Tech Stack</p>
                   <div className="grid grid-cols-3 gap-3">
                     {[
                       { name: 'Laravel', slug: 'laravel' },
@@ -441,13 +464,13 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                       <div key={tech.name} className="flex flex-col items-center gap-2 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={`https://cdn.simpleicons.org/${tech.slug}/ffffff`} alt={tech.name} className="w-6 h-6" loading="lazy" />
-                        <span className="text-[9px] text-gray-400 font-medium text-center leading-tight">{tech.name}</span>
+                        <span className="text-[9px] text-white/70 font-medium text-center leading-tight">{tech.name}</span>
                       </div>
                     ))}
                   </div>
                 </div>
                 <div className="mt-auto pt-6 border-t border-white/[0.06]">
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500 mb-3">Also Work With</p>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-3">Also Work With</p>
                   <div className="flex flex-wrap gap-2">
                     {[
                       { name: 'Git', slug: 'git' },
@@ -458,16 +481,16 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                       <div key={tech.name} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.03] border border-white/[0.06]">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={`https://cdn.simpleicons.org/${tech.slug}/ffffff`} alt={tech.name} className="w-3.5 h-3.5" loading="lazy" />
-                        <span className="text-[9px] text-gray-400">{tech.name}</span>
+                        <span className="text-[9px] text-white/70">{tech.name}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
             </div>
-            <div className="absolute -bottom-6 -right-6 bg-black border border-white/10 p-5 rounded-2xl shadow-2xl">
+            <div className="absolute -bottom-6 -right-6 bg-card-bg border border-black/5 dark:border-white/10 p-5 rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.08)] dark:shadow-2xl">
               <p className="text-accent font-bold text-xl">10+</p>
-              <p className="text-gray-400 text-[10px] uppercase tracking-widest">Projects Completed</p>
+              <p className="text-gray-900 dark:text-gray-400 text-[10px] uppercase tracking-widest">Projects Completed</p>
             </div>
           </div>
           <div className="lg:col-span-7">
@@ -512,50 +535,58 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
             </p>
           </div>
           {skillsLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {Array.from({ length: 6 }).map((_, idx) => (
-                <div key={idx} className={`rounded-2xl bg-card-bg border border-white/10 p-6 animate-pulse ${idx < 2 ? 'md:col-span-2' : ''}`}>
-                  <div className="w-10 h-10 rounded-xl bg-white/5 mb-4"></div>
-                  <div className="h-5 bg-white/10 rounded-md w-2/3 mb-3"></div>
-                  <div className="h-3 bg-white/5 rounded-md w-full mb-4"></div>
-                  <div className="flex flex-wrap gap-2">
+                <div key={idx} className="rounded-3xl bg-card-bg border border-white/10 p-8 animate-pulse relative overflow-hidden light-shadow">
+                  <div className="flex items-center gap-4 mb-5">
+                    <div className="w-12 h-12 rounded-2xl bg-white/5 shrink-0"></div>
+                    <div className="h-6 bg-white/10 rounded-md w-1/2"></div>
+                  </div>
+                  <div className="h-4 bg-white/5 rounded-md w-full mb-3"></div>
+                  <div className="h-4 bg-white/5 rounded-md w-4/5 mb-6"></div>
+                  <div className="flex flex-wrap gap-2 mt-auto">
                     {Array.from({ length: 3 }).map((_, i) => (
-                      <span key={i} className="h-5 w-16 bg-white/5 border border-white/5 rounded-lg"></span>
+                      <span key={i} className="h-6 w-16 bg-white/5 border border-white/5 rounded-lg"></span>
                     ))}
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="skills-grid grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="skills-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {skills.map((skill, idx) => (
                 <div
                   key={idx}
-                  className={`skill-card rounded-2xl border p-6 transition-all duration-300 ${skill.highlight
-                    ? 'is-highlighted border-accent/20 bg-gradient-to-br from-card-bg via-card-bg to-accent/5 ring-1 ring-accent/20'
-                    : 'border-white/10 bg-card-bg hover:border-white/20'
+                  className={`skill-card group relative overflow-hidden rounded-3xl p-6 md:p-8 transition-all duration-500 light-shadow ${skill.highlight
+                    ? 'bg-gradient-to-b from-card-bg to-accent/5 border border-accent/30 hover:border-accent/60 shadow-xl hover:shadow-2xl'
+                    : 'bg-card-bg border border-white/5 hover:border-white/20 hover:bg-white/[0.03]'
                     }`}
                 >
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${skill.color} flex items-center justify-center shrink-0`}>
-                      <i className={`${skill.icon} text-lg text-white`}></i>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="text-lg font-bold text-white">{skill.category}</h3>
+                  {/* Watermark Icon */}
+                  <i className={`${skill.icon} absolute -right-6 -bottom-6 text-[120px] text-white opacity-[0.03] group-hover:opacity-[0.06] group-hover:-rotate-12 group-hover:scale-110 transition-all duration-500 pointer-events-none watermark-icon`}></i>
+
+                  <div className="relative z-10 flex flex-col h-full">
+                    <div className="flex items-center gap-4 mb-5">
+                      <div className={`w-12 h-12 rounded-2xl ${skill.color} flex items-center justify-center shrink-0 shadow-lg`}>
+                        <i className={`${skill.icon} text-xl text-white skill-icon`}></i>
+                      </div>
+                      <div>
+                        <h3 className="text-lg md:text-xl font-display font-bold text-white group-hover:text-accent transition-colors">{skill.category}</h3>
                         {skill.highlight && (
-                          <span className="keep-accent px-2 py-0.5 bg-accent/20 text-accent text-[10px] font-semibold uppercase tracking-wider rounded-full">Core</span>
+                          <span className="inline-block mt-1 px-2 py-0.5 bg-accent/20 text-accent text-[9px] font-bold uppercase tracking-widest rounded-full">Core</span>
                         )}
                       </div>
-                      {skill.desc && (
-                        <p className="text-gray-400 text-xs mt-1.5 leading-relaxed">{skill.desc}</p>
-                      )}
                     </div>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {skill.items.map(item => (
-                      <span key={item} className="skill-tag px-3 py-1 bg-white/[0.03] border border-white/[0.06] rounded-lg text-[11px] font-medium text-gray-300 leading-relaxed">{item}</span>
-                    ))}
+                    
+                    <p className="text-gray-400 text-sm leading-relaxed mb-6 flex-1">
+                      {skill.desc}
+                    </p>
+
+                    <div className="flex flex-wrap gap-2 mt-auto">
+                      {skill.items.map(item => (
+                        <span key={item} className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[10px] font-mono font-medium text-gray-300 group-hover:border-white/20 transition-colors">{item}</span>
+                      ))}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -599,10 +630,10 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                   </div>
                   <Link
                     href={`/projects?type=${section.id}`}
-                    className="group work-viewall-btn px-6 py-3.5 bg-white/[0.04] border border-white/[0.10] text-white font-bold text-xs tracking-wider rounded-full hover:bg-accent hover:border-accent hover:text-white active:scale-[0.96] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] flex items-center gap-3"
+                    className="group px-6 py-3.5 bg-accent text-bg-dark font-bold text-sm rounded-full hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-xl hover:opacity-90 flex items-center justify-center gap-3"
                   >
                     <span>Explore {section.name}</span>
-                    <span className="w-7 h-7 rounded-full bg-white/10 dark:bg-white/10 group-hover:bg-black/10 flex items-center justify-center transition-all duration-500">
+                    <span className="w-7 h-7 rounded-full bg-black/10 flex items-center justify-center transition-all duration-300">
                       <i className="ri-arrow-right-line text-sm group-hover:translate-x-0.5 transition-transform duration-300"></i>
                     </span>
                   </Link>
@@ -619,12 +650,12 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                       >
                         {item.video_url ? (
                           <div className="w-full h-full overflow-hidden rounded-[1.75rem] relative">
-                            <Image src={item.image || '/image/TOKO TUNAI BGDARK mockup fix.png'} alt={item.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover group-hover:scale-[1.06] transition-transform duration-1000 ease-out" loading="lazy" />
+                            <Image src={item.image || '/image/TOKO TUNAI BGDARK mockup fix.png'} alt={item.title} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover group-hover:scale-[1.06] transition-transform duration-1000 ease-out" priority={idx === 0} />
                           </div>
                         ) : (
                           <div className="w-full h-full overflow-hidden rounded-[1.75rem] relative z-10 [&_[data-rmiz-wrap]]:w-full [&_[data-rmiz-wrap]]:h-full [&_[data-rmiz-wrap]]:relative">
                             <Zoom zoomMargin={30} wrapElement="div">
-                              <Image src={item.image || '/image/TOKO TUNAI BGDARK mockup fix.png'} alt={item.title} width={800} height={500} className="w-full h-full object-cover group-hover:scale-[1.06] transition-transform duration-1000 ease-out" loading="lazy" />
+                              <Image src={item.image || '/image/TOKO TUNAI BGDARK mockup fix.png'} alt={item.title} width={800} height={500} className="w-full h-full object-cover group-hover:scale-[1.06] transition-transform duration-1000 ease-out" priority={idx === 0} />
                             </Zoom>
                           </div>
                         )}
@@ -697,7 +728,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                               </a>
                             )}
                             {spotlight.demo_url && (
-                              <a href={spotlight.demo_url} target="_blank" rel="noopener noreferrer" className="group/btn inline-flex items-center gap-3 bg-accent text-white font-bold text-sm px-6 py-2.5 rounded-full hover:scale-[1.02] active:scale-[0.97] transition-all duration-500">
+                              <a href={spotlight.demo_url} target="_blank" rel="noopener noreferrer" className="group/btn inline-flex items-center gap-3 bg-accent text-bg-dark font-bold text-sm px-6 py-2.5 rounded-full hover:scale-[1.02] active:scale-[0.97] transition-all duration-500">
                                 <span>Live Demo</span>
                                 <span className="w-7 h-7 rounded-full bg-black/10 flex items-center justify-center group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-[0.5px] group-hover/btn:scale-105 transition-all duration-300">
                                   <i className="ri-external-link-line text-sm"></i>
@@ -765,7 +796,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                                       </a>
                                     )}
                                     {project.demo_url && (
-                                      <a href={project.demo_url} target="_blank" rel="noopener noreferrer" className="group/btn inline-flex items-center gap-2 bg-accent text-white font-semibold text-xs px-4 py-2 rounded-full hover:scale-[1.02]">
+                                      <a href={project.demo_url} target="_blank" rel="noopener noreferrer" className="group/btn inline-flex items-center gap-2 bg-accent text-bg-dark font-semibold text-xs px-5 py-2.5 rounded-full hover:scale-[1.02] active:scale-[0.98] transition-all">
                                         <span>Demo</span>
                                       </a>
                                     )}
@@ -818,7 +849,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
               <h2 className="section-title text-3xl md:text-4xl font-bold mb-3 tracking-tight">Certificates</h2>
               <p className="text-gray-400 text-sm max-w-md">Sertifikat dan pencapaian dari berbagai pelatihan dan kompetisi.</p>
             </div>
-            <Link href="/certificates" className="px-6 py-3 bg-accent text-white font-black uppercase text-xs tracking-widest rounded-xl hover:scale-105 transition-transform flex items-center gap-2 shadow-lg shadow-accent/20">
+            <Link href="/certificates" className="px-6 py-3.5 bg-accent text-bg-dark font-bold text-sm rounded-full hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl hover:opacity-90 flex items-center gap-2">
               View All <i className="ri-arrow-right-line"></i>
             </Link>
           </div>
@@ -843,6 +874,8 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                       <LazyRender height="100%">
                         <PdfThumbnail url={cert.verify_url} width={600} />
                       </LazyRender>
+                    ) : (cert.image_url || cert.image) ? (
+                      <Image src={cert.image_url || cert.image} alt={cert.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
                     ) : (
                       <i className="ri-award-fill text-6xl text-white/40"></i>
                     )}
@@ -875,11 +908,13 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
             <i className="ri-close-line text-xl md:text-2xl" />
           </button>
           <div className="relative z-10 w-full h-full md:h-auto md:max-w-4xl bg-card-bg overflow-y-auto md:border md:border-white/10 md:rounded-2xl md:max-h-[90vh] grid grid-cols-1 md:grid-cols-2 pt-14 md:pt-0">
-            <div className="bg-white/5 flex items-start justify-center overflow-y-auto min-h-[200px]">
+            <div className="bg-white/5 flex items-center justify-center overflow-hidden min-h-[240px] relative">
               {selectedCert.verify_url?.endsWith('.pdf') ? (
                 <PdfThumbnail url={selectedCert.verify_url} width={900} />
+              ) : (selectedCert.image_url || selectedCert.image) ? (
+                <Image src={selectedCert.image_url || selectedCert.image} alt={selectedCert.title} width={900} height={636} className="w-full h-auto object-contain max-h-[70vh]" />
               ) : (
-                <div className="w-full aspect-[1/1.414] bg-gradient-to-br from-primary/40 to-accent/30 flex items-center justify-center">
+                <div className="w-full aspect-[4/3] bg-gradient-to-br from-primary/40 to-accent/30 flex items-center justify-center">
                   <i className="ri-award-fill text-8xl text-white/40" />
                 </div>
               )}
@@ -896,7 +931,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
               <div className="flex flex-wrap gap-3 mt-6">
                 {selectedCert.verify_url && (
                   <a href={selectedCert.verify_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-bold text-white bg-accent px-5 py-2.5 rounded-xl hover:scale-105 transition-transform">
-                    View PDF <i className="ri-file-pdf-2-line" />
+                    {selectedCert.verify_url.toLowerCase().endsWith('.pdf') ? 'View PDF' : 'View File'} <i className={selectedCert.verify_url.toLowerCase().endsWith('.pdf') ? "ri-file-pdf-2-line" : "ri-external-link-line"} />
                   </a>
                 )}
                 {selectedCert.credential_url && (
@@ -911,7 +946,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
       )}
 
       <section id="contact" className="py-24 px-6 relative z-10">
-        <div className="max-w-4xl mx-auto bg-card-bg/50 backdrop-blur-xl border border-white/10 rounded-2xl p-8 md:p-14 relative overflow-hidden">
+        <div className="contact-card max-w-4xl mx-auto bg-card-bg/50 backdrop-blur-xl border border-white/10 rounded-2xl p-8 md:p-14 relative overflow-hidden">
           <div className="text-center mb-12">
             <h2 className="section-title text-4xl md:text-5xl font-bold mb-4 uppercase">Let&apos;s Connect</h2>
             <p className="text-gray-400">Punya tawaran kerja atau ide kolaborasi?</p>
@@ -922,7 +957,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
               <input type="email" name="email" placeholder="Email Valid" aria-label="Email Valid" required className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition-all" />
             </div>
             <textarea name="message" rows="4" placeholder="Pesan Anda..." aria-label="Pesan Anda" required className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 transition-all resize-none"></textarea>
-            <button type="submit" className="w-full py-4 bg-white text-bg-dark font-bold uppercase tracking-widest text-sm rounded-xl hover:bg-gray-200 transition-all active:scale-[0.98] shadow-lg">Send Message</button>
+            <button type="submit" className="w-full py-3.5 bg-accent text-bg-dark font-bold text-sm rounded-full hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-xl hover:opacity-90 flex items-center justify-center gap-2">Send Message</button>
           </form>
         </div>
       </section>
@@ -930,7 +965,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
       <footer className="py-10 text-center border-t border-white/5">
         <div className="flex justify-center gap-8 mb-8">
           <a href="https://github.com/galangpramudito" target="_blank" rel="noopener noreferrer" aria-label="GitHub Galang Arrauf Pramudito" className="text-gray-400 hover:text-white text-2xl transition-colors"><i className="ri-github-fill"></i></a>
-          <a href="https://www.linkedin.com/in/galang-arrauf-pramudito/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Galang Arrauf Pramudito" className="text-gray-400 hover:text-white text-2xl transition-colors"><i className="ri-linkedin-fill"></i></a>
+          <a href="https://www.linkedin.com/in/galang-pramudito/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn Galang Arrauf Pramudito" className="text-gray-400 hover:text-white text-2xl transition-colors"><i className="ri-linkedin-fill"></i></a>
           <a href="mailto:galangarrauf22@gmail.com" aria-label="Email Galang Arrauf Pramudito" className="text-gray-400 hover:text-white text-2xl transition-colors"><i className="ri-mail-line"></i></a>
         </div>
         <p className="text-gray-400 text-[10px] md:text-[11px] font-medium tracking-[0.3em] uppercase">© 2026 Galang Arrauf Pramudito</p>
@@ -958,7 +993,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                   setIsCvModalOpen(false);
                   setTimeout(() => setIsPreviewModalOpen(true), 100);
                 }}
-                className="w-full py-4 bg-accent text-bg-dark font-black uppercase tracking-widest rounded-xl hover:scale-105 transition-transform text-xs inline-flex items-center justify-center gap-2"
+                className="w-full py-4 bg-accent text-bg-dark font-bold text-sm rounded-full hover:scale-[1.02] active:scale-[0.98] transition-all inline-flex items-center justify-center gap-2 shadow-xl hover:opacity-90"
               >
                 <i className="ri-eye-line text-base" />
                 Preview CV
@@ -1014,7 +1049,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                     href={initialProfile?.cv_url || "/cv-galang.pdf"}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-accent text-white font-bold rounded-xl hover:scale-105 transition-transform"
+                    className="inline-flex items-center gap-2 px-6 py-3.5 bg-accent text-bg-dark font-bold text-sm rounded-full hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl hover:opacity-90"
                   >
                     <i className="ri-external-link-line" />
                     Buka PDF

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo, useCallback } from "react";
 
 const navItems = [
   { id: "home", label: "Home", svg: <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg> },
@@ -11,16 +11,7 @@ const navItems = [
   { id: "contact", label: "Contact", svg: <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg> }
 ];
 
-const navMeta = {
-  home: "Back to top",
-  about: "Who I am",
-  skills: "Tech stack",
-  projects: "Selected projects",
-  certificates: "Credentials",
-  contact: "Get in touch",
-};
-
-export function DynamicIsland({ activeSection }) {
+export const DynamicIsland = memo(function DynamicIsland({ activeSection }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
@@ -31,7 +22,7 @@ export function DynamicIsland({ activeSection }) {
     return () => window.removeEventListener("keydown", handleEscape);
   }, [isExpanded]);
 
-  const scrollToSection = (e, targetId) => {
+  const scrollToSection = useCallback((e, targetId) => {
     e.preventDefault();
     e.stopPropagation();
     const el = document.getElementById(targetId);
@@ -39,7 +30,7 @@ export function DynamicIsland({ activeSection }) {
       el.scrollIntoView({ behavior: "smooth", block: "start" });
       setIsExpanded(false);
     }
-  };
+  }, []);
 
   return (
     <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] flex justify-center pointer-events-none">
@@ -52,8 +43,9 @@ export function DynamicIsland({ activeSection }) {
         onPointerLeave={(e) => {
           if (e.pointerType === "mouse") setIsExpanded(false);
         }}
-        onClick={() => setIsExpanded((v) => !v)}
-        onFocus={() => setIsExpanded(true)}
+        onClick={(e) => {
+          setIsExpanded((v) => !v);
+        }}
         onBlur={(e) => {
           if (!e.currentTarget.contains(e.relatedTarget)) setIsExpanded(false);
         }}
@@ -65,25 +57,28 @@ export function DynamicIsland({ activeSection }) {
           }
         }}
         style={{ willChange: isExpanded ? "width, height" : "auto" }}
-        className={`bg-black/90 backdrop-blur-xl pointer-events-auto cursor-pointer relative flex items-center justify-center transition-all duration-[400ms] ease-out focus:outline-none focus:ring-2 focus:ring-accent/60 focus:ring-offset-2 focus:ring-offset-transparent ${
+        className={`bg-[#0a0a0a]/95 backdrop-blur-2xl pointer-events-auto cursor-pointer relative flex items-center justify-center transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-transparent ${
           isExpanded
-            ? "w-[340px] sm:w-[400px] md:w-[520px] h-16 sm:h-[68px] md:h-20 rounded-[28px] border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.8),0_0_0_1px_rgba(255,255,255,0.05)]"
-            : "w-32 sm:w-36 h-10 sm:h-11 rounded-full border border-white/10 shadow-[0_4px_16px_rgba(0,0,0,0.6)]"
+            ? "w-[340px] sm:w-[400px] md:w-[520px] h-16 sm:h-[68px] md:h-20 rounded-full border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.7),inset_0_1px_1px_rgba(255,255,255,0.15)] bg-gradient-to-b from-white/[0.06] to-transparent"
+            : "w-28 sm:w-32 h-10 sm:h-11 rounded-full border border-white/15 shadow-[0_10px_30px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.15)] bg-gradient-to-b from-white/[0.04] to-transparent hover:border-white/30 hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.25)]"
         }`}
       >
         {/* Collapsed state - pill */}
         <div
-          className={`absolute inset-0 flex items-center justify-center gap-2.5 transition-all duration-300 ${
-            isExpanded ? "opacity-0 scale-90 pointer-events-none" : "opacity-100 scale-100 delay-75"
+          className={`absolute inset-0 flex items-center justify-center gap-3 transition-all duration-400 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+            isExpanded ? "opacity-0 scale-90 pointer-events-none" : "opacity-100 scale-100 delay-150"
           }`}
         >
-          <span className="w-2 h-2 rounded-full bg-accent shadow-[0_0_12px_rgba(79,255,163,0.7)] animate-pulse" />
-          <span className="text-white text-xs sm:text-sm font-bold tracking-[0.15em] uppercase">Menu</span>
+          <div className="flex flex-row items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)] animate-pulse" />
+            <span className="w-2.5 h-2.5 rounded-full bg-black shadow-[inset_0_1px_2px_rgba(255,255,255,0.3)] border border-white/10" />
+          </div>
+          <span className="text-white text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase opacity-90">Menu</span>
         </div>
 
         {/* Expanded state - nav items */}
         <div
-          className={`absolute inset-0 flex items-center justify-between px-3 sm:px-4 md:px-5 transition-all duration-300 ${
+          className={`absolute inset-0 flex items-center justify-between px-3 sm:px-4 md:px-5 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${
             isExpanded ? "opacity-100 scale-100 delay-100 visible" : "opacity-0 scale-95 invisible pointer-events-none"
           }`}
         >
@@ -94,34 +89,27 @@ export function DynamicIsland({ activeSection }) {
               onClick={(e) => scrollToSection(e, item.id)}
               aria-label={`Navigate to ${item.label}`}
               aria-current={activeSection === item.id ? "page" : undefined}
-              style={{ transitionDelay: isExpanded ? `${idx * 30}ms` : "0ms" }}
-              className="group relative flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full transition-all duration-300 ease-out hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-accent/70"
+              style={{ transitionDelay: isExpanded ? `${idx * 40}ms` : "0ms" }}
+              className="group relative flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-full transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-accent/70"
             >
-              {/* Active state glow */}
+              {/* Active Background Pill */}
               <div
-                className={`absolute inset-0 rounded-full blur-lg transition-opacity duration-300 ${
-                  activeSection === item.id ? "opacity-30 bg-accent" : "opacity-0 group-hover:opacity-20 group-hover:bg-accent"
+                className={`absolute inset-0.5 sm:inset-1 rounded-[20px] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+                  activeSection === item.id ? "bg-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]" : "bg-transparent group-hover:bg-white/[0.06]"
                 }`}
               />
               
-              {/* Border ring */}
+              {/* Active underline indicator */}
               <div
-                className={`absolute inset-0.5 sm:inset-1 rounded-full border transition-all duration-300 ${
-                  activeSection === item.id ? "border-accent/40 bg-accent/5" : "border-transparent group-hover:border-accent/25 group-hover:bg-white/5"
-                }`}
-              />
-              
-              {/* Active dot indicator */}
-              <div
-                className={`absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full transition-all duration-300 ${
-                  activeSection === item.id ? "scale-100 bg-accent" : "scale-0 bg-accent/60 group-hover:scale-100"
+                className={`absolute bottom-[6px] sm:bottom-2 left-1/2 -translate-x-1/2 h-0.5 sm:h-[3px] rounded-full bg-white transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+                  activeSection === item.id ? "w-4 shadow-[0_0_8px_rgba(255,255,255,0.8)]" : "w-0 group-hover:w-2 bg-white/40"
                 }`}
               />
               
               {/* Icon */}
               <div
-                className={`relative z-10 transition-all duration-300 ${
-                  activeSection === item.id ? "text-accent scale-105" : "text-gray-400 group-hover:text-white group-hover:scale-110"
+                className={`relative z-10 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] mb-1 ${
+                  activeSection === item.id ? "text-white scale-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]" : "text-gray-400 group-hover:text-white"
                 }`}
                 aria-hidden="true"
               >
@@ -129,9 +117,9 @@ export function DynamicIsland({ activeSection }) {
               </div>
 
               {/* Label text below icon - outside island */}
-              <div className="absolute top-full mt-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-200 pointer-events-none z-50">
-                <div className="bg-black/90 backdrop-blur-xl border border-white/20 rounded-lg px-3 py-1.5 shadow-lg">
-                  <p className="text-white text-xs font-semibold whitespace-nowrap">{item.label}</p>
+              <div className="absolute top-full mt-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] pointer-events-none z-50 transform group-hover:translate-y-0 translate-y-1">
+                <div className="bg-[#0a0a0a]/95 backdrop-blur-xl border border-white/15 rounded-full px-4 py-1.5 shadow-[0_8px_16px_rgba(0,0,0,0.8)]">
+                  <p className="text-white text-[10px] font-bold tracking-[0.15em] uppercase whitespace-nowrap">{item.label}</p>
                 </div>
               </div>
             </a>
@@ -141,4 +129,4 @@ export function DynamicIsland({ activeSection }) {
       </nav>
     </div>
   );
-}
+});

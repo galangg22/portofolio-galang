@@ -101,7 +101,7 @@ export default function RootLayout({ children }) {
         {/* ✅ PERF: Preconnect ke CDN Simple Icons untuk tech stack icons */}
         <link rel="preconnect" href="https://cdn.simpleicons.org" />
         <link rel="dns-prefetch" href="https://cdn.simpleicons.org" />
-        
+
         {/* ✅ SEO: Structured Data (JSON-LD) */}
         <script
           type="application/ld+json"
@@ -130,7 +130,7 @@ export default function RootLayout({ children }) {
                   "Docker",
                 ],
                 sameAs: [
-                  "https://www.linkedin.com/in/galang-arrauf-pramudito/",
+                  "https://www.linkedin.com/in/galang-pramudito/",
                   "https://github.com/galangg22",
                 ],
               },

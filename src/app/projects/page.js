@@ -15,7 +15,7 @@ export const metadata = {
   },
 };
 
-export const revalidate = 3600;
+export const revalidate = 3600; // 🚀 PERF: Revalidate 1 jam (ISR) agar tidak memberatkan server
 
 async function getProjects() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

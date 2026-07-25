@@ -1,16 +1,19 @@
 'use client';
 
 import { useTheme } from '@/app/providers';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo, useCallback } from 'react';
 
-export function DarkModeToggle() {
+export const DarkModeToggle = memo(function DarkModeToggle() {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
+
+  const toggleTheme = useCallback(() => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  }, [theme, setTheme]);
 
   if (!mounted) return null;
 
@@ -18,7 +21,7 @@ export function DarkModeToggle() {
 
   return (
     <button
-      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+      onClick={toggleTheme}
       className={`fixed bottom-6 right-6 z-50 p-3 rounded-full border transition-all backdrop-blur-md shadow-lg ${
         isDark
           ? 'bg-white/10 border-white/20 hover:bg-white/20'
@@ -28,10 +31,10 @@ export function DarkModeToggle() {
       title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
     >
       {isDark ? (
-        <i className="ri-sun-line text-xl text-yellow-400"></i>
+        <i className="ri-sun-line text-xl text-yellow-400" />
       ) : (
-        <i className="ri-moon-line text-xl text-blue-500"></i>
+        <i className="ri-moon-line text-xl text-blue-500" />
       )}
     </button>
   );
-}
+});

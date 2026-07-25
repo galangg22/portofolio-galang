@@ -3,10 +3,11 @@
 /* Mendaftarkan warna custom ke Tailwind v4 */
 @theme {
   --color-bg-dark: #0a0a0a;
-  --color-card-bg: #111111;
-  --color-primary: #4f46e5; /* Indigo-600 — unified accent */
-  --color-accent: #4f46e5;  /* Indigo-600 */
+  --color-card-bg: #18181b; /* elevated card background (Zinc 900) */
+  --color-primary: #ffffff; /* Monochrome White */
+  --color-accent: #ffffff;  /* Monochrome White */
   --font-display: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 :root {
@@ -22,7 +23,7 @@
    muted:    #64748b (slate-500)
    subtle:   #94a3b8 (slate-400)
    ── Accent ──
-   accent:   #4f46e5 (indigo-600)
+   accent:   #0a0a0a (black)
    ═════════════════════════════════════════ */
 
 html.light {
@@ -57,15 +58,28 @@ html.light .border-white\/10 { border-color: rgba(0, 0, 0, 0.10) !important; }
 html.light .border-white\/20 { border-color: rgba(0, 0, 0, 0.15) !important; }
 
 /* ── GLOBAL TEXT — Unified scale ──────────── */
+/* ── Global accent buttons — dark text on white bg ─── */
+.bg-accent,
+.bg-accent * { color: #0a0a0a !important; }
+
 html.light .text-accent,
-html.light [class*="text-accent"] { color: #4f46e5 !important; }
+html.light [class*="text-accent"] { color: #0a0a0a !important; }
+
+html.light .bg-accent,
+html.light .bg-accent * { 
+  background-color: #0a0a0a !important; 
+  color: #ffffff !important; 
+}
+
+html.light .border-accent,
+html.light [class*="border-accent"] { border-color: #0a0a0a !important; }
+
+html.light .from-accent { --tw-gradient-from: #0a0a0a; }
+html.light .to-accent { --tw-gradient-to: #0a0a0a; }
+
 html.light .text-gray-300 { color: #475569 !important; }
 html.light .text-gray-400 { color: #475569 !important; }
 html.light .text-gray-500 { color: #64748b !important; }
-
-/* ── Global accent buttons — selalu putih ─── */
-html.light .bg-accent,
-html.light .bg-accent * { color: #ffffff !important; }
 
 /* ── HERO (#home) ──────────────────────────── */
 html.light #home h1,
@@ -434,6 +448,14 @@ html.light .z-\[10001\] button.hover\:text-white:hover {
   animation: slideIn 0.3s ease-out;
 }
 
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
 html.light .text-glow {
   text-shadow: 0 0 30px rgba(79, 70, 229, 0.15);
 }
@@ -465,6 +487,19 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Premium Noise/Grain Texture Overlay */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.025;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -473,4 +508,27 @@ html {
 html {
   scroll-padding-top: 80px;
 }
-
+
+/* -- SKILLS / CORE EXPERTISE ---------------------------- */
+html.light .from-card-bg {
+  --tw-gradient-from: #ffffff var(--tw-gradient-from-position);
+  --tw-gradient-to: rgba(255, 255, 255, 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
+html.light .light-shadow {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light .skill-card h3 {
+  color: #1e293b !important;
+}
+
+html.light .skill-card .watermark-icon {
+  color: #1e293b !important;
+}
+
+html.light .skill-card .skill-icon {
+  color: #1e293b !important;
+}
+

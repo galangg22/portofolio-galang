@@ -96,9 +96,9 @@ function ProjectsClientContent({ initialProjects }) {
           <button
             key={f.key}
             onClick={() => setFilter(f.key)}
-            className={`shrink-0 px-5 md:px-6 py-2.5 rounded-full border text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${
+            className={`shrink-0 px-5 md:px-6 py-2.5 rounded-full border text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all duration-300 whitespace-nowrap flex items-center gap-2 ${
               filter === f.key
-                ? "bg-accent text-bg-dark border-accent"
+                ? "bg-accent text-bg-dark border-accent shadow-xl scale-105"
                 : "border-white/10 text-gray-500 hover:border-white/30 hover:text-white bg-white/5"
             }`}
           >
@@ -120,7 +120,7 @@ function ProjectsClientContent({ initialProjects }) {
           const detailUrl = `/projects/${project.slug || GenerateSlug(project.title)}/${project.id}`;
 
           return (
-            <div key={project.id} className="group bg-card-bg border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all flex flex-col">
+            <div key={project.id} className="group bg-card-bg border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_12px_40px_rgba(0,0,0,0.4)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] flex flex-col">
               <Link href={detailUrl} className="relative w-full aspect-video bg-black overflow-hidden block">
                 {project.thumbnail_url ? (
                   <Image
@@ -186,7 +186,7 @@ function ProjectsClientContent({ initialProjects }) {
                     {project.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="px-2 py-0.5 bg-white/5 border border-white/10 rounded-md text-[9px] font-bold text-gray-400 uppercase"
+                        className="px-2 py-0.5 bg-white/5 border border-white/10 rounded-md text-[9px] font-mono font-bold text-gray-400 uppercase tracking-wider"
                       >
                         {tag}
                       </span>
@@ -261,9 +261,10 @@ function ProjectsClientContent({ initialProjects }) {
           );
         })}
         {!filtered.length && (
-          <p className="text-gray-500 text-sm col-span-full text-center py-12">
-            Tidak ada project untuk kategori ini.
-          </p>
+          <div className="col-span-full flex flex-col items-center justify-center py-24 border border-dashed border-white/10 rounded-2xl bg-white/[0.01]">
+            <i className="ri-folder-open-line text-4xl text-white/20 mb-3" />
+            <p className="text-gray-500 text-sm font-medium">Belum ada project di kategori ini.</p>
+          </div>
         )}
       </div>
 
