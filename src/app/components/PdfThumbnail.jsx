@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 
+// Global render queue so we only render one PDF at a time across all instances
+let renderQueue = Promise.resolve();
+
 export default function PdfThumbnail({ url, width = 600, className = "" }) {
   const canvasRef = useRef(null);
   const [status, setStatus] = useState("loading"); // loading | done | error
@@ -11,34 +14,50 @@ export default function PdfThumbnail({ url, width = 600, className = "" }) {
     let cancelled = false;
     let task;
 
-    (async () => {
-      try {
-        const pdfjsLib = await import("pdfjs-dist");
-        pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
+    // 1. Scroll Intent Debounce: Wait 400ms before starting
+    const timerId = setTimeout(() => {
+      // 2. Global Sequential Queue: Only render one PDF at a time
+      renderQueue = renderQueue.then(async () => {
+        if (cancelled) return; // Skip if scrolled away
 
-        task = pdfjsLib.getDocument({ url });
-        const pdf = await task.promise;
-        const page = await pdf.getPage(1);
+        try {
+          const pdfjsLib = await import("pdfjs-dist");
+          pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
 
-        const base = page.getViewport({ scale: 1 });
-        const scale = width / base.width;
-        const viewport = page.getViewport({ scale });
+          task = pdfjsLib.getDocument({ url });
+          const pdf = await task.promise;
+          const page = await pdf.getPage(1);
 
-        if (cancelled) return;
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
+          const base = page.getViewport({ scale: 1 });
+          const scale = width / base.width;
+          const viewport = page.getViewport({ scale });
 
-        const canvasContext = canvas.getContext("2d");
-        await page.render({ canvasContext, viewport }).promise;
-        if (!cancelled) setStatus("done");
-      } catch (e) {
-        if (!cancelled) setStatus("error");
-      }
-    })();
+          if (cancelled) return;
+          const canvas = canvasRef.current;
+          if (!canvas) return;
+          
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
 
-    return () => { cancelled = true; task?.destroy?.(); };
+          const canvasContext = canvas.getContext("2d");
+          await page.render({ canvasContext, viewport }).promise;
+          
+          if (!cancelled) setStatus("done");
+
+          // 3. Main-Thread Yielding: Give browser 150ms to process scrolling/GSAP
+          await new Promise(resolve => setTimeout(resolve, 150));
+          
+        } catch (e) {
+          if (!cancelled) setStatus("error");
+        }
+      });
+    }, 400);
+
+    return () => { 
+      cancelled = true; 
+      clearTimeout(timerId);
+      task?.destroy?.(); 
+    };
   }, [url, width]);
 
   if (!url || status === "error") {

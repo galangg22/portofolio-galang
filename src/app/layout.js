@@ -2,6 +2,7 @@ import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { ThemeProviderComponent } from "./providers";
 import { TopLoader } from "next-top-loader";
+import { SmoothScroll } from "./components/SmoothScroll";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -77,7 +78,6 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="id"
-      data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} h-full antialiased`}
       suppressHydrationWarning
     >
@@ -153,8 +153,10 @@ export default function RootLayout({ children }) {
       </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <ThemeProviderComponent>
-          <TopLoader color="#4f46e5" showSpinner={false} />
-          {children}
+          <SmoothScroll>
+            <TopLoader color="#4f46e5" showSpinner={false} />
+            {children}
+          </SmoothScroll>
         </ThemeProviderComponent>
       </body>
     </html>

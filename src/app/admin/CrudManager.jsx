@@ -297,10 +297,12 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
   const [editingId, setEditingId] = useState(null)
   const [showForm, setShowForm] = useState(false)
   const [selectedFilterValue, setSelectedFilterValue] = useState('all')
+  const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [fileToUpload, setFileToUpload] = useState(null)
   const [uploadLoading, setUploadLoading] = useState(false)
+  const initialFormRef = useRef({})
 
   // Use custom hooks
   const toast = useToast()
@@ -313,6 +315,32 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
       }
     }
   }, [filterField, selectedFilterValue])
+
+  // Ensure body scroll is never locked (fixes HMR lingering state from old drawer logic)
+  useEffect(() => {
+    document.body.style.overflow = 'unset'
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [])
+
+  // Keyboard Shortcut untuk Simpan (Ctrl+S / Cmd+S)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        if (showForm || editingId) {
+          e.preventDefault()
+          const form = document.getElementById('crud-form')
+          if (form && form.requestSubmit) {
+            form.requestSubmit()
+          }
+        }
+      }
+    }
+    
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [showForm, editingId])
 
   useEffect(() => {
     let isMounted = true // Track if component is still mounted
@@ -452,6 +480,14 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
         const errorMsg = `${field.label} is required`
         setError(errorMsg)
         toast.error(errorMsg)
+        
+        // Auto-scroll ke kolom yang error
+        const errorElement = document.getElementById(field.key)
+        if (errorElement) {
+          errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          errorElement.focus()
+        }
+        
         return
       }
     }
@@ -499,6 +535,30 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
       dataToSubmit = { ...dataToSubmit, [fileToUpload.fieldKey]: imageUrl }
     }
 
+    // Auto-generate thumbnail for certificates if PDF is provided and image is empty
+    if (table === 'certificates' && dataToSubmit.verify_url?.toLowerCase().endsWith('.pdf') && !dataToSubmit.image_url) {
+      toast.info("Membuat thumbnail dari PDF...");
+      try {
+        const { generatePdfThumbnail } = await import('@/lib/pdfToImage');
+        const blob = await generatePdfThumbnail(dataToSubmit.verify_url);
+        const fd = new FormData();
+        fd.append('file', blob, 'pdf-thumbnail.jpg');
+        fd.append('bucket', 'thumbnails');
+        
+        const res = await fetch('/api/upload', { method: 'POST', body: fd });
+        if (res.ok) {
+          const { url } = await res.json();
+          dataToSubmit.image_url = url;
+          toast.success("Thumbnail berhasil dibuat!");
+        } else {
+          toast.error("Gagal mengunggah thumbnail");
+        }
+      } catch (err) {
+        console.error("PDF thumbnail generation failed:", err);
+        toast.error("Gagal membuat thumbnail PDF, menyimpan tanpa thumbnail.");
+      }
+    }
+
     // Filter out fields hidden by showWhen
     const visibleKeys = new Set(fields.filter(f => !f.showWhen || f.showWhen(dataToSubmit)).map(f => f.key))
     const cleanData = {}
@@ -544,6 +604,7 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
       ? { ...item, tags: item.tags.join(', ') } 
       : { ...item }
     setFormData(formattedItem)
+    initialFormRef.current = formattedItem
     setShowForm(true)
     // Smooth scroll to top with RAF for better performance
     requestAnimationFrame(() => {
@@ -645,12 +706,17 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
     }
   }
 
-  const handleCancelEdit = () => {
+  const handleCancelForm = () => {
+    const isDirty = JSON.stringify(formData) !== JSON.stringify(initialFormRef.current)
+    if (isDirty) {
+      if (!confirm('Ada perubahan yang belum disimpan. Yakin ingin membuangnya?')) {
+        return
+      }
+    }
     setFormData({})
     setEditingId(null)
     setFileToUpload(null)
     setShowForm(false)
-    document.querySelectorAll('input[type="file"]').forEach(input => { input.value = '' })
   }
 
   const renderField = (field) => {
@@ -658,7 +724,7 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
     const value = formData[field.key] ?? ''
 
     // Shared input classes
-    const inputClasses = "w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/30 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+    const inputClasses = "w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:border-accent focus:bg-white/10 focus:ring-1 focus:ring-accent/30 focus:outline-none transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
 
     let inputElement
     switch (field.type) {
@@ -933,9 +999,16 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
     }
   }
 
-  const filteredData = filterField && selectedFilterValue !== 'all'
-    ? data.filter(item => String(item[filterField.key]) === String(selectedFilterValue))
-    : data
+  const filteredData = data.filter(item => {
+    const matchesCategory = filterField && selectedFilterValue !== 'all' 
+      ? String(item[filterField.key]) === String(selectedFilterValue)
+      : true;
+      
+    const searchTarget = (item.title || item.name || '').toLowerCase();
+    const matchesSearch = searchQuery.trim() === '' || searchTarget.includes(searchQuery.toLowerCase());
+    
+    return matchesCategory && matchesSearch;
+  })
 
   return (
     <div className="relative">
@@ -943,14 +1016,14 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 bg-gradient-to-r from-gray-800 to-gray-900 p-6 rounded-2xl border border-gray-700 shadow-sm">
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
-              <i className="ri-database-2-line text-blue-400"></i>
+            <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center border border-accent/30 shadow-[0_0_15px_rgba(var(--accent),0.2)]">
+              <i className="ri-database-2-line text-accent"></i>
             </div>
             {table.charAt(0).toUpperCase() + table.slice(1).replace(/_/g, ' ')}
           </h1>
           <p className="text-gray-400 text-sm mt-2 ml-13">Kelola dan atur struktur data {table} Anda.</p>
         </div>
-        {!showForm && !editingId && (
+        {!(showForm || editingId) && (
           <button
             onClick={() => {
               const initialForm = {}
@@ -958,13 +1031,14 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
                 initialForm[filterField.key] = selectedFilterValue
               }
               setFormData(initialForm)
+              initialFormRef.current = initialForm
               setShowForm(true)
             }}
-            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-bold transition-all flex items-center gap-2 shadow-lg shadow-blue-500/25 active:scale-95"
+            className="px-6 py-3 bg-accent hover:scale-[1.02] active:scale-[0.98] text-bg-dark rounded-full text-sm font-bold transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(var(--accent),0.3)] hover:shadow-[0_0_30px_rgba(var(--accent),0.5)]"
             aria-label="Add new item"
           >
             <i className="ri-add-line text-lg"></i>
-            Tambah Baru
+            Tambah Konten Baru
           </button>
         )}
       </div>
@@ -984,20 +1058,29 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
         </div>
       )}
 
-      {/* Master-Detail Split Layout */}
-      <div className="flex flex-col xl:flex-row gap-6 items-start relative">
-        
-        {/* Main List Column (Master) */}
-        <div className={`w-full transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${(showForm || editingId) ? 'hidden xl:block xl:w-7/12' : 'w-full'}`}>
-          <div className="bg-gray-800/80 backdrop-blur-md rounded-2xl border border-gray-700 overflow-hidden shadow-lg">
-            <div className="px-6 py-5 border-b border-gray-700 bg-gray-800/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* --- LIST VIEW --- */}
+      {!(showForm || editingId) ? (
+        <div className="relative z-10 w-full mb-20 animate-in fade-in zoom-in-95 duration-500">
+          <div className="bg-white/[0.02] backdrop-blur-xl rounded-3xl border border-white/10 overflow-hidden shadow-2xl">
+            <div className="px-6 py-5 border-b border-white/10 bg-white/[0.01] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <h2 className="text-base font-semibold text-white flex items-center gap-2">
-                <i className="ri-list-check-2 text-gray-400"></i>
+                <i className="ri-list-check-2 text-accent"></i>
                 Daftar Konten 
-                <span className="px-2 py-0.5 rounded-md bg-gray-700 text-gray-300 text-xs ml-2">{filteredData.length} item</span>
+                <span className="px-2 py-0.5 rounded-md bg-white/10 text-gray-300 text-xs ml-2">{filteredData.length} item</span>
               </h2>
               
-              {filterField && (
+              <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                <div className="relative w-full sm:w-56 shrink-0">
+                  <i className="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                  <input
+                    type="text"
+                    placeholder="Cari data..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full bg-gray-900 border border-gray-700/50 text-white text-xs rounded-lg py-2 pl-9 pr-3 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/30 transition-all placeholder:text-gray-600"
+                  />
+                </div>
+                {filterField && (
                 <div className="flex flex-wrap gap-1.5 bg-gray-900/80 p-1.5 rounded-xl border border-gray-700 shadow-inner">
                   {filterField.options.map(opt => (
                     <button
@@ -1006,8 +1089,8 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
                       onClick={() => setSelectedFilterValue(opt.value)}
                       className={`px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
                         String(selectedFilterValue) === String(opt.value)
-                          ? 'bg-blue-600 text-white shadow-md'
-                          : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+                          ? 'bg-accent text-bg-dark shadow-[0_0_15px_rgba(var(--accent),0.3)]'
+                          : 'text-gray-400 hover:text-white hover:bg-white/5'
                       }`}
                     >
                       {opt.label}
@@ -1015,13 +1098,22 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
                   ))}
                 </div>
               )}
+              </div>
             </div>
 
             <div className="p-5 min-h-[400px]">
               {loading ? (
-                <div className="flex flex-col items-center justify-center py-20 text-blue-400">
-                  <i className="ri-loader-4-line animate-spin text-4xl mb-4"></i>
-                  <span className="text-gray-400 font-medium text-sm animate-pulse">Memuat data...</span>
+                <div className="flex flex-col gap-3 py-2 px-2">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="w-full h-16 bg-white/[0.03] animate-pulse rounded-xl border border-white/5 flex items-center px-4 gap-4">
+                      <div className="w-10 h-10 bg-white/10 rounded-lg shrink-0"></div>
+                      <div className="flex-1 space-y-2">
+                        <div className="h-3 bg-white/10 rounded w-1/3"></div>
+                        <div className="h-2 bg-white/5 rounded w-1/4"></div>
+                      </div>
+                      <div className="w-20 h-8 bg-white/5 rounded-lg shrink-0"></div>
+                    </div>
+                  ))}
                 </div>
               ) : filteredData.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-gray-700 rounded-xl m-2 bg-gray-800/30">
@@ -1042,39 +1134,38 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
                   columns={columns}
                   featuredLimit={featuredLimit}
                   enableFeaturedDrag={enableFeaturedDrag}
+                  disableDrag={filterField && selectedFilterValue === 'all'}
                 />
               )}
             </div>
           </div>
         </div>
-
-        {/* Form Column (Detail Panel) */}
-        {(showForm || editingId) && (
-          <div className="w-full xl:w-5/12 bg-gray-800/90 backdrop-blur-xl border border-gray-700 rounded-2xl shadow-2xl xl:sticky xl:top-24 overflow-hidden transform-gpu animate-in slide-in-from-right-8 fade-in duration-500 ease-out">
-            <div className="flex justify-between items-center px-6 py-5 border-b border-gray-700 bg-gray-900/40">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+      ) : (
+        /* --- FORM VIEW (FULL PAGE) --- */
+        <div className="relative z-10 w-full max-w-4xl mx-auto mb-20 animate-in fade-in slide-in-from-bottom-8 duration-500">
+          <div className="bg-white/[0.02] backdrop-blur-xl rounded-3xl border border-white/10 overflow-hidden shadow-2xl">
+            {/* Header */}
+            <div className="px-6 sm:px-8 py-6 border-b border-white/10 bg-white/[0.01] flex justify-between items-center">
+              <h2 className="text-xl font-bold text-white flex items-center gap-3">
                 {editingId ? (
-                  <><i className="ri-edit-box-line text-blue-400"></i> Edit Konten</>
+                  <><div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center"><i className="ri-edit-box-line text-accent"></i></div> Edit Konten</>
                 ) : (
-                  <><i className="ri-add-box-line text-emerald-400"></i> Tambah Baru</>
+                  <><div className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center"><i className="ri-add-box-line text-accent"></i></div> Tambah Konten</>
                 )}
               </h2>
               <button
-                onClick={() => {
-                  setShowForm(false)
-                  handleCancelEdit()
-                }}
-                className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-800 text-gray-400 hover:text-white hover:bg-red-500/80 transition-all border border-gray-700"
-                aria-label="Tutup form"
+                onClick={handleCancelForm}
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-gray-400 hover:text-white hover:bg-red-500/80 hover:rotate-90 transition-all border border-white/10"
+                aria-label="Kembali"
               >
-                <i className="ri-close-line text-lg"></i>
+                <i className="ri-close-line text-xl"></i>
               </button>
             </div>
             
-            <div className="p-6 max-h-[calc(100vh-12rem)] overflow-y-auto custom-scrollbar">
-              <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            {/* Form Body */}
+            <div className="p-6 sm:p-8">
+              <form id="crud-form" onSubmit={handleSubmit} className="flex flex-col gap-6">
                 {(() => {
-                  // Group fields by their 'group' property
                   const groupedFields = fields.reduce((acc, field) => {
                     const group = field.group || 'Informasi Umum';
                     if (!acc[group]) acc[group] = [];
@@ -1083,17 +1174,16 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
                   }, {});
 
                   return Object.entries(groupedFields).map(([groupName, groupFields]) => {
-                    // Check if group has any visible fields based on showWhen logic
                     const visibleFields = groupFields.filter(f => !f.showWhen || f.showWhen(formData));
                     if (visibleFields.length === 0) return null;
 
                     return (
-                      <div key={groupName} className="bg-gray-900/30 rounded-xl border border-gray-700/50 overflow-hidden shadow-sm">
-                        <div className="px-5 py-3 bg-gray-800/80 border-b border-gray-700/50 flex items-center gap-2">
-                          <div className="w-1.5 h-4 bg-blue-500 rounded-full"></div>
-                          <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest">{groupName}</h3>
+                      <div key={groupName} className="bg-bg-dark/50 rounded-2xl border border-white/10 overflow-hidden">
+                        <div className="px-5 py-4 border-b border-white/10 bg-white/[0.02] flex items-center gap-3">
+                          <div className="w-1.5 h-4 bg-accent rounded-full"></div>
+                          <h3 className="text-xs font-bold text-gray-300 uppercase tracking-widest">{groupName}</h3>
                         </div>
-                        <div className="p-5 flex flex-col gap-5">
+                        <div className="p-5 sm:p-6 flex flex-col gap-5">
                           {groupFields.map((field) => {
                             const rendered = renderField(field);
                             if (!rendered) return null;
@@ -1108,42 +1198,16 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
                     );
                   });
                 })()}
-                
-                <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6 pt-6 border-t border-gray-700">
-                  <button 
-                    type="button" 
-                    onClick={() => {
-                      setShowForm(false)
-                      handleCancelEdit()
-                    }}
-                    className="px-5 py-2.5 bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-300 font-medium rounded-xl text-sm transition-all disabled:opacity-50"
-                    disabled={loading || uploadLoading}
-                  >
-                    Batal
-                  </button>
-                  <button 
-                    type="submit"
-                    className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 active:scale-95"
-                    disabled={loading || uploadLoading}
-                  >
-                    {(loading || uploadLoading) ? (
-                      <i className="ri-loader-4-line animate-spin text-lg"></i>
-                    ) : (
-                      <i className="ri-save-3-line text-lg"></i>
-                    )}
-                    <span>{editingId ? 'Simpan Perubahan' : 'Buat Konten'}</span>
-                  </button>
-                </div>
               </form>
 
               {/* Related Section (e.g., Project Images) */}
               {relatedSection && editingId && relatedSection.showWhen(formData) && (
-                <div className="mt-8 pt-8 border-t border-gray-700">
-                  <div className="flex items-center gap-2 mb-5">
-                    <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center border border-purple-500/30">
-                      <i className="ri-image-line text-purple-400"></i>
+                <div className="mt-8 pt-8 border-t border-white/10">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center border border-purple-500/30 shadow-[0_0_15px_rgba(168,85,247,0.2)]">
+                      <i className="ri-image-line text-purple-400 text-lg"></i>
                     </div>
-                    <h3 className="text-white font-semibold">Galeri & Media</h3>
+                    <h3 className="text-white font-bold text-lg tracking-wide">Galeri & Media</h3>
                   </div>
                   <RelatedImages
                     parentId={editingId}
@@ -1156,9 +1220,34 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
                 </div>
               )}
             </div>
+
+            {/* Form Footer */}
+            <div className="px-6 sm:px-8 py-5 border-t border-white/10 bg-white/[0.01] flex flex-col sm:flex-row justify-end gap-3 rounded-b-3xl">
+              <button 
+                type="button" 
+                onClick={handleCancelForm}
+                className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 font-bold rounded-full text-sm transition-all disabled:opacity-50"
+                disabled={loading || uploadLoading}
+              >
+                Batalkan
+              </button>
+              <button 
+                type="submit"
+                form="crud-form"
+                className="px-8 py-3 bg-accent hover:scale-[1.02] active:scale-[0.98] text-bg-dark rounded-full text-sm font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(var(--accent),0.3)] hover:shadow-[0_0_30px_rgba(var(--accent),0.5)]"
+                disabled={loading || uploadLoading}
+              >
+                {(loading || uploadLoading) ? (
+                  <i className="ri-loader-4-line animate-spin text-lg"></i>
+                ) : (
+                  <i className="ri-save-3-line text-lg"></i>
+                )}
+                <span>{editingId ? 'Simpan Perubahan' : 'Buat Konten Baru'}</span>
+              </button>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }

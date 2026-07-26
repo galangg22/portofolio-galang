@@ -8,6 +8,7 @@ const certificateFields = [
   { key: 'issue_date', label: 'Tanggal Terbit (kosongkan jika tidak ada)', type: 'date', group: 'Informasi Utama' },
   { key: 'credential_id', label: 'Credential ID (opsional)', type: 'text', group: 'Detail Kredensial' },
   { key: 'credential_url', label: 'Link Verifikasi Credential (opsional)', type: 'url', group: 'Detail Kredensial' },
+  { key: 'image_url', label: 'Thumbnail Sertifikat (Otomatis dari PDF jika kosong)', type: 'image', group: 'Media & Deskripsi' },
   { key: 'verify_url', label: 'Link PDF Sertifikat (GDrive / storage)', type: 'url', group: 'Media & Deskripsi' },
   { key: 'description', label: 'Deskripsi', type: 'textarea', group: 'Media & Deskripsi' },
 ]

@@ -324,9 +324,9 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                 {
                   opacity: 1,
                   y: 0,
-                  duration: 0.7,
-                  stagger: 0.07,
-                  ease: "power2.out",
+                  duration: 1.2,
+                  stagger: 0.1,
+                  ease: "expo.out",
                   overwrite: "auto",
                   clearProps: "transform"
                 }
@@ -426,7 +426,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                 const rest = nameParts.slice(1).join(' ');
                 return (
                   <>
-                    {first} {rest && <span className="text-accent">{rest}</span>}
+                    {first} {rest && <span className="text-accent font-serif italic font-normal">{rest}</span>}
                   </>
                 );
               })()}
@@ -507,14 +507,14 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
             </p>
 
             <div className="grid sm:grid-cols-2 gap-4">
-              <div className="info-card p-4 bg-white/[0.03] rounded-xl border border-white/[0.06] flex items-center gap-3">
+              <div className="info-card p-4 bg-white/[0.02] backdrop-blur-md hover:-translate-y-1 transition-all rounded-xl border border-white/[0.08] flex items-center gap-3">
                 <i className="ri-server-line text-2xl text-accent"></i>
                 <div>
                   <p className="text-gray-400 text-xs uppercase tracking-widest">Main Stack</p>
                   <p className="font-bold text-white text-sm">Laravel, PHP, MySQL</p>
                 </div>
               </div>
-              <div className="info-card p-4 bg-white/[0.03] rounded-xl border border-white/[0.06] flex items-center gap-3">
+              <div className="info-card p-4 bg-white/[0.02] backdrop-blur-md hover:-translate-y-1 transition-all rounded-xl border border-white/[0.08] flex items-center gap-3">
                 <i className="ri-brain-line text-2xl text-accent"></i>
                 <div>
                   <p className="text-gray-400 text-xs uppercase tracking-widest">Specialization</p>
@@ -557,9 +557,9 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
               {skills.map((skill, idx) => (
                 <div
                   key={idx}
-                  className={`skill-card group relative overflow-hidden rounded-3xl p-6 md:p-8 transition-all duration-500 light-shadow ${skill.highlight
-                    ? 'bg-gradient-to-b from-card-bg to-accent/5 border border-accent/30 hover:border-accent/60 shadow-xl hover:shadow-2xl'
-                    : 'bg-card-bg border border-white/5 hover:border-white/20 hover:bg-white/[0.03]'
+                  className={`skill-card group relative overflow-hidden rounded-3xl p-6 md:p-8 transition-all duration-500 light-shadow hover:-translate-y-1 ${skill.highlight
+                    ? 'bg-white/[0.03] backdrop-blur-xl border-accent/20 border-2 shadow-[0_0_30px_rgba(255,255,255,0.05)] shadow-accent/10'
+                    : 'bg-white/[0.02] backdrop-blur-lg border border-white/10 hover:border-white/20 hover:bg-white/[0.03]'
                     }`}
                 >
                   {/* Watermark Icon */}
@@ -689,7 +689,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                   /* DEV LAYOUT */
                   <div className="space-y-8">
                     {/* Spotlight */}
-                    <div className="work-card p-1.5 bg-white/[0.03] rounded-[2rem] border border-white/[0.06] group/card hover:border-accent/25 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)]">
+                    <div className="work-card p-1.5 bg-white/[0.02] backdrop-blur-xl rounded-[2rem] border border-white/[0.08] group/card hover:-translate-y-1 hover:border-white/20 transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)]">
                       <div className="rounded-[calc(2rem-0.375rem)] overflow-hidden bg-card-bg grid lg:grid-cols-12 shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)]">
                         <div className="lg:col-span-7 relative h-64 lg:h-[420px] overflow-hidden">
                           {spotlight.image ? (
@@ -758,7 +758,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         {rest.map((project) => {
                           return (
-                            <div key={project.id} className="work-card p-1 bg-white/[0.02] rounded-2xl border border-white/[0.06] group/card hover:border-accent/20 transition-all duration-700">
+                            <div key={project.id} className="work-card p-1 bg-white/[0.02] backdrop-blur-lg rounded-2xl border border-white/[0.08] group/card hover:-translate-y-1 hover:border-white/20 transition-all duration-700">
                               <div className="rounded-[calc(1.5rem-0.25rem)] overflow-hidden bg-card-bg flex flex-col h-full shadow-[inset_0_1px_1px_rgba(255,255,255,0.12)]">
                                 <div className="relative h-48 overflow-hidden">
                                   {project.image ? (
@@ -868,14 +868,14 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
               ))
             ) : (
               certificates.map((cert) => (
-                <div key={cert.id} onClick={() => setSelectedCert(cert)} className="bento-card group bg-card-bg border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all flex flex-col cursor-pointer">
+                <div key={cert.id} onClick={() => setSelectedCert(cert)} className="bento-card group bg-white/[0.02] backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden hover:-translate-y-1 hover:border-white/20 transition-all flex flex-col cursor-pointer">
                   <div className="relative w-full aspect-[4/3] bg-gradient-to-br from-primary/40 to-accent/30 flex items-center justify-center overflow-hidden">
-                    {cert.verify_url?.endsWith('.pdf') ? (
+                    {(cert.image_url || cert.image) ? (
+                      <Image src={cert.image_url || cert.image} alt={cert.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
+                    ) : cert.verify_url?.endsWith('.pdf') ? (
                       <LazyRender height="100%">
                         <PdfThumbnail url={cert.verify_url} width={600} />
                       </LazyRender>
-                    ) : (cert.image_url || cert.image) ? (
-                      <Image src={cert.image_url || cert.image} alt={cert.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
                     ) : (
                       <i className="ri-award-fill text-6xl text-white/40"></i>
                     )}

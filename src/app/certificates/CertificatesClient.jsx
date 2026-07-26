@@ -50,10 +50,10 @@ export default function CertificatesClient({ certs: initialCerts }) {
         {certs.map((cert) => (
           <div key={cert.id} id={cert.id} className="group bg-card-bg border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all flex flex-col">
             <div className="relative w-full aspect-[4/3] bg-gradient-to-br from-primary/40 to-accent/30 flex items-center justify-center overflow-hidden">
-              {cert.verify_url?.endsWith('.pdf') ? (
-                <PdfThumbnail url={cert.verify_url} width={600} />
-              ) : cert.image_url ? (
+              {cert.image_url ? (
                 <Image src={cert.image_url} alt={cert.title} fill className="object-cover" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
+              ) : cert.verify_url?.endsWith('.pdf') ? (
+                <PdfThumbnail url={cert.verify_url} width={600} />
               ) : (
                 <i className="ri-award-fill text-6xl text-white/40"></i>
               )}
@@ -81,10 +81,10 @@ export default function CertificatesClient({ certs: initialCerts }) {
           </button>
           <div className="relative z-10 w-full h-full md:h-auto md:max-w-4xl bg-card-bg overflow-y-auto md:border md:border-white/10 md:rounded-2xl md:max-h-[90vh] grid grid-cols-1 md:grid-cols-2 pt-14 md:pt-0">
             <div className="bg-white/5 flex items-start justify-center overflow-y-auto min-h-[200px]">
-              {modal.verify_url?.endsWith('.pdf') ? (
-                <PdfThumbnail url={modal.verify_url} width={900} />
-              ) : modal.image_url ? (
+              {modal.image_url ? (
                 <Image src={modal.image_url} alt={modal.title} width={900} height={636} className="w-full h-auto" />
+              ) : modal.verify_url?.endsWith('.pdf') ? (
+                <PdfThumbnail url={modal.verify_url} width={900} />
               ) : (
                 <div className="w-full aspect-[1/1.414] bg-gradient-to-br from-primary/40 to-accent/30 flex items-center justify-center">
                   <i className="ri-award-fill text-8xl text-white/40" />

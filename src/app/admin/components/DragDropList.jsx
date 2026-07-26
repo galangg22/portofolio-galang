@@ -78,7 +78,9 @@ function SortableItem({ item, onEdit, onDelete, getBadgeColor, getTypeIcon, colu
   const style = {
     transform: CSS.Transform.toString(transform),
     transition: isSorting ? 'none' : transition,
-    opacity: isSorting ? 0.4 : 1,
+    opacity: isSorting ? 0.8 : 1,
+    zIndex: isSorting ? 50 : 'auto',
+    position: isSorting ? 'relative' : 'static',
   }
 
   if (item.isDivider) {
@@ -100,7 +102,7 @@ function SortableItem({ item, onEdit, onDelete, getBadgeColor, getTypeIcon, colu
     <div
       ref={setNodeRef}
       style={style}
-      className="bg-gray-800 rounded-lg px-4 py-3 border border-gray-700">
+      className="bg-white/[0.02] hover:bg-white/[0.05] rounded-2xl px-5 py-4 border border-white/10 hover:border-white/20 transition-all duration-300 group shadow-md hover:shadow-xl hover:-translate-y-0.5">
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         {/* Mobile Header (Drag & Actions) */}
         <div className="flex items-center justify-between sm:hidden w-full mb-1">
@@ -116,14 +118,14 @@ function SortableItem({ item, onEdit, onDelete, getBadgeColor, getTypeIcon, colu
           <div className="flex items-center gap-2">
             <button
               onClick={() => onEdit(item)}
-              className="p-1.5 text-gray-400 hover:text-blue-400 rounded transition-colors"
+              className="p-2 text-gray-400 hover:text-accent bg-white/5 hover:bg-white/10 rounded-lg transition-all"
               aria-label={`Edit ${item.title || item.name}`}
             >
               <i className="ri-edit-line text-lg"></i>
             </button>
             <button
               onClick={() => onDelete(item.id)}
-              className="p-1.5 text-gray-400 hover:text-red-400 rounded transition-colors"
+              className="p-2 text-gray-400 hover:text-red-400 bg-white/5 hover:bg-red-500/10 rounded-lg transition-all"
               aria-label={`Delete ${item.title || item.name}`}
             >
               <i className="ri-delete-bin-line text-lg"></i>
@@ -135,10 +137,10 @@ function SortableItem({ item, onEdit, onDelete, getBadgeColor, getTypeIcon, colu
         <button
           {...attributes}
           {...listeners}
-          className="hidden sm:block cursor-grab active:cursor-grabbing p-1 text-gray-600 hover:text-gray-400 transition-colors touch-none"
+          className="hidden sm:flex items-center justify-center cursor-grab active:cursor-grabbing p-2 rounded-xl text-gray-500 hover:text-white hover:bg-white/5 transition-all touch-none"
           aria-label="Drag to reorder"
         >
-          <i className="ri-draggable text-lg"></i>
+          <i className="ri-draggable text-xl"></i>
         </button>
 
         {/* Content */}
@@ -152,21 +154,79 @@ function SortableItem({ item, onEdit, onDelete, getBadgeColor, getTypeIcon, colu
           )}
         </div>
 
-        {/* Desktop Actions */}
-        <div className="hidden sm:flex items-center gap-1 shrink-0">
+        <div className="hidden sm:flex items-center gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <button
             onClick={() => onEdit(item)}
-            className="p-1.5 text-gray-500 hover:text-blue-400 rounded transition-colors"
+            className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-accent bg-white/5 hover:bg-white/10 rounded-xl transition-all"
             aria-label={`Edit ${item.title || item.name}`}
           >
-            <i className="ri-edit-line"></i>
+            <i className="ri-edit-line text-lg"></i>
           </button>
           <button
             onClick={() => onDelete(item.id)}
-            className="p-1.5 text-gray-500 hover:text-red-400 rounded transition-colors"
+            className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-red-400 bg-white/5 hover:bg-red-500/10 rounded-xl transition-all"
             aria-label={`Delete ${item.title || item.name}`}
           >
-            <i className="ri-delete-bin-line"></i>
+            <i className="ri-delete-bin-line text-lg"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function NonSortableItem({ item, onEdit, onDelete, getBadgeColor, getTypeIcon, columns }) {
+  if (item.isDivider) return null;
+
+  return (
+    <div className="bg-white/[0.02] hover:bg-white/[0.05] rounded-2xl px-5 py-4 border border-white/10 hover:border-white/20 transition-all duration-300 group shadow-md hover:shadow-xl">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+        {/* Mobile Actions */}
+        <div className="flex items-center justify-end sm:hidden w-full mb-1">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => onEdit(item)}
+              className="p-2 text-gray-400 hover:text-accent bg-white/5 hover:bg-white/10 rounded-lg transition-all"
+              aria-label={`Edit ${item.title || item.name}`}
+            >
+              <i className="ri-edit-line text-lg"></i>
+            </button>
+            <button
+              onClick={() => onDelete(item.id)}
+              className="p-2 text-gray-400 hover:text-red-400 bg-white/5 hover:bg-red-500/10 rounded-lg transition-all"
+              aria-label={`Delete ${item.title || item.name}`}
+            >
+              <i className="ri-delete-bin-line text-lg"></i>
+            </button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-2 sm:gap-3 min-w-0 pl-1">
+          <ItemColumns item={item} columns={columns} getBadgeColor={getBadgeColor} getTypeIcon={getTypeIcon} />
+          {item.featured && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs bg-amber-900/20 text-amber-400 border border-amber-800/30 mt-1 sm:mt-0">
+              <i className="ri-star-s-fill text-[10px]"></i>
+              Featured
+            </span>
+          )}
+        </div>
+
+        {/* Desktop Actions */}
+        <div className="hidden sm:flex items-center gap-2">
+          <button
+            onClick={() => onEdit(item)}
+            className="p-2 text-gray-400 hover:text-accent bg-white/5 hover:bg-white/10 rounded-lg transition-all"
+            aria-label={`Edit ${item.title || item.name}`}
+          >
+            <i className="ri-edit-line text-lg"></i>
+          </button>
+          <button
+            onClick={() => onDelete(item.id)}
+            className="p-2 text-gray-400 hover:text-red-400 bg-white/5 hover:bg-red-500/10 rounded-lg transition-all"
+            aria-label={`Delete ${item.title || item.name}`}
+          >
+            <i className="ri-delete-bin-line text-lg"></i>
           </button>
         </div>
       </div>
@@ -175,10 +235,9 @@ function SortableItem({ item, onEdit, onDelete, getBadgeColor, getTypeIcon, colu
 }
 
 // Main DragDropList Component
-export default function DragDropList({ data, onUpdate, onEdit, onDelete, getBadgeColor, getTypeIcon, columns: rawColumns, featuredLimit = null, enableFeaturedDrag = false }) {
+export default function DragDropList({ data, onUpdate, onEdit, onDelete, getBadgeColor, getTypeIcon, columns: rawColumns, featuredLimit = null, enableFeaturedDrag = false, disableDrag = false }) {
   const [items, setItems] = useState([])
   const [activeId, setActiveId] = useState(null)
-  const [isUpdating, setIsUpdating] = useState(false)
 
   // Normalize columns: support both string[] and object[] formats
   const columns = (rawColumns || []).map(col =>
@@ -284,14 +343,11 @@ export default function DragDropList({ data, onUpdate, onEdit, onDelete, getBadg
 
     setItems(reordered)
 
-    setIsUpdating(true)
     try {
       await onUpdate(updated)
     } catch (error) {
       console.error('Failed to update order:', error)
-      setItems(items)
-    } finally {
-      setIsUpdating(false)
+      setItems(items) // Revert on failure
     }
   }
 
@@ -300,16 +356,6 @@ export default function DragDropList({ data, onUpdate, onEdit, onDelete, getBadg
 
   return (
     <div>
-      {/* Updating overlay */}
-      {isUpdating && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[9998]" role="status" aria-live="polite">
-          <div className="bg-gray-800 rounded-lg px-5 py-3 flex items-center gap-3 border border-gray-700">
-            <i className="ri-loader-4-line animate-spin text-xl text-gray-400" aria-hidden="true"></i>
-            <span className="text-gray-300 text-sm">Saving order...</span>
-          </div>
-        </div>
-      )}
-
       {/* Featured info */}
       {featuredLimit !== null && !enableFeaturedDrag && (
         <div className="flex items-center justify-between text-xs text-gray-500 px-1">
@@ -324,12 +370,28 @@ export default function DragDropList({ data, onUpdate, onEdit, onDelete, getBadg
         </div>
       )}
 
-      <DndContext
-        sensors={sensors}
-        collisionDetection={rectIntersection}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
+      {disableDrag ? (
+        <div className="space-y-3 mt-4">
+          {items.map((item) => (
+            <div key={item.id} className="mb-1.5 last:mb-0">
+              <NonSortableItem
+                item={item}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                getBadgeColor={getBadgeColor}
+                getTypeIcon={getTypeIcon}
+                columns={columns}
+              />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={rectIntersection}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
       <SortableContext items={items.map((item) => item.id)} strategy={verticalListSortingStrategy}>
           <div className="space-y-3">
             {items.map((item, index) => (
@@ -356,10 +418,8 @@ export default function DragDropList({ data, onUpdate, onEdit, onDelete, getBadg
             ))}
           </div>
         </SortableContext>
-
-        {/* Drag Overlay */}
-
       </DndContext>
+      )}
     </div>
   )
 }
