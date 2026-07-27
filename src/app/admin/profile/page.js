@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { useToast } from '../components/ToastProvider'
 
@@ -22,11 +22,7 @@ export default function ProfileAdmin() {
   const [tableMissing, setTableMissing] = useState(false)
   const toast = useToast()
 
-  useEffect(() => {
-    fetchProfile()
-  }, [])
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       setLoading(true)
       const { data, error } = await supabase
@@ -51,7 +47,12 @@ export default function ProfileAdmin() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [toast])
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchProfile()
+  }, [fetchProfile])
 
   const handleSave = async (e) => {
     e.preventDefault()

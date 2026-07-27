@@ -29,6 +29,15 @@ const instrumentSerif = Instrument_Serif({
   adjustFontFallback: true,
 });
 
+export const viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f8f9fa" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+};
+
 export const metadata = {
   metadataBase: new URL("https://galangpramudito.web.id"),
   title: {
@@ -69,8 +78,13 @@ export const metadata = {
     images: ["/og-image.jpg"],
   },
   icons: {
-    icon: '/favicon.ico',
-    apple: '/favicon.ico'
+    icon: '/favicon.ico?v=2',
+    apple: '/apple-icon.png'
+  },
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
   },
 };
 
@@ -82,13 +96,6 @@ export default function RootLayout({ children }) {
       suppressHydrationWarning
     >
       <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0a0a" />
-        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f8f9fa" />
-        <link rel="manifest" href="/manifest.json" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         {/* Remixicon Icon Library */}
         <link
           rel="stylesheet"
@@ -114,6 +121,7 @@ export default function RootLayout({ children }) {
                 givenName: "Galang",
                 familyName: "Pramudito",
                 url: "https://galangpramudito.web.id",
+                image: "https://galangpramudito.web.id/image/gambar%20galang%202.jpg",
                 jobTitle: "Web Developer",
                 description:
                   "Web developer spesialis Laravel, PHP, dan PostgreSQL dengan keahlian AI Integration & Automation. Terbuka untuk internship dan freelance.",

@@ -1,7 +1,8 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import crypto from 'crypto'
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { generateSlug } from '@/lib/project-utils'
-
 export const dynamic = 'force-dynamic'
 
 const WHITELIST = ['projects', 'project_images', 'project_types', 'designs', 'design_images', 'videos', 'skills', 'certificates', 'certificate_images', 'profile']
@@ -18,8 +19,10 @@ function validateSession(req) {
   const session = req.cookies.get('admin_session')?.value
   if (!session) return false
   
-  // Support both legacy 'authenticated' and new secure tokens
-  return session === 'authenticated' || /^[a-f0-9]{64}$/i.test(session)
+  if (!process.env.ADMIN_PASSWORD) return false
+  
+  const expectedSession = crypto.createHmac('sha256', process.env.ADMIN_PASSWORD).update('admin_session_salt').digest('hex')
+  return session === expectedSession
 }
 
 function unauthorizedResponse() {
@@ -37,16 +40,16 @@ function badRequestResponse(message = 'Bad request') {
 function serverErrorResponse(message = 'Internal server error', details = null) {
   console.error('Server error:', message, details)
   // For personal/portfolio project: show detailed errors for easier debugging
-  return NextResponse.json({ 
+  return NextResponse.json({
     error: message,
-    details: details ? String(details) : undefined 
+    details: details ? String(details) : undefined
   }, { status: 500 })
 }
 
 export async function GET(req, { params }) {
   try {
     if (!validateSession(req)) return unauthorizedResponse()
-    
+
     const { table } = await params
     if (!WHITELIST.includes(table)) return notAllowedResponse()
 
@@ -61,25 +64,25 @@ export async function GET(req, { params }) {
     let query = supabaseAdmin
       .from(table)
       .select('*')
-    
+
     // Apply ordering based on table structure
     // Some tables have sort_order, others only have created_at
     const tablesWithSortOrder = ['projects', 'designs', 'videos', 'skills', 'certificates', 'project_images', 'design_images', 'certificate_images']
-    
+
     if (tablesWithSortOrder.includes(table)) {
       query = query.order('sort_order', { ascending: true, nullsFirst: false })
     }
     query = query.order('created_at', { ascending: false })
-    
+
     if (id) query = query.eq('id', id)
 
     const { data, error } = await query
-    
+
     if (error) {
       console.error(`GET ${table} error:`, error)
       return serverErrorResponse(error.message, error)
     }
-    
+
     return NextResponse.json(data)
   } catch (error) {
     return serverErrorResponse(error.message, error)
@@ -89,12 +92,12 @@ export async function GET(req, { params }) {
 export async function POST(req, { params }) {
   try {
     if (!validateSession(req)) return unauthorizedResponse()
-    
+
     const { table } = await params
     if (!WHITELIST.includes(table)) return notAllowedResponse()
 
     const body = await req.json().catch(() => null)
-    
+
     if (!body || typeof body !== 'object') {
       return badRequestResponse('Invalid request body')
     }
@@ -107,9 +110,7 @@ export async function POST(req, { params }) {
       if (!safeBody.title || !safeBody.project_type_id) {
         return badRequestResponse('Title and project_type_id are required')
       }
-      if (!safeBody.slug) {
-        safeBody.slug = generateSlug(safeBody.title)
-      }
+      delete safeBody.slug;
     }
     if (table === 'project_types') {
       if (!safeBody.name) {
@@ -143,12 +144,13 @@ export async function POST(req, { params }) {
     }
 
     const { data, error } = await supabaseAdmin.from(table).insert(safeBody).select()
-    
+
     if (error) {
       console.error(`POST ${table} error:`, error)
       return serverErrorResponse(error.message, error)
     }
-    
+
+    revalidatePath('/', 'layout')
     return NextResponse.json(data)
   } catch (error) {
     return serverErrorResponse(error.message, error)
@@ -158,26 +160,24 @@ export async function POST(req, { params }) {
 export async function PUT(req, { params }) {
   try {
     if (!validateSession(req)) return unauthorizedResponse()
-    
+
     const { table } = await params
     if (!WHITELIST.includes(table)) return notAllowedResponse()
 
     const body = await req.json().catch(() => null)
-    
+
     if (!body || typeof body !== 'object') {
       return badRequestResponse('Invalid request body')
     }
 
     const { id, created_at, updated_at, ...safeBody } = body
-    
+
     if (!id || !isValidId(id)) {
       return badRequestResponse('Valid ID is required')
     }
 
     if (table === 'projects') {
-      if (safeBody.title && !safeBody.slug) {
-        safeBody.slug = generateSlug(safeBody.title)
-      }
+      delete safeBody.slug;
     }
 
     if (table === 'project_types') {
@@ -203,7 +203,7 @@ export async function PUT(req, { params }) {
       .update(safeBody)
       .eq('id', id)
       .select()
-    
+
     if (error) {
       console.error(`PUT ${table} error:`, error)
       return serverErrorResponse(error.message, error)
@@ -212,7 +212,8 @@ export async function PUT(req, { params }) {
     if (!data || data.length === 0) {
       return NextResponse.json({ error: 'Record not found' }, { status: 404 })
     }
-    
+
+    revalidatePath('/', 'layout')
     return NextResponse.json(data)
   } catch (error) {
     return serverErrorResponse(error.message, error)
@@ -222,18 +223,18 @@ export async function PUT(req, { params }) {
 export async function DELETE(req, { params }) {
   try {
     if (!validateSession(req)) return unauthorizedResponse()
-    
+
     const { table } = await params
     if (!WHITELIST.includes(table)) return notAllowedResponse()
 
     const body = await req.json().catch(() => null)
-    
+
     if (!body || typeof body !== 'object') {
       return badRequestResponse('Invalid request body')
     }
 
     const { id } = body
-    
+
     if (!id || !isValidId(id)) {
       return badRequestResponse('Valid ID is required')
     }
@@ -242,12 +243,13 @@ export async function DELETE(req, { params }) {
       .from(table)
       .delete()
       .eq('id', id)
-    
+
     if (error) {
       console.error(`DELETE ${table} error:`, error)
       return serverErrorResponse(error.message, error)
     }
-    
+
+    revalidatePath('/', 'layout')
     return NextResponse.json({ ok: true })
   } catch (error) {
     return serverErrorResponse(error.message, error)
@@ -257,20 +259,20 @@ export async function DELETE(req, { params }) {
 export async function PATCH(req, { params }) {
   try {
     if (!validateSession(req)) return unauthorizedResponse()
-    
+
     const { table } = await params
     if (!WHITELIST.includes(table)) return notAllowedResponse()
 
     const body = await req.json().catch(() => null)
-    
+
     if (!body || typeof body !== 'object') {
       return badRequestResponse('Invalid request body')
     }
 
     const { items } = body
-    
+
     console.log(`[PATCH ${table}] Received items:`, items)
-    
+
     // Validate items array
     if (!Array.isArray(items) || items.length === 0) {
       return badRequestResponse('Items array is required')
@@ -283,18 +285,18 @@ export async function PATCH(req, { params }) {
         console.error('Invalid item:', item)
         return badRequestResponse('Each item must have an ID')
       }
-      
+
       // Validate ID format
       if (!isValidId(item.id)) {
         console.error('Invalid ID format for item:', item)
         return badRequestResponse('Each item must have a valid ID')
       }
-      
+
       if (typeof item.sort_order !== 'number' || isNaN(item.sort_order)) {
         console.error('Invalid sort_order:', item.sort_order, 'for item:', item)
         return badRequestResponse('Each item must have a valid sort_order number')
       }
-      
+
       // featured is optional — not all tables have it (e.g., image tables)
       if (item.featured !== undefined && typeof item.featured !== 'boolean') {
         console.error('Invalid featured:', item.featured, 'for item:', item)
@@ -318,18 +320,19 @@ export async function PATCH(req, { params }) {
     })
 
     const results = await Promise.all(updates)
-    
+
     console.log(`[PATCH ${table}] Update results:`, results.map(r => ({ error: r.error, data: r.data })))
-    
+
     // Check for errors
     const errors = results.filter(r => r.error)
     if (errors.length > 0) {
       console.error(`PATCH ${table} batch update errors:`, errors)
       return serverErrorResponse('Some updates failed', errors)
     }
-    
-    return NextResponse.json({ 
-      ok: true, 
+
+    revalidatePath('/', 'layout')
+    return NextResponse.json({
+      ok: true,
       updated: items.length,
       message: `Successfully updated ${items.length} items`
     })

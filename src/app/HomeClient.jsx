@@ -8,7 +8,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import dynamic from "next/dynamic";
 import LazyRender from "@/app/components/LazyRender";
 import { DarkModeToggle } from "@/app/components/DarkModeToggle";
-import { FixedLogo } from "@/app/components/FixedLogo";
+
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
 
@@ -379,7 +379,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
       {/* ✅ PERF: Entrance animation removed for better LCP */}
 
       {/* Fixed Logo */}
-      <FixedLogo />
+
 
       <DynamicIsland activeSection={activeSection} />
       <DarkModeToggle />
@@ -448,8 +448,8 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
       <section id="about" className="py-24 px-6 relative z-10">
         <div className="max-w-5xl mx-auto grid lg:grid-cols-12 gap-16 items-center">
           <div className="lg:col-span-5 relative">
-            <div className="relative aspect-[4/5] rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-br from-[#18181b] via-[#18181b] to-accent/20 shadow-xl p-8">
-              <div className="h-full flex flex-col justify-between">
+            <div className="relative aspect-[4/5] md:aspect-auto md:min-h-[380px] lg:aspect-[4/5] rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-br from-[#18181b] via-[#18181b] to-accent/20 shadow-xl p-8">
+              <div className="h-full flex flex-col justify-between gap-8 md:gap-12 lg:gap-0">
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-6">Tech Stack</p>
                   <div className="grid grid-cols-3 gap-3">

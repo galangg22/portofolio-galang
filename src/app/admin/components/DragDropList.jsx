@@ -27,6 +27,7 @@ function ItemColumns({ item, columns, getBadgeColor, getTypeIcon }) {
         col.render(item[col.key], item)
       ) : col.key === 'thumbnail_url' || col.key === 'cover_image_url' || col.key === 'image_url' ? (
         item[col.key] ? (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={item[col.key]}
             alt={item.title || item.name || 'Thumbnail'}

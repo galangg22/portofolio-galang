@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { getTypeConfig, getEmbedUrl } from "@/lib/project-utils";
-import { FixedLogo } from "@/app/components/FixedLogo";
+
 import { BackButton } from "@/app/components/BackButton";
 import { DarkModeToggle } from "@/app/components/DarkModeToggle";
 
@@ -162,7 +162,7 @@ export default function ProjectDetailClient({ project }) {
 
   return (
     <main className="min-h-[100dvh] bg-bg-dark text-white relative overflow-x-hidden">
-      <FixedLogo />
+
       <DarkModeToggle />
       <div className="fixed inset-0 z-0 pointer-events-none opacity-10">
         <div className="absolute left-[-20%] top-[-10%] w-[60%] h-[40%] bg-accent blur-[120px] rounded-full" />

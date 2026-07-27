@@ -61,9 +61,9 @@ export default async function AdminDashboardPage() {
           <i className="ri-error-warning-line text-4xl text-red-400 mb-3 block"></i>
           <p className="text-gray-300 font-medium mb-1">Gagal memuat data dashboard</p>
           <p className="text-gray-500 text-sm mb-5">Terjadi kesalahan saat terhubung ke database.</p>
-          <a href="/admin" className="px-5 py-2 bg-red-500/10 text-red-400 hover:bg-red-500/20 rounded-lg text-sm font-medium transition-colors">
-            Coba Lagi
-          </a>
+          <Link href="/admin" className="px-5 py-2 bg-red-500/10 text-red-400 hover:bg-red-500/20 rounded-lg text-sm font-medium transition-colors">
+            Coba Ulang
+          </Link>
         </div>
       </div>
     )

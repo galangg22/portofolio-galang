@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { NextResponse } from 'next/server'
+import crypto from 'crypto'
 
 // File size limits (in bytes)
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
@@ -32,7 +33,11 @@ const ALLOWED_EXTENSIONS = {
 function validateSession(req) {
   const session = req.cookies.get('admin_session')?.value
   if (!session) return false
-  return session === 'authenticated' || /^[a-f0-9]{64}$/i.test(session)
+  
+  if (!process.env.ADMIN_PASSWORD) return false
+  
+  const expectedSession = crypto.createHmac('sha256', process.env.ADMIN_PASSWORD).update('admin_session_salt').digest('hex')
+  return session === expectedSession
 }
 
 // Sanitize filename to prevent path traversal

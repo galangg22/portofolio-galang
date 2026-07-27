@@ -51,6 +51,7 @@ function RelatedImages({ parentId, table, foreignKey, label, addLabel, hasCaptio
   useEffect(() => {
     const isMountedRef = { current: true }
     
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchImages(isMountedRef)
     
     return () => {
@@ -311,6 +312,7 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
   useEffect(() => {
     if (filterField && filterField.options && filterField.options.length > 0) {
       if (selectedFilterValue === 'all' || !filterField.options.some(opt => String(opt.value) === String(selectedFilterValue))) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setSelectedFilterValue(filterField.options[0].value)
       }
     }
@@ -387,7 +389,7 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
     return () => {
       isMounted = false
     }
-  }, [table])
+  }, [table, redirectToLogin, toast])
   
   const refetchData = async () => {
     setLoading(true)
@@ -1121,7 +1123,7 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
                     <i className="ri-inbox-2-line text-3xl text-gray-500"></i>
                   </div>
                   <h3 className="text-white font-semibold mb-1">Data Kosong</h3>
-                  <p className="text-gray-500 text-sm max-w-xs text-center">Belum ada konten untuk kategori ini. Klik "Tambah Baru" untuk memulai.</p>
+                  <p className="text-gray-500 text-sm max-w-xs text-center">Belum ada konten untuk kategori ini. Klik &quot;Tambah Baru&quot; untuk memulai.</p>
                 </div>
               ) : (
                 <DragDropList

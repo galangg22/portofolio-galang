@@ -100,8 +100,8 @@ export async function POST(req) {
     attempts.delete(ip)
     cleanupAttempts() // Periodic cleanup
     
-    // Generate secure session token instead of static 'authenticated'
-    const sessionToken = crypto.randomBytes(32).toString('hex')
+    // Generate secure session token derived from admin password (HMAC)
+    const sessionToken = crypto.createHmac('sha256', process.env.ADMIN_PASSWORD).update('admin_session_salt').digest('hex')
     
     const cookieStore = await cookies()
     cookieStore.set('admin_session', sessionToken, {

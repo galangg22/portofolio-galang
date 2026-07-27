@@ -10,9 +10,8 @@ export function middleware(req) {
   if (isAdminRoute && !isLoginPage) {
     const session = req.cookies.get('admin_session')?.value
     
-    // Check if session exists and has valid format (64 char hex for security)
-    // Also support legacy 'authenticated' for backward compatibility
-    if (!session || (session !== 'authenticated' && !/^[a-f0-9]{64}$/i.test(session))) {
+    // Check if session exists and has valid format (64 char hex)
+    if (!session || !/^[a-f0-9]{64}$/i.test(session)) {
       return NextResponse.redirect(new URL('/admin/login', req.url))
     }
   }

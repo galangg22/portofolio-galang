@@ -10,7 +10,7 @@ import {
   normalizeProjectType,
   STATUS_BADGE,
 } from "@/lib/project-utils";
-import { FixedLogo } from "@/app/components/FixedLogo";
+
 import { BackButton } from "@/app/components/BackButton";
 import { DarkModeToggle } from "@/app/components/DarkModeToggle";
 
@@ -35,6 +35,7 @@ function ProjectsClientContent({ initialProjects }) {
 
   useEffect(() => {
     if (typeParam) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFilter(normalizeProjectType(typeParam));
     }
   }, [typeParam]);
@@ -73,7 +74,7 @@ function ProjectsClientContent({ initialProjects }) {
 
   return (
     <main className="min-h-[100dvh] bg-bg-dark p-4 sm:p-8 md:p-16 relative overflow-x-hidden">
-      <FixedLogo />
+
       <DarkModeToggle />
       <div className="fixed inset-0 z-0 pointer-events-none opacity-10">
         <div className="absolute left-[-20%] top-[-10%] w-[60%] h-[40%] bg-accent blur-[120px] rounded-full" />

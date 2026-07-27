@@ -1,6 +1,7 @@
 "use client";
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRef, useState } from 'react';
 
 export function FixedLogo() {
@@ -35,10 +36,12 @@ export function FixedLogo() {
       className="fixed top-4 left-4 md:top-6 md:left-6 z-[100] group flex items-center justify-center hover:scale-110 active:scale-95"
     >
       <div className="relative w-10 h-10 md:w-11 md:h-11 rounded-full p-1.5 bg-black/80 backdrop-blur-xl border border-white/15 shadow-[0_4px_20px_rgba(0,0,0,0.5)] group-hover:border-accent/60 group-hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] transition-all duration-300 flex items-center justify-center overflow-hidden">
-        <img
-          src="/favicon.ico"
-          alt="Galang Arrauf Logo"
-          className="w-full h-full object-contain rounded-full"
+        <Image 
+          src="/favicon.ico" 
+          alt="Galang Logo" 
+          width={40}
+          height={40}
+          className="w-10 h-10 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]"
         />
       </div>
     </Link>
