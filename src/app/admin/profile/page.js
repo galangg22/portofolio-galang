@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { useToast } from '../components/ToastProvider'
+import Cropper from 'react-easy-crop'
+import getCroppedImg from '../components/cropImage'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -20,6 +22,14 @@ export default function ProfileAdmin() {
   const [uploadingCv, setUploadingCv] = useState(false)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const [tableMissing, setTableMissing] = useState(false)
+  
+  // Crop states
+  const [cropModalOpen, setCropModalOpen] = useState(false)
+  const [imageSrc, setImageSrc] = useState(null)
+  const [crop, setCrop] = useState({ x: 0, y: 0 })
+  const [zoom, setZoom] = useState(1)
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
+
   const toast = useToast()
 
   const fetchProfile = useCallback(async () => {
@@ -123,6 +133,35 @@ export default function ProfileAdmin() {
     }
   }
 
+  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels)
+  }, [])
+
+  const handleAvatarSelect = async (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0]
+      const reader = new FileReader()
+      reader.addEventListener('load', () => {
+        setImageSrc(reader.result)
+        setCropModalOpen(true)
+      })
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleCropImage = async () => {
+    try {
+      const croppedImageBlob = await getCroppedImg(imageSrc, croppedAreaPixels)
+      setCropModalOpen(false)
+      setImageSrc(null)
+      const croppedFile = new File([croppedImageBlob], 'avatar.jpg', { type: 'image/jpeg' })
+      await handleFileUpload(croppedFile, 'thumbnails', setUploadingAvatar, 'avatar_url')
+    } catch (e) {
+      console.error(e)
+      toast.error('Gagal memotong gambar')
+    }
+  }
+
   if (tableMissing) {
     return (
       <div className="max-w-3xl mx-auto mt-8 bg-red-900/20 border border-red-500/50 p-6 rounded-xl">
@@ -197,9 +236,10 @@ CREATE POLICY "Enable all access for authenticated users" ON profile FOR ALL USI
                 <input 
                   type="file" 
                   accept="image/*"
-                  onChange={(e) => handleFileUpload(e.target.files[0], 'thumbnails', setUploadingAvatar, 'avatar_url')}
+                  onChange={handleAvatarSelect}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   disabled={uploadingAvatar}
+                  value=""
                 />
                 <button 
                   type="button" 
@@ -299,6 +339,62 @@ CREATE POLICY "Enable all access for authenticated users" ON profile FOR ALL USI
           </button>
         </div>
       </form>
+
+      {/* Crop Modal */}
+      {cropModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4">
+          <div className="bg-gray-900 rounded-xl w-full max-w-lg overflow-hidden border border-gray-800 flex flex-col">
+            <div className="p-4 border-b border-gray-800 flex justify-between items-center">
+              <h3 className="text-lg font-bold text-white">Potong Foto Profil</h3>
+              <button type="button" onClick={() => { setCropModalOpen(false); setImageSrc(null); }} className="text-gray-400 hover:text-white">
+                <i className="ri-close-line text-2xl"></i>
+              </button>
+            </div>
+            <div className="relative w-full h-80 bg-black">
+              <Cropper
+                image={imageSrc}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                onCropChange={setCrop}
+                onCropComplete={onCropComplete}
+                onZoomChange={setZoom}
+              />
+            </div>
+            <div className="p-4 space-y-4">
+              <div>
+                <label className="text-sm text-gray-400 block mb-2">Zoom</label>
+                <input
+                  type="range"
+                  value={zoom}
+                  min={1}
+                  max={3}
+                  step={0.1}
+                  aria-labelledby="Zoom"
+                  onChange={(e) => setZoom(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => { setCropModalOpen(false); setImageSrc(null); }}
+                  className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCropImage}
+                  className="px-4 py-2 bg-accent hover:bg-indigo-600 text-white rounded-lg transition-colors font-medium"
+                >
+                  Simpan & Upload
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

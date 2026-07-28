@@ -11,6 +11,7 @@ import { DarkModeToggle } from "@/app/components/DarkModeToggle";
 
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
+import { AnimatedTiles } from '@/app/components/AnimatedTiles';
 
 // 🚀 PERF: Lazy-load non-critical components untuk mengurangi initial bundle
 const DynamicIsland = dynamic(() => import("@/app/components/DynamicIsland").then(mod => mod.DynamicIsland), {
@@ -386,28 +387,21 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
 
       <div className="fixed inset-0 z-0 pointer-events-none opacity-20">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-        <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-primary opacity-20 blur-[100px]"></div>
+        <div className="hidden md:block absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-primary opacity-20 blur-[100px]"></div>
       </div>
 
       <section id="home" className="relative min-h-[100dvh] flex items-center px-6 md:px-12 lg:px-20 z-10 overflow-hidden pt-20 md:pt-24">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/8 blur-[120px]"></div>
+          <div className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/8 blur-[120px]"></div>
         </div>
         <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col lg:grid lg:grid-cols-12 gap-8 lg:gap-16 items-center">
           {/* ✅ MOBILE/TABLET: Foto di atas (order-first) - PERF: Removed opacity-0 and animationDelay to fix LCP */}
           <div className="order-first lg:order-last lg:col-span-5 flex justify-center lg:justify-end w-full">
             <div className="relative w-full max-w-[240px] sm:max-w-[280px] lg:max-w-[380px]">
-              <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden border border-white/10 bg-card-bg shadow-2xl">
-                <Image
-                  src={initialProfile?.avatar_url || "/image/gambar galang 2.jpg"}
-                  alt={initialProfile?.full_name || "Galang Arrauf Pramudito"}
-                  fill
-                  sizes="(max-width: 640px) 240px, (max-width: 1024px) 280px, 380px"
-                  className="object-cover scale-105 hover:scale-100 transition-transform duration-700"
-                  priority
-                  fetchPriority="high"
-                  quality={80}
+              <div className="relative aspect-[4/5] w-full group cursor-pointer">
+                <AnimatedTiles 
+                  imageUrl={initialProfile?.avatar_url || "/image/gambar galang 2.jpg"} 
                 />
               </div>
               <div className="absolute -bottom-3 -right-3 w-full h-full rounded-2xl border border-white/[0.04] -z-10"></div>
@@ -606,12 +600,12 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
               <div className="absolute inset-0 pointer-events-none overflow-hidden">
                 {idx % 2 === 0 ? (
                   <>
-                    <div className="absolute -left-40 top-1/4 w-[500px] h-[500px] rounded-full bg-accent/3 blur-[140px]"></div>
-                    <div className="absolute -right-40 bottom-1/4 w-[400px] h-[400px] rounded-full bg-primary/3 blur-[120px]"></div>
+                    <div className="hidden md:block absolute -left-40 top-1/4 w-[500px] h-[500px] rounded-full bg-accent/3 blur-[140px]"></div>
+                    <div className="hidden md:block absolute -right-40 bottom-1/4 w-[400px] h-[400px] rounded-full bg-primary/3 blur-[120px]"></div>
                   </>
                 ) : (
                   <>
-                    <div className="absolute left-1/4 -top-40 w-[600px] h-[600px] rounded-full bg-primary/3 blur-[150px]"></div>
+                    <div className="hidden md:block absolute left-1/4 -top-40 w-[600px] h-[600px] rounded-full bg-primary/3 blur-[150px]"></div>
                   </>
                 )}
               </div>
