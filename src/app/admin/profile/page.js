@@ -15,11 +15,13 @@ export default function ProfileAdmin() {
     full_name: '',
     availability_status: 'available',
     cv_url: '',
+    cv_url_en: '',
     avatar_url: ''
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [uploadingCv, setUploadingCv] = useState(false)
+  const [uploadingCvEn, setUploadingCvEn] = useState(false)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const [tableMissing, setTableMissing] = useState(false)
   
@@ -175,6 +177,7 @@ export default function ProfileAdmin() {
   full_name TEXT NOT NULL,
   availability_status TEXT DEFAULT 'available',
   cv_url TEXT,
+  cv_url_en TEXT,
   avatar_url TEXT
 );
 
@@ -319,6 +322,49 @@ CREATE POLICY "Enable all access for authenticated users" ON profile FOR ALL USI
                   className="text-sm text-accent hover:text-white transition-colors flex items-center gap-1"
                 >
                   <i className="ri-external-link-line"></i> Lihat PDF saat ini
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* CV PDF (English) */}
+        <div>
+          <label className="block text-sm font-medium text-gray-400 mb-2">Curriculum Vitae (PDF - English)</label>
+          <div className="flex flex-col gap-3">
+            <input 
+              type="url" 
+              value={profile.cv_url_en || ''} 
+              onChange={(e) => setProfile({...profile, cv_url_en: e.target.value})}
+              className="w-full bg-gray-950 border border-gray-800 rounded-lg px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent"
+              placeholder="https://... atau upload PDF (English)"
+            />
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="relative">
+                <input 
+                  type="file" 
+                  accept="application/pdf"
+                  onChange={(e) => handleFileUpload(e.target.files[0], 'certificates', setUploadingCvEn, 'cv_url_en')}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  disabled={uploadingCvEn}
+                />
+                <button 
+                  type="button" 
+                  className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-sm font-medium text-white rounded-lg transition-colors flex items-center gap-2"
+                  disabled={uploadingCvEn}
+                >
+                  <i className={uploadingCvEn ? "ri-loader-4-line animate-spin" : "ri-upload-2-line"}></i>
+                  {uploadingCvEn ? 'Mengunggah...' : 'Upload PDF (EN)'}
+                </button>
+              </div>
+              {profile.cv_url_en && (
+                <a 
+                  href={profile.cv_url_en} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-sm text-accent hover:text-white transition-colors flex items-center gap-1"
+                >
+                  <i className="ri-external-link-line"></i> Lihat PDF (EN)
                 </a>
               )}
             </div>

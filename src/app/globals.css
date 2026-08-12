@@ -400,26 +400,31 @@ html.light .z-\[200\] .bg-accent\/80 {
 }
 
 /* ═══ CV/RESUME MODAL ═══ */
-html.light .z-\[10001\] .bg-card-bg {
+html.light .z-\[500\] .bg-card-bg {
   background-color: #ffffff !important;
 }
-html.light .z-\[10001\] h3.text-white {
+html.light .z-\[500\] h3.text-white {
   color: #1e293b !important;
 }
-html.light .z-\[10001\] p.text-gray-400 {
+html.light .z-\[500\] p.text-gray-400 {
   color: #475569 !important;
 }
-html.light .z-\[10001\] a.text-white {
+html.light .z-\[500\] a.text-white,
+html.light .z-\[500\] button.text-white {
   color: #1e293b !important;
 }
-html.light .z-\[10001\] a.text-white:hover {
+html.light .z-\[500\] a.text-white:hover,
+html.light .z-\[500\] button.text-white:hover {
   background-color: rgba(0, 0, 0, 0.05) !important;
 }
-html.light .z-\[10001\] button.text-gray-500 {
+html.light .z-\[500\] button.text-gray-500 {
   color: #64748b !important;
 }
-html.light .z-\[10001\] button.hover\:text-white:hover {
+html.light .z-\[500\] button.hover\:text-white:hover {
   color: #1e293b !important;
+}
+html.light .z-\[500\] .border-white\/20 {
+  border-color: rgba(0, 0, 0, 0.15) !important;
 }
 
 /* ── Animasi ───────────────────────────────── */
@@ -548,10 +553,15 @@ html.light .bg-bg-dark:is(.min-h-screen, .min-h-\[100dvh\]) .bg-card-bg {
   border-color: rgba(0, 0, 0, 0.1) !important;
 }
 
-html.light .bg-bg-dark:is(.min-h-screen, .min-h-\[100dvh\]) button:not(.bg-accent) {
+html.light .bg-bg-dark:is(.min-h-screen, .min-h-\[100dvh\]) button:not(.bg-accent),
+html.light .bg-bg-dark:is(.min-h-screen, .min-h-\[100dvh\]) a.text-white:not(.bg-accent) {
   border-color: rgba(0, 0, 0, 0.15) !important;
   color: #64748b !important;
   background-color: rgba(0, 0, 0, 0.04) !important;
+}
+html.light .bg-bg-dark:is(.min-h-screen, .min-h-\[100dvh\]) a.text-white:not(.bg-accent):hover {
+  color: #1e293b !important;
+  background-color: rgba(0, 0, 0, 0.08) !important;
 }
 
 html.light .bg-bg-dark:is(.min-h-screen, .min-h-\[100dvh\]) a.text-accent { color: #4f46e5 !important; }
@@ -594,26 +604,31 @@ html.light .z-\[200\] .bg-accent\/80 {
 }
 
 /* ═══ CV/RESUME MODAL ═══ */
-html.light .z-\[10001\] .bg-card-bg {
+html.light .z-\[500\] .bg-card-bg {
   background-color: #ffffff !important;
 }
-html.light .z-\[10001\] h3.text-white {
+html.light .z-\[500\] h3.text-white {
   color: #1e293b !important;
 }
-html.light .z-\[10001\] p.text-gray-400 {
+html.light .z-\[500\] p.text-gray-400 {
   color: #475569 !important;
 }
-html.light .z-\[10001\] a.text-white {
+html.light .z-\[500\] a.text-white,
+html.light .z-\[500\] button.text-white {
   color: #1e293b !important;
 }
-html.light .z-\[10001\] a.text-white:hover {
+html.light .z-\[500\] a.text-white:hover,
+html.light .z-\[500\] button.text-white:hover {
   background-color: rgba(0, 0, 0, 0.05) !important;
 }
-html.light .z-\[10001\] button.text-gray-500 {
+html.light .z-\[500\] button.text-gray-500 {
   color: #64748b !important;
 }
-html.light .z-\[10001\] button.hover\:text-white:hover {
+html.light .z-\[500\] button.hover\:text-white:hover {
   color: #1e293b !important;
+}
+html.light .z-\[500\] .border-white\/20 {
+  border-color: rgba(0, 0, 0, 0.15) !important;
 }
 
 /* ── Animasi ───────────────────────────────── */

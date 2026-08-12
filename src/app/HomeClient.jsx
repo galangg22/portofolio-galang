@@ -168,8 +168,17 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
   const [activeSection, setActiveSection] = useState("home");
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [isCvModalOpen, setIsCvModalOpen] = useState(false);
+  const [isCvLanguageModalOpen, setIsCvLanguageModalOpen] = useState(false);
+  const [selectedCvLanguage, setSelectedCvLanguage] = useState('id');
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [selectedCert, setSelectedCert] = useState(null);
+
+  const getCvUrl = () => {
+    if (selectedCvLanguage === 'en') {
+      return initialProfile?.cv_url_en || "/cv-galang-en.pdf";
+    }
+    return initialProfile?.cv_url || "/cv-galang.pdf";
+  };
 
   const [skills, setSkills] = useState((initialSkills && initialSkills.length > 0) ? initialSkills : SKILLS_DATA);
   const [projects, setProjects] = useState((initialProjects && initialProjects.length > 0) ? initialProjects : DEV_PROJECTS);
@@ -430,7 +439,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
             </p>
             <div className="flex flex-wrap gap-3 md:gap-4 pt-2 justify-center lg:justify-start animate-fade-in-up opacity-0" style={{ animationDelay: '400ms' }}>
               <a href="#projects" className="px-6 md:px-8 py-3 md:py-3.5 bg-accent text-bg-dark font-bold text-sm rounded-full hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl hover:opacity-90">View My Work</a>
-              <button onClick={() => setIsCvModalOpen(true)} className="group px-6 md:px-8 py-3 md:py-3.5 border border-white/10 text-white text-sm font-medium rounded-full hover:bg-white/10 hover:border-white/20 transition-all cursor-pointer z-20 relative inline-flex items-center gap-2">
+              <button onClick={() => setIsCvLanguageModalOpen(true)} className="group px-6 md:px-8 py-3 md:py-3.5 border border-white/10 text-white text-sm font-medium rounded-full hover:bg-white/10 hover:border-white/20 transition-all cursor-pointer z-20 relative inline-flex items-center gap-2">
                 <i className="ri-file-user-line text-lg group-hover:text-accent transition-colors"></i>
                 My Resume
               </button>
@@ -965,6 +974,48 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
         <p className="text-gray-400 text-[10px] md:text-[11px] font-medium tracking-[0.3em] uppercase">© 2026 Galang Arrauf Pramudito</p>
       </footer>
 
+      {isCvLanguageModalOpen && (
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 md:p-10">
+          <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={() => setIsCvLanguageModalOpen(false)} />
+          <button
+            onClick={() => setIsCvLanguageModalOpen(false)}
+            className="fixed top-4 right-4 z-[501] w-12 h-12 bg-black/80 md:bg-white/10 backdrop-blur-md md:hover:bg-red-500 text-white rounded-full flex items-center justify-center border border-white/20 md:border-transparent shadow-xl"
+            aria-label="Close language modal"
+          >
+            <i className="ri-close-line text-xl md:text-2xl" />
+          </button>
+          <div className="relative bg-card-bg border border-white/10 p-8 md:p-10 rounded-2xl w-full max-w-sm mx-4 md:mx-0 text-center shadow-[0_0_50px_rgba(0,0,0,0.8)] z-10 scale-in-center">
+            <div className="w-16 h-16 bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <i className="ri-global-line text-accent text-3xl" />
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-2">Pilih Bahasa CV</h3>
+            <p className="text-gray-400 text-sm mb-8 leading-relaxed">Silakan pilih bahasa untuk Curriculum Vitae.</p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => {
+                  setSelectedCvLanguage('en');
+                  setIsCvLanguageModalOpen(false);
+                  setTimeout(() => setIsCvModalOpen(true), 100);
+                }}
+                className="w-full py-4 border border-white/20 text-white font-bold uppercase tracking-widest rounded-xl hover:bg-white/5 transition-colors text-xs inline-flex items-center justify-center gap-2"
+              >
+                English
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedCvLanguage('id');
+                  setIsCvLanguageModalOpen(false);
+                  setTimeout(() => setIsCvModalOpen(true), 100);
+                }}
+                className="w-full py-4 border border-white/20 text-white font-bold uppercase tracking-widest rounded-xl hover:bg-white/5 transition-colors text-xs inline-flex items-center justify-center gap-2"
+              >
+                Indonesia
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {isCvModalOpen && (
         <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 md:p-10">
           <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={() => setIsCvModalOpen(false)} />
@@ -992,7 +1043,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                 <i className="ri-eye-line text-base" />
                 Preview CV
               </button>
-              <a href={initialProfile?.cv_url || "/api/cv"} target="_blank" rel="noopener noreferrer" className="w-full py-4 border border-white/20 text-white font-bold uppercase tracking-widest rounded-xl hover:bg-white/5 transition-colors text-xs inline-flex items-center justify-center gap-2">
+              <a href={getCvUrl()} download target="_blank" rel="noopener noreferrer" className="w-full py-4 border border-white/20 text-white font-bold uppercase tracking-widest rounded-xl hover:bg-white/5 transition-colors text-xs inline-flex items-center justify-center gap-2">
                 <i className="ri-download-line text-base" />
                 Download CV
               </a>
@@ -1018,7 +1069,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
             <div className="p-3 md:p-4 border-b border-white/10 flex items-center bg-black/50 shrink-0">
               <h3 className="text-white font-bold text-sm md:text-base truncate">CV - Galang Arrauf Pramudito</h3>
               <a
-                href={initialProfile?.cv_url || "/cv-galang.pdf"}
+                href={getCvUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="ml-auto text-accent text-xs font-bold uppercase tracking-widest hover:text-white transition-colors md:hidden"
@@ -1028,7 +1079,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
             </div>
             <div className="flex-1 relative min-h-[300px] bg-white/5">
               <iframe
-                src={initialProfile?.cv_url || "/cv-galang.pdf"}
+                src={getCvUrl()}
                 className="w-full h-full border-0 hidden md:block"
                 title="CV Preview"
               />
@@ -1040,7 +1091,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                   <h4 className="text-white font-bold mb-2">CV Galang Arrauf Pramudito</h4>
                   <p className="text-gray-400 text-sm mb-6">Buka PDF di tab baru untuk melihat CV</p>
                   <a
-                    href={initialProfile?.cv_url || "/cv-galang.pdf"}
+                    href={getCvUrl()}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-6 py-3.5 bg-accent text-bg-dark font-bold text-sm rounded-full hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl hover:opacity-90"
