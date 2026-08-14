@@ -1,185 +1,181 @@
 # Portofolang
 
-Modern portfolio website built with **Next.js 16**, **React 19**, **Tailwind CSS v4**, and **GSAP** animations. Full CMS via Supabase + admin panel — manage everything without touching code.
+Website portofolio modern, interaktif, dan berkinerja tinggi yang dibangun dengan **Next.js 16 (App Router)**, **React 19**, **Tailwind CSS v4**, dan **GSAP Animations**. Dilengkapi sistem **Full Dynamic CMS** berbasis **Supabase** dan **Admin Panel** terproteksi untuk mengelola seluruh konten, proyek, sertifikat, hingga riwayat perjalanan karir (*Timeline & About Me*) tanpa perlu menyentuh kode.
 
-**Live:** https://galangpramudito.web.id/
+🌐 **Live Website:** [https://galangpramudito.web.id/](https://galangpramudito.web.id/)
 
 ---
 
-## Features
+## ✨ Fitur Utama
 
-- **Dynamic Island Navbar** — macOS-inspired animated navigation (hover on desktop, tap on mobile)
-- **Typed Projects** — Web, Bot, Android apps in one place with type-specific UI (screenshots, Play Store links, etc.)
-- **Design Gallery** — Masonry grid with per-design image slideshow lightbox
-- **Video Gallery** — YouTube, Google Drive, Vimeo embed with auto-detected URLs
-- **Certificates Showcase** — Interactive certificate gallery, supporting custom detail lightbox popups and external credential verification links
-- **Supabase CMS + Admin Panel** — Full CRUD at `/admin` with image upload, conditional fields, child galleries
-- **Static Fallback** — Works without Supabase; falls back to hardcoded data
-- **GSAP Animations** — ScrollTrigger entrance animations, smooth scroll
-- **SEO** — Dynamic sitemap, robots.txt, Open Graph, meta tags
-- **PWA Ready** — Web app manifest, mobile-optimized
-- **Security & Performance** — Rate-limited login, httpOnly cookies, security headers, server-only secrets, lightweight IntersectionObserver page scroll tracking, LCP-optimized image loading (priority fetched & instant paint).
-- **Dark/Light Mode** — Premium high-contrast layout transition with a modular scoping approach (keeping dark elements readable while flipping main UI theme colors)
-- **High-End UI/UX Aesthetics** — Monochrome styling, cubic-bezier spring animations, micro-interactions, avoiding cheap/generic components.
+- 🧭 **Dynamic Island Navbar** — Navigasi melayang terinspirasi macOS/iOS dengan animasi ekspansi saat di-hover/tap.
+- 👨‍💻 **Halaman About & Timeline Karir Dinamis (`/about`)** — Riwayat pendidikan (SMKN 2 Buduran, PENS) dan pengalaman kerja (Disnaker Prov. Jatim, Freelance, Retail POS) dilengkapi galeri dokumentasi foto interaktif dan modal lightbox.
+- 💻 **Typed Projects Showcase** — Manajemen proyek terstruktur berdasarkan kategori (Web Apps, Discord/Telegram Bot, Android Apps, dan Custom Systems) dengan link demo, repo, Play Store, dan screenshot galeri.
+- 🏆 **Certificates & Achievements** — Galeri sertifikasi interaktif dengan modal preview, verifikasi link kredensial eksternal, dan auto-generate thumbnail dari file PDF.
+- 🎨 **Design & Video Gallery** — Showcase karya desain visual dalam grid responsif dan embed video player (YouTube, Google Drive, Vimeo).
+- ⚙️ **Modern Supabase CMS & Admin Panel (`/admin`)** — Manajemen CRUD lengkap dengan fitur:
+  - Form grouping terstruktur (*Informasi Utama*, *Konten & Cerita*, *Galeri Penunjang*).
+  - Drag-and-drop reordering urutan tampilan (*sort order*).
+  - Multi-line tag / deskripsi fleksibel dengan pemisah pipa (`|`).
+  - Auto-fallback caption dan instant photo upload ke Supabase Storage.
+- ⚡ **Performa & SEO Tingkat Lanjut (Google Search Console Ready)**:
+  - **Schema.org JSON-LD Structured Data** (`ProfilePage`, `Person`, `WebSite`, `BreadcrumbList`) tervalidasi 100% Google Rich Results.
+  - **ISR (Incremental Static Regeneration)** untuk muat halaman instan dan konten selalu segar.
+  - **Dynamic Sitemap (`/sitemap.xml`)** & **Robots.txt** otomatis terindeks.
+  - OpenGraph & Twitter Card metadata di setiap halaman.
+- 🌓 **Dark / Light Mode Modular** — Transisi tema mulus dengan mempertahankan kontras tinggi dan keterbacaan elemen antarmuka.
+- 🛡️ **Keamanan & Autentikasi** — Proteksi admin berbasis cookie sesi HTTP-only terenkripsi HMAC-SHA256, rate limiting login (5 percobaan / 15 menit), sanitasi input XSS, dan Row Level Security (RLS) Supabase.
 
-## Tech Stack
+---
 
-| Technology | Version | Purpose |
-|-----------|---------|---------|
-| Next.js | 16.2.4 | Framework (App Router) |
-| React | 19.2.4 | UI library |
-| Tailwind CSS | 4.x | Styling |
-| Supabase | latest | Database, Storage, CMS |
-| GSAP | 3.15.0 | Animations |
-| next-themes | 0.4.6 | Dark/light mode |
-| Remixicon | 4.1.0 | Icons (CDN) |
+## 🛠️ Tech Stack
 
-## Quick Start
+| Komponen | Teknologi | Versi | Kegunaan |
+|----------|-----------|-------|----------|
+| **Framework** | Next.js (Turbopack) | 16.2.4 | React Framework & App Router |
+| **UI Library** | React | 19.2.4 | Komponen UI Reaktif |
+| **Styling** | Tailwind CSS | 4.x | Utilitas CSS & Desain Modern |
+| **Database & Auth** | Supabase | latest | Database PostgreSQL, Storage, API |
+| **Animasi** | GSAP & Lenis | 3.15.0 | ScrollTrigger & Smooth Scrolling |
+| **Theme** | next-themes | 0.4.6 | Manajemen Dark & Light Mode |
+| **Ikon** | Remixicon | 4.1.0 | Ikon Vektor Antarmuka |
 
+---
+
+## 🚀 Panduan Memulai Cepat
+
+### 1. Clone & Install Dependencies
 ```bash
-# Install
+git clone https://github.com/galangpramudito/portofolio-galang.git
+cd portofolio-galang
 npm install
+```
 
-# Configure environment
+### 2. Konfigurasi Environment Variables
+Salin file template `.env.example` ke `.env.local`:
+```bash
 cp .env.example .env.local
-# Edit .env.local with your values (see below)
+```
 
-# Run dev server
+Isi variabel berikut di `.env.local`:
+```env
+# URL Dasar Website
+NEXT_PUBLIC_BASE_URL=https://galangpramudito.web.id
+
+# Formspree Endpoint (Kontak Form)
+NEXT_PUBLIC_FORMSPREE_ID=your_formspree_id
+
+# Profil Sosial Media
+NEXT_PUBLIC_GITHUB_URL=https://github.com/galangg22
+NEXT_PUBLIC_LINKEDIN_URL=https://www.linkedin.com/in/galang-pramudito/
+NEXT_PUBLIC_EMAIL=galangarrauf22@gmail.com
+
+# Supabase Database (CMS)
+NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Rahasia Server (Jangan pernah expose ke sisi client)
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+ADMIN_PASSWORD=your_super_secret_admin_password
+```
+
+### 3. Jalankan Development Server
+```bash
 npm run dev
 ```
+Buka [http://localhost:3000](http://localhost:3000) pada browser Anda.
 
-Open http://localhost:3000
+---
 
-## Environment Variables
+## 🗄️ Konfigurasi Database Supabase
 
-```env
-# Public
-NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-NEXT_PUBLIC_GITHUB_URL=https://github.com/yourname
-NEXT_PUBLIC_LINKEDIN_URL=https://linkedin.com/in/yourname
-NEXT_PUBLIC_EMAIL=your-email@example.com
+1. Buat project baru di [supabase.com](https://supabase.com).
+2. Buka menu **SQL Editor** di Dashboard Supabase.
+3. Jalankan script [`supabase_schema.sql`](file:///z:/PROJECTS/VsCode/portofolang/portofolang/supabase_schema.sql) (atau [`supabase_timeline_migration.sql`](file:///z:/PROJECTS/VsCode/portofolang/portofolang/supabase_timeline_migration.sql) jika memperbarui timeline).
+4. Pastikan Storage Bucket bernama `thumbnails` dan `certificates` berstatus **Public**.
 
-# Server-only (NEVER prefix with NEXT_PUBLIC_)
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-ADMIN_PASSWORD=your_strong_password
-```
+### 📋 Ringkasan Tabel Database
 
-## Database Setup (Supabase)
+| Tabel | Deskripsi & Relasi |
+|---|---|
+| `profile` | Data profil utama (nama, bio, avatar, status ketersediaan, tautan CV ID & EN). |
+| `timeline` | Riwayat milestone pendidikan & karir (periode, peran, instansi, kategori, ringkasan, deskripsi, keahlian, pencapaian). |
+| `timeline_images` | Foto dokumentasi penunjang per milestone timeline (`timeline_id` foreign key cascade delete). |
+| `projects` | Daftar proyek pengembangan (tipe: web/bot/android/other, slug, repo_url, demo_url, sort_order). |
+| `project_images` | Screenshot/mockup galeri per proyek. |
+| `project_types` | Kategori jenis proyek. |
+| `certificates` | Daftar sertifikasi dan penghargaan (issuer, tanggal, credential_link, verify_url). |
+| `designs` | Galeri karya desain grafis & UI/UX. |
+| `design_images` | Gambar detail untuk setiap karya desain. |
+| `videos` | Portofolio video (YouTube, Vimeo, Google Drive video embed). |
+| `skills` | Data keterampilan dan keahlian untuk bento grid beranda. |
 
-1. Create a project at [supabase.com](https://supabase.com)
-2. Run `supabase_schema.sql` in the SQL Editor — creates 6 tables with RLS, triggers, cascade deletes, and seed data
-3. Create a public Storage bucket named `thumbnails`
-4. Set env vars in `.env.local` and Vercel dashboard
+---
 
-### Schema Overview
+## 🔐 Panel Admin CMS (`/admin`)
 
-| Table | Purpose |
-|-------|---------|
-| `projects` | Dev projects (typed: web/bot/android/other) |
-| `project_images` | Screenshots per project (FK, cascade delete) |
-| `designs` | Design portfolio entries |
-| `design_images` | Gallery images per design (FK, cascade delete) |
-| `videos` | Video entries (YouTube/Drive/Vimeo) |
-| `skills` | Skills bento grid data |
-| `certificates` | Certificates entries (featured, sort_order, credential_link) |
+Akses panel admin melalui `/admin` dan masuk menggunakan password yang disetel pada `ADMIN_PASSWORD`.
 
-All tables have public read (RLS) — writes only via service_role in API routes.
+- **Timeline Manager (`/admin/timeline`)**: Tambah/edit riwayat karir, susun urutan tampilan, tulis cerita dengan pemisah `|`, dan unggah foto dokumentasi kegiatan.
+- **Projects Manager (`/admin/projects`)**: Atur proyek aktif, upload thumbnail, tambah galeri screenshot, dan sembunyikan proyek privat.
+- **Certificates Manager (`/admin/certificates`)**: Unggah sertifikat (JPG/PNG/PDF), fitur auto-thumbnail dari dokumen PDF, dan kelola badge featured.
+- **Profile & CV Manager (`/admin/profile`)**: Ganti foto avatar profil, perbarui ringkasan bio, kelola status ketersediaan kerja (*Available / Busy*), dan upload file CV dwibahasa (ID & EN).
 
-## Admin Panel
+---
 
-Visit `/admin` and log in with `ADMIN_PASSWORD`.
-
-**Features:**
-- CRUD for projects, designs, videos with image upload
-- Conditional fields — `demo_url` only for web, `play_store_url`/`apk_url` only for android
-- Android screenshot gallery — upload, caption, description, reorder per project
-- Design image gallery — upload, reorder per design
-- Image preview (80×80) with replace/delete buttons
-- Multi-column list with type badges (color-coded)
-- Rate-limited login (5 attempts / 15 min per IP)
-
-Routes protected by `src/proxy.js` (cookie-based auth guard).
-
-## Project Structure
+## 📁 Struktur Direktori
 
 ```
 portofolang/
 ├── public/
-│   ├── image/              # Static images
-│   ├── cv-galang.pdf       # CV (served by /api/cv)
-│   └── manifest.json       # PWA manifest
+│   ├── image/                   # Aset gambar statis & fallback foto
+│   └── manifest.json            # PWA manifest
 ├── src/
-│   ├── proxy.js            # Auth guard (/admin/*)
-│   ├── lib/                # supabase.js, supabase-admin.js, auth.js
-│   └── app/
-│       ├── page.js         # Homepage (typed projects, skills, visual works)
-│       ├── design/         # Design gallery + lightbox
-│       ├── video/          # Video gallery + embed player
-│       ├── admin/          # Admin panel (CrudManager, CRUD pages)
-│       ├── api/            # Route handlers (login, logout, CRUD, upload, cv)
-│       ├── sitemap.js      # Dynamic sitemap
-│       └── robots.js       # Dynamic robots.txt
-├── supabase_schema.sql     # Full schema (drop + create + seed)
-├── ARCHITECTURE.md         # Detailed architecture documentation
-└── CLAUDE.md               # Implementation guide
+│   ├── app/
+│   │   ├── layout.js            # Root layout, font loader, meta base
+│   │   ├── page.js              # Server fetcher beranda
+│   │   ├── HomeClient.jsx       # Client UI beranda & interaksi GSAP
+│   │   ├── about/               # Halaman About & Timeline Karir
+│   │   │   ├── page.js          # Server fetching & JSON-LD Structured Data
+│   │   │   └── AboutClient.jsx  # Interactive timeline & lightbox gallery
+│   │   ├── projects/            # Galeri & detail proyek
+│   │   ├── certificates/        # Galeri sertifikat
+│   │   ├── admin/               # Panel CMS (CrudManager & Admin Pages)
+│   │   │   ├── timeline/        # CRUD timeline karir & foto
+│   │   │   ├── projects/        # CRUD proyek
+│   │   │   ├── certificates/    # CRUD sertifikat
+│   │   │   └── profile/         # CRUD profil & CV
+│   │   ├── api/                 # API Route Handlers (Admin, Auth, Upload, CV)
+│   │   ├── sitemap.js           # Dynamic XML sitemap generator
+│   │   └── robots.js            # Search engine crawler rules
+│   ├── lib/                     # Supabase clients, auth, utility helpers
+│   └── proxy.js                 # Middleware auth guard (/admin/*)
+├── supabase_schema.sql          # Schema SQL lengkap database
+├── supabase_timeline_migration.sql # Script migrasi tabel timeline
+└── README.md                    # Dokumentasi proyek
 ```
-
-## Customization
-
-### Colors
-
-Edit `src/app/globals.css`:
-
-```css
-@theme {
-  --color-bg-dark: #0a0a0a;
-  --color-card-bg: #111111;
-  --color-primary: #8a2be2;
-  --color-accent: #4fffa3;
-}
-```
-
-### CV
-
-Replace `public/cv-galang.pdf` — served automatically via `/api/cv`.
-
-### Content
-
-Without Supabase: edit the fallback constants in `page.js` (`SKILLS_DATA`, `DEV_PROJECTS`, `FEATURED_CREATIVE`) and `design/page.js` (`GALLERY_DATA`).
-
-With Supabase: use the admin panel at `/admin`.
-
-## Build & Deploy
-
-```bash
-npm run build    # Production build
-npm start        # Run production server
-npm run lint     # ESLint check
-```
-
-### Vercel (Recommended)
-
-```bash
-vercel
-```
-
-Or connect your GitHub repo to Vercel for auto-deploy on push. Set all env vars in Vercel dashboard.
-
-## Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| Images not showing | Check `thumbnail_url`/`cover_image_url` in Supabase, or `/public/image/` paths |
-| Admin login locked | Rate limit resets after 15 min; verify `ADMIN_PASSWORD` |
-| Content not updating | Confirm Supabase env vars are set and schema was run |
-| CV download fails | Ensure `public/cv-galang.pdf` exists |
-| Video not embedding | Check `video_url` format and `platform` value |
-
-## License
-
-MIT
 
 ---
 
-**Built by Galang Arrauf Pramudito** — Next.js + Tailwind CSS + Supabase
+## 📦 Build & Deployment
+
+### Build untuk Produksi
+```bash
+npm run build
+npm start
+```
+
+### Deploy ke Vercel
+1. Hubungkan repository GitHub ini ke [Vercel Dashboard](https://vercel.com).
+2. Konfigurasikan seluruh variabel lingkungan (*Environment Variables*) di dashboard Vercel.
+3. Deploy akan berjalan otomatis setiap kali Anda melakukan `git push` ke branch `main`.
+
+---
+
+## 📄 Lisensi
+
+Proyek ini didistribusikan di bawah lisensi [MIT License](LICENSE).
+
+---
+
+**Dibuat oleh [Galang Arrauf Pramudito](https://galangpramudito.web.id/)** • Web Developer & Software Engineering Student
