@@ -156,13 +156,19 @@ export default async function AboutPage() {
             }
           ]
         },
-        "about": {
+        "mainEntity": {
           "@type": "Person",
           "@id": "https://galangpramudito.web.id/#person",
           "name": fullName,
+          "alternateName": "Galang Arrauf Pramudito",
           "jobTitle": "Web Developer & Software Engineering Student",
           "description": bio,
           "image": "https://galangpramudito.web.id/image/gambar%20galang%202.jpg",
+          "url": "https://galangpramudito.web.id",
+          "sameAs": [
+            "https://www.linkedin.com/in/galang-pramudito/",
+            "https://github.com/galangg22"
+          ],
           "alumniOf": [
             {
               "@type": "EducationalOrganization",
