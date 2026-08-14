@@ -15,6 +15,7 @@ function RelatedImages({ parentId, table, foreignKey, label, addLabel, hasCaptio
   const [newImageLoading, setNewImageLoading] = useState(false)
   const [uploadError, setUploadError] = useState('')
   const { redirectToLogin } = useSafeNavigation()
+  const toast = useToast()
   const fileInputRef = useRef(null)
   const updateTimerRef = useRef({})
 
@@ -96,10 +97,15 @@ function RelatedImages({ parentId, table, foreignKey, label, addLabel, hasCaptio
     try {
       const formData = new FormData()
       formData.append('file', file)
-      const res = await fetch('/api/upload', { method: 'POST', body: formData })
+      formData.append('bucket', 'thumbnails')
+      const res = await fetch('/api/upload', { 
+        method: 'POST', 
+        body: formData,
+        credentials: 'include'
+      })
       if (!res.ok) {
-        const errorData = await res.json()
-        throw new Error(errorData.error || 'Failed to upload image')
+        const errorData = await res.json().catch(() => ({}))
+        throw new Error(errorData.error || errorData.details || 'Failed to upload image')
       }
       const { url } = await res.json()
       return url
@@ -113,37 +119,51 @@ function RelatedImages({ parentId, table, foreignKey, label, addLabel, hasCaptio
 
   const handleAddImage = async () => {
     if (!parentId || !newImageFile) {
-      setUploadError('Please select an image first.')
+      setUploadError('Pilih file gambar terlebih dahulu.')
       return
     }
     const imageUrl = await handleImageUpload(newImageFile)
     if (!imageUrl) return
 
+    // Auto-fallback caption from filename if empty
+    const fallbackCaption = newImageFile.name ? newImageFile.name.replace(/\.[^/.]+$/, "") : 'Foto Dokumentasi'
+    const finalCaption = newImageCaption.trim() || fallbackCaption
+
     const newImageData = {
       [foreignKey]: parentId,
       image_url: imageUrl,
-      sort_order: images.length,
+      sort_order: images.length + 1,
     }
     if (hasCaption) {
-      if (!newImageCaption) { setUploadError('Caption is required.'); return }
-      newImageData.caption = newImageCaption
-      newImageData.description = newImageDescription
+      newImageData.caption = finalCaption
+      newImageData.description = newImageDescription.trim()
     }
 
-    const res = await fetch(`/api/admin/${table}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newImageData),
-    })
-    if (!res.ok) {
-      const errData = await res.json()
-      setUploadError(errData.error || 'Failed to add image')
-    } else {
-      await refetchImages()
-      setNewImageFile(null)
-      setNewImageCaption('')
-      setNewImageDescription('')
-      if (fileInputRef.current) fileInputRef.current.value = ''
+    try {
+      const res = await fetch(`/api/admin/${table}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(newImageData),
+      })
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}))
+        const errorMsg = errData.error || errData.details || 'Gagal menyimpan foto ke database'
+        setUploadError(errorMsg)
+        toast.error(errorMsg)
+      } else {
+        await refetchImages()
+        setNewImageFile(null)
+        setNewImageCaption('')
+        setNewImageDescription('')
+        setUploadError('')
+        toast.success('Foto dokumentasi penunjang berhasil ditambahkan!')
+        if (fileInputRef.current) fileInputRef.current.value = ''
+      }
+    } catch (err) {
+      const msg = err.message || 'Gagal menyimpan foto'
+      setUploadError(msg)
+      toast.error(msg)
     }
   }
 
@@ -162,12 +182,13 @@ function RelatedImages({ parentId, table, foreignKey, label, addLabel, hasCaptio
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}))
         console.error(`Failed to update ${table}:`, errData)
+        toast.error('Gagal mengupdate detail foto')
       }
       await refetchImages()
     } catch (err) {
       console.error(`Error updating ${table}:`, err)
     }
-  }, [table, redirectToLogin, refetchImages])
+  }, [table, redirectToLogin, refetchImages, toast])
 
   // Debounced version for text inputs (caption, description)
   const handleDebouncedUpdate = useCallback((id, updates) => {
@@ -200,12 +221,16 @@ function RelatedImages({ parentId, table, foreignKey, label, addLabel, hasCaptio
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}))
         console.error(`Failed to delete ${table}:`, errData)
+        toast.error('Gagal menghapus foto')
+      } else {
+        toast.success('Foto berhasil dihapus')
       }
       await refetchImages()
     } catch (err) {
       console.error(`Error deleting ${table}:`, err)
+      toast.error('Gagal menghapus foto')
     }
-  }, [table, redirectToLogin, refetchImages])
+  }, [table, redirectToLogin, refetchImages, toast])
 
   if (!parentId) return null
 
@@ -281,10 +306,14 @@ function RelatedImages({ parentId, table, foreignKey, label, addLabel, hasCaptio
             </>
           )}
         </div>
-        <button onClick={handleAddImage} disabled={newImageLoading || !newImageFile || (hasCaption && !newImageCaption)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+        <button 
+          type="button"
+          onClick={handleAddImage} 
+          disabled={newImageLoading || !newImageFile}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors font-medium shadow-md shadow-blue-500/20"
+        >
           {newImageLoading && <i className="ri-loader-4-line animate-spin"></i>}
-          {addLabel}
+          {newImageLoading ? 'Mengupload & Menyimpan...' : addLabel}
         </button>
       </div>
     </div>
@@ -428,8 +457,6 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
     const { name, value, type, checked } = e.target
     if (type === 'checkbox') {
       setFormData((prev) => ({ ...prev, [name]: checked }))
-    } else if (name === 'tags') {
-      setFormData((prev) => ({ ...prev, [name]: value.split(',').map(tag => tag.trim()).filter(Boolean) }))
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }))
     }
@@ -445,10 +472,15 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
     try {
       const fd = new FormData()
       fd.append('file', file)
-      const res = await fetch('/api/upload', { method: 'POST', body: fd })
+      fd.append('bucket', 'thumbnails')
+      const res = await fetch('/api/upload', { 
+        method: 'POST', 
+        body: fd,
+        credentials: 'include'
+      })
       if (!res.ok) {
-        const errorData = await res.json()
-        throw new Error(errorData.error || 'Failed to upload image')
+        const errorData = await res.json().catch(() => ({}))
+        throw new Error(errorData.error || errorData.details || 'Gagal mengunggah gambar')
       }
       const { url } = await res.json()
       setFormData((prev) => ({ ...prev, [fieldKey]: url }))
@@ -456,6 +488,7 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
       return url
     } catch (err) {
       setError(err.message)
+      toast.error(err.message)
       return null
     } finally {
       setUploadLoading(false)
@@ -494,13 +527,17 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
       }
     }
 
-    // Validate URLs if present
-    const urlFields = ['demo_url', 'play_store_url', 'apk_url', 'repo_url', 'credential_link', 'video_url', 'github_url', 'thumbnail_url', 'cover_image_url']
+    // Validate URLs if present (allowing relative paths)
+    const urlFields = ['demo_url', 'play_store_url', 'apk_url', 'repo_url', 'credential_link', 'video_url', 'github_url', 'thumbnail_url', 'cover_image_url', 'image_url']
     for (const urlField of urlFields) {
       const urlValue = dataToSubmit[urlField]
       if (urlValue && typeof urlValue === 'string' && urlValue.trim()) {
+        const val = urlValue.trim()
+        if (val.startsWith('/') || val.startsWith('./')) {
+          continue
+        }
         try {
-          new URL(urlValue.trim())
+          new URL(val)
         } catch {
           setLoading(false)
           const errorMsg = `Invalid URL format for ${urlField.replace(/_/g, ' ')}`
@@ -518,14 +555,16 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
       }
     }
 
-    // Ensure array fields (like tags, items) are always sent as proper arrays, not strings
+    // Ensure array fields (like tags, items, description, skills, highlights) are always sent as proper arrays, not strings
     const arrayFields = fields.filter(f => f.type === 'tags').map(f => f.key)
     for (const key of arrayFields) {
+      const fieldDef = fields.find(f => f.key === key)
+      const delimiter = fieldDef?.delimiter || ','
       const val = dataToSubmit[key]
       if (val === undefined || val === null || val === '') {
         dataToSubmit[key] = []
       } else if (typeof val === 'string') {
-        dataToSubmit[key] = val.split(',').map(v => v.trim()).filter(Boolean)
+        dataToSubmit[key] = val.split(delimiter).map(v => v.trim()).filter(Boolean)
       }
       // If already an array, leave it as is
     }
@@ -547,7 +586,11 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
         fd.append('file', blob, 'pdf-thumbnail.jpg');
         fd.append('bucket', 'thumbnails');
         
-        const res = await fetch('/api/upload', { method: 'POST', body: fd });
+        const res = await fetch('/api/upload', { 
+          method: 'POST', 
+          body: fd,
+          credentials: 'include'
+        });
         if (res.ok) {
           const { url } = await res.json();
           dataToSubmit.image_url = url;
@@ -573,10 +616,11 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
       const res = await fetch(`/api/admin/${table}`, {
         method,
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(editingId ? { id: editingId, ...cleanData } : cleanData),
       })
       if (!res.ok) {
-        const errorData = await res.json()
+        const errorData = await res.json().catch(() => ({}))
         const errorMsg = [
           errorData.error || 'Submission failed',
           errorData.details ? `Details: ${errorData.details}` : null
@@ -602,9 +646,14 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
 
   const handleEdit = (item) => {
     setEditingId(item.id)
-    const formattedItem = Array.isArray(item.tags) 
-      ? { ...item, tags: item.tags.join(', ') } 
-      : { ...item }
+    const formattedItem = { ...item }
+    fields.forEach((field) => {
+      if (field.type === 'tags' && Array.isArray(item[field.key])) {
+        const delimiter = field.delimiter || ','
+        const joinStr = delimiter === '|' ? ' | ' : ', '
+        formattedItem[field.key] = item[field.key].join(joinStr)
+      }
+    })
     setFormData(formattedItem)
     initialFormRef.current = formattedItem
     setShowForm(true)
@@ -622,10 +671,11 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
       const res = await fetch(`/api/admin/${table}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ id }),
       })
       if (!res.ok) {
-        const errorData = await res.json()
+        const errorData = await res.json().catch(() => ({}))
         const errorMsg = [
           errorData.error || 'Deletion failed',
           errorData.details ? `Details: ${errorData.details}` : null
@@ -676,6 +726,7 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
       const res = await fetch(`/api/admin/${table}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ items }),
       })
 
@@ -889,35 +940,64 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
           </label>
         )
         break
-      case 'tags':
+      case 'tags': {
+        const delimiter = field.delimiter || ','
+        const joinStr = delimiter === '|' ? ' | ' : ', '
+        const rawVal = formData[field.key]
+        const displayValue = Array.isArray(rawVal) ? rawVal.join(joinStr) : (rawVal ?? '')
+        const defaultPlaceholder = delimiter === '|' ? 'Pisahkan dengan pipa (|): Item 1 | Item 2 | Item 3' : 'Pisahkan dengan koma: tag1, tag2, tag3'
+
+        // Compute live tags whether formData is Array or String
+        let parsedTags = []
+        if (Array.isArray(rawVal)) {
+          parsedTags = rawVal
+        } else if (typeof rawVal === 'string' && rawVal.trim()) {
+          parsedTags = rawVal.split(delimiter).map((t) => t.trim()).filter(Boolean)
+        }
+
         inputElement = (
           <div className="w-full space-y-3">
-            <input 
-              type="text" 
-              name={field.key}
-              id={field.key}
-              className={inputClasses}
-              value={Array.isArray(value) ? value.join(', ') : value}
-              onChange={handleInputChange} 
-              placeholder="Pisahkan dengan koma: tag1, tag2, tag3" 
-              disabled={loading || uploadLoading}
-              aria-label={field.label}
-            />
-            {Array.isArray(formData[field.key]) && formData[field.key].length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {formData[field.key].map((tag, index) => (
+            {field.multiline ? (
+              <textarea
+                name={field.key}
+                id={field.key}
+                className={inputClasses}
+                rows={field.rows || 3}
+                value={displayValue}
+                onChange={handleInputChange}
+                placeholder={field.placeholder || defaultPlaceholder}
+                disabled={loading || uploadLoading}
+                aria-label={field.label}
+              />
+            ) : (
+              <input 
+                type="text" 
+                name={field.key}
+                id={field.key}
+                className={inputClasses}
+                value={displayValue}
+                onChange={handleInputChange} 
+                placeholder={field.placeholder || defaultPlaceholder} 
+                disabled={loading || uploadLoading}
+                aria-label={field.label}
+              />
+            )}
+            {parsedTags.length > 0 && (
+              <div className="flex flex-wrap gap-2 pt-1">
+                {parsedTags.map((tag, index) => (
                   <span 
                     key={index} 
-                    className="inline-flex items-center gap-1 bg-gray-700 text-gray-200 text-xs font-medium px-2.5 py-1 rounded-md border border-gray-600"
+                    className="inline-flex items-center gap-1.5 bg-gray-700/80 text-gray-200 text-xs font-medium px-2.5 py-1 rounded-md border border-gray-600 shadow-sm"
                   >
-                    {tag}
+                    <span className="max-w-md break-words">{tag}</span>
                     <button 
                       type="button" 
                       onClick={() => {
-                        setFormData((prev) => ({ ...prev, [field.key]: prev[field.key].filter((_, i) => i !== index) }))
+                        const newTags = parsedTags.filter((_, i) => i !== index)
+                        setFormData((prev) => ({ ...prev, [field.key]: newTags.join(joinStr) }))
                       }} 
-                      className="ml-0.5 text-gray-400 hover:text-red-400 transition-colors"
-                      aria-label={`Remove tag ${tag}`}
+                      className="ml-1 text-gray-400 hover:text-red-400 transition-colors shrink-0"
+                      aria-label={`Hapus tag ${tag}`}
                     >
                       <i className="ri-close-line" aria-hidden="true"></i>
                     </button>
@@ -928,6 +1008,7 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
           </div>
         )
         break
+      }
       case 'image': {
         const imageUrl = formData[field.key]
         inputElement = (
@@ -1202,24 +1283,31 @@ export default function CrudManager({ table, fields, columns, relatedSection = n
                 })()}
               </form>
 
-              {/* Related Section (e.g., Project Images) */}
-              {relatedSection && editingId && relatedSection.showWhen(formData) && (
-                <div className="mt-8 pt-8 border-t border-white/10">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center border border-purple-500/30 shadow-[0_0_15px_rgba(168,85,247,0.2)]">
-                      <i className="ri-image-line text-purple-400 text-lg"></i>
+              {/* Related Section (e.g., Timeline / Project Images) */}
+              {relatedSection && (
+                editingId && relatedSection.showWhen(formData) ? (
+                  <div className="mt-8 pt-8 border-t border-white/10">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center border border-purple-500/30 shadow-[0_0_15px_rgba(168,85,247,0.2)]">
+                        <i className="ri-image-line text-purple-400 text-lg"></i>
+                      </div>
+                      <h3 className="text-white font-bold text-lg tracking-wide">Galeri & Media Penunjang</h3>
                     </div>
-                    <h3 className="text-white font-bold text-lg tracking-wide">Galeri & Media</h3>
+                    <RelatedImages
+                      parentId={editingId}
+                      table={relatedSection.table}
+                      foreignKey={relatedSection.foreignKey}
+                      label={relatedSection.label}
+                      addLabel={relatedSection.addLabel}
+                      hasCaption={relatedSection.hasCaption}
+                    />
                   </div>
-                  <RelatedImages
-                    parentId={editingId}
-                    table={relatedSection.table}
-                    foreignKey={relatedSection.foreignKey}
-                    label={relatedSection.label}
-                    addLabel={relatedSection.addLabel}
-                    hasCaption={relatedSection.hasCaption}
-                  />
-                </div>
+                ) : !editingId ? (
+                  <div className="mt-8 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center gap-3 text-blue-300 text-sm">
+                    <i className="ri-information-line text-lg shrink-0"></i>
+                    <span>Simpan konten ini terlebih dahulu. Setelah tersimpan, klik <strong>Edit</strong> untuk menambahkan <strong>Foto &amp; Dokumentasi Penunjang</strong>.</span>
+                  </div>
+                ) : null
               )}
             </div>
 

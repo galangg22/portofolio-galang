@@ -112,12 +112,26 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Invalid filename' }, { status: 400 })
     }
 
+    // Ensure bucket exists in Supabase Storage
+    const { data: bucketData, error: getBucketError } = await supabaseAdmin.storage.getBucket(bucket)
+    if (getBucketError || !bucketData) {
+      console.log(`Bucket "${bucket}" not found, creating automatically...`)
+      const { error: createBucketError } = await supabaseAdmin.storage.createBucket(bucket, {
+        public: true,
+        fileSizeLimit: MAX_FILE_SIZE,
+        allowedMimeTypes: ALLOWED_MIME_TYPES[bucket]
+      })
+      if (createBucketError && !createBucketError.message?.includes('already exists')) {
+        console.error('Failed to create bucket:', createBucketError)
+      }
+    }
+
     // Upload to Supabase Storage
     const { data, error } = await supabaseAdmin.storage
       .from(bucket)
       .upload(filename, file, {
         contentType: file.type,
-        upsert: false,
+        upsert: true,
         cacheControl: '3600'
       })
 
@@ -131,7 +145,7 @@ export async function POST(req) {
           details: error.message,
           errorObj: error
         },
-        { status: error.statusCode === '23505' ? 409 : 500 }
+        { status: 500 }
       )
     }
 

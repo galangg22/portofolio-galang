@@ -35,6 +35,7 @@ export default function AdminNav() {
   const navItems = [
     { href: '/admin', label: 'Dashboard', icon: 'ri-dashboard-3-line', exact: true },
     { href: '/admin/profile', label: 'Profile', icon: 'ri-user-settings-line' },
+    { href: '/admin/timeline', label: 'Timeline', icon: 'ri-time-line' },
     { href: '/admin/projects', label: 'Projects', icon: 'ri-code-box-line' },
     { href: '/admin/project_types', label: 'Jenis Project', icon: 'ri-list-settings-line' },
     { href: '/admin/certificates', label: 'Certificates', icon: 'ri-award-line' },

@@ -743,3 +743,126 @@ html.light .skill-card .skill-icon {
   color: #1e293b !important;
 }
 
+/* ═══════════════════════════════════════════════
+   LIGHT MODE — ABOUT PAGE (/about)
+   Strictly scoped to .about-page to preserve all other pages
+   ═══════════════════════════════════════════════ */
+html.light .about-page {
+  background-color: #f8fafc !important;
+  color: #1e293b !important;
+}
+
+html.light .about-page h1,
+html.light .about-page h2,
+html.light .about-page h3,
+html.light .about-page h4 {
+  color: #1e293b !important;
+}
+
+html.light .about-page p {
+  color: #475569 !important;
+}
+
+html.light .about-page .bg-card-bg {
+  background-color: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Timeline vertical line */
+html.light .about-page [class*="w-\\[2px\\]"] {
+  background-image: linear-gradient(to bottom, #0a0a0a, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.05)) !important;
+}
+
+/* Timeline node icon circle */
+html.light .about-page .rounded-full.border-2 {
+  background-color: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.18) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+}
+html.light .about-page .rounded-full.border-2 i {
+  color: #0a0a0a !important;
+}
+
+/* Tags, Period, and Pills */
+html.light .about-page .font-mono.text-xs.text-white {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  border-color: rgba(0, 0, 0, 0.10) !important;
+  color: #1e293b !important;
+}
+
+html.light .about-page .text-accent,
+html.light .about-page span.text-accent,
+html.light .about-page i.text-accent {
+  color: #0a0a0a !important;
+}
+
+/* Status badge (Lulus / Aktif / Selesai) */
+html.light .about-page .bg-accent\/10 {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: #1e293b !important;
+}
+
+/* Story callout box */
+html.light .about-page .bg-white\/\[0\.02\] {
+  background-color: rgba(0, 0, 0, 0.02) !important;
+  border-color: rgba(0, 0, 0, 0.06) !important;
+}
+html.light .about-page .bg-white\/\[0\.02\] p {
+  color: #475569 !important;
+}
+
+/* Skill pills */
+html.light .about-page .bg-white\/5 {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  color: #334155 !important;
+}
+html.light .about-page .bg-white\/5:hover {
+  border-color: rgba(0, 0, 0, 0.25) !important;
+  background-color: rgba(0, 0, 0, 0.07) !important;
+}
+
+/* Filter tab buttons */
+html.light .about-page button:not([class*="bg-accent"]):not([class*="text-bg-dark"]) {
+  color: #64748b !important;
+}
+html.light .about-page button:not([class*="bg-accent"]):hover {
+  color: #1e293b !important;
+}
+
+/* Hero Badge */
+html.light .about-page .bg-white\/\[0\.04\] {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  color: #475569 !important;
+}
+
+/* Highlights bullet items */
+html.light .about-page li span {
+  color: #334155 !important;
+}
+html.light .about-page li i {
+  color: #0a0a0a !important;
+}
+
+/* Bottom CTA section */
+html.light .about-page section[class*="from-card-bg"] {
+  background-image: linear-gradient(to bottom right, #ffffff, #f1f5f9) !important;
+  border-color: rgba(0, 0, 0, 0.10) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Secondary CTA buttons (Lihat Sertifikat, Hubungi Saya) */
+html.light .about-page a.bg-white\/5 {
+  background-color: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+  color: #1e293b !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+html.light .about-page a.bg-white\/5:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+

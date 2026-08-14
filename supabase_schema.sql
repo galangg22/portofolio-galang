@@ -241,3 +241,51 @@ create table public.certificate_images (
 
 alter table public.certificate_images enable row level security;
 create policy "public read certificate_images" on public.certificate_images for select using (true);
+
+
+-- ============================================================
+-- TABLE: timeline
+-- Data milestone pendidikan, magang, kerja, freelance
+-- ============================================================
+create table public.timeline (
+  id          uuid primary key default gen_random_uuid(),
+  period      text not null,
+  status      text default 'Aktif',
+  role        text not null,
+  institution text not null,
+  location    text,
+  icon        text default 'ri-briefcase-line',
+  category    text default 'Pendidikan',
+  summary     text,
+  description text[] default '{}',
+  skills      text[] default '{}',
+  highlights  text[] default '{}',
+  sort_order  integer default 0,
+  created_at  timestamptz default now(),
+  updated_at  timestamptz default now()
+);
+
+create trigger trg_timeline_updated_at
+  before update on public.timeline
+  for each row execute function update_updated_at();
+
+alter table public.timeline enable row level security;
+create policy "public read timeline" on public.timeline for select using (true);
+
+
+-- ============================================================
+-- TABLE: timeline_images
+-- Foto dan dokumentasi penunjang per milestone timeline
+-- ============================================================
+create table public.timeline_images (
+  id           uuid primary key default gen_random_uuid(),
+  timeline_id  uuid not null references public.timeline(id) on delete cascade,
+  image_url    text not null,
+  caption      text,
+  description  text,
+  sort_order   integer default 0,
+  created_at   timestamptz default now()
+);
+
+alter table public.timeline_images enable row level security;
+create policy "public read timeline_images" on public.timeline_images for select using (true);

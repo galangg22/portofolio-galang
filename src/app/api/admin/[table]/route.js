@@ -5,7 +5,9 @@ import { revalidatePath } from 'next/cache'
 import { generateSlug } from '@/lib/project-utils'
 export const dynamic = 'force-dynamic'
 
-const WHITELIST = ['projects', 'project_images', 'project_types', 'designs', 'design_images', 'videos', 'skills', 'certificates', 'certificate_images', 'profile']
+const WHITELIST = ['projects', 'project_images', 'project_types', 'designs', 'design_images', 'videos', 'skills', 'certificates', 'certificate_images', 'profile', 'timeline', 'timeline_images']
+
+const URL_FIELDS = ['demo_url', 'play_store_url', 'apk_url', 'repo_url', 'credential_link', 'video_url', 'image_url', 'thumbnail_url', 'cover_image_url', 'github_url']
 
 // UUID v4 pattern or integer
 const VALID_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -67,7 +69,7 @@ export async function GET(req, { params }) {
 
     // Apply ordering based on table structure
     // Some tables have sort_order, others only have created_at
-    const tablesWithSortOrder = ['projects', 'designs', 'videos', 'skills', 'certificates', 'project_images', 'design_images', 'certificate_images']
+    const tablesWithSortOrder = ['projects', 'designs', 'videos', 'skills', 'certificates', 'project_images', 'design_images', 'certificate_images', 'timeline', 'timeline_images']
 
     if (tablesWithSortOrder.includes(table)) {
       query = query.order('sort_order', { ascending: true, nullsFirst: false })
@@ -129,14 +131,23 @@ export async function POST(req, { params }) {
     if (table === 'certificates' && (!safeBody.title || !safeBody.issuer)) {
       return badRequestResponse('Title and issuer are required')
     }
+    if (table === 'timeline' && (!safeBody.role || !safeBody.institution || !safeBody.period)) {
+      return badRequestResponse('Role, institution, and period are required')
+    }
+    if (table === 'timeline_images' && (!safeBody.timeline_id || !safeBody.image_url)) {
+      return badRequestResponse('Timeline ID and image URL are required')
+    }
 
     // Sanitize URL fields to prevent XSS
-    const urlFields = ['demo_url', 'play_store_url', 'apk_url', 'repo_url', 'credential_link', 'video_url', 'image_url', 'thumbnail_url', 'cover_image_url', 'github_url']
-    for (const field of urlFields) {
+    for (const field of URL_FIELDS) {
       if (safeBody[field] && typeof safeBody[field] === 'string') {
+        const val = safeBody[field].trim()
+        if (val.startsWith('/') || val.startsWith('./')) {
+          continue
+        }
         // Basic URL validation
         try {
-          new URL(safeBody[field])
+          new URL(val)
         } catch {
           return badRequestResponse(`Invalid URL format for ${field}`)
         }
@@ -187,11 +198,14 @@ export async function PUT(req, { params }) {
     }
 
     // Sanitize URL fields
-    const urlFields = ['demo_url', 'play_store_url', 'apk_url', 'repo_url', 'credential_link', 'video_url', 'image_url', 'thumbnail_url', 'cover_image_url', 'github_url']
-    for (const field of urlFields) {
+    for (const field of URL_FIELDS) {
       if (safeBody[field] && typeof safeBody[field] === 'string') {
+        const val = safeBody[field].trim()
+        if (val.startsWith('/') || val.startsWith('./')) {
+          continue
+        }
         try {
-          new URL(safeBody[field])
+          new URL(val)
         } catch {
           return badRequestResponse(`Invalid URL format for ${field}`)
         }

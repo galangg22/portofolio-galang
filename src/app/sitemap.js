@@ -18,6 +18,12 @@ export default async function sitemap() {
       changeFrequency: 'weekly',
     },
     {
+      url: `${baseUrl}/about`,
+      lastModified: new Date().toISOString(),
+      priority: 0.85,
+      changeFrequency: 'monthly',
+    },
+    {
       url: `${baseUrl}/certificates`,
       lastModified: new Date().toISOString(),
       priority: 0.7,

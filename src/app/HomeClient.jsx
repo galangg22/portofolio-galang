@@ -509,7 +509,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
               Saya percaya bahwa setiap kode yang ditulis harus memberikan solusi nyata. Dengan pendekatan logika yang terstruktur dan dokumentasi yang rapi, saya memastikan sistem yang saya bangun tidak hanya fungsional, tetapi juga skalabel dan mudah dikelola.
             </p>
 
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid sm:grid-cols-2 gap-4 mb-8">
               <div className="info-card p-4 bg-white/[0.02] backdrop-blur-md hover:-translate-y-1 transition-all rounded-xl border border-white/[0.08] flex items-center gap-3">
                 <i className="ri-server-line text-2xl text-accent"></i>
                 <div>
@@ -524,6 +524,17 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                   <p className="font-bold text-white text-sm">AI Integration & Automation</p>
                 </div>
               </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-4">
+              <Link
+                href="/about"
+                className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-white font-medium text-sm hover:bg-white/10 hover:border-accent/40 transition-all group shadow-sm"
+              >
+                <i className="ri-user-search-line text-accent text-base"></i>
+                <span>Lihat Cerita &amp; Timeline Lengkap</span>
+                <i className="ri-arrow-right-line text-gray-400 group-hover:text-accent group-hover:translate-x-1 transition-all"></i>
+              </Link>
             </div>
           </div>
         </div>
