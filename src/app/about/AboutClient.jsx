@@ -423,31 +423,28 @@ export default function AboutClient({ initialTimeline = [], initialProfile = nul
             <div className="flex items-center gap-1.5 p-1 bg-white/5 border border-white/10 rounded-xl w-fit">
               <button
                 onClick={() => setActiveTab("all")}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  activeTab === "all"
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTab === "all"
                     ? "bg-accent text-bg-dark font-bold shadow-md"
                     : "text-gray-400 hover:text-white"
-                }`}
+                  }`}
               >
                 Semua
               </button>
               <button
                 onClick={() => setActiveTab("education")}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  activeTab === "education"
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTab === "education"
                     ? "bg-accent text-bg-dark font-bold shadow-md"
                     : "text-gray-400 hover:text-white"
-                }`}
+                  }`}
               >
                 Pendidikan
               </button>
               <button
                 onClick={() => setActiveTab("experience")}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  activeTab === "experience"
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTab === "experience"
                     ? "bg-accent text-bg-dark font-bold shadow-md"
                     : "text-gray-400 hover:text-white"
-                }`}
+                  }`}
               >
                 Pengalaman
               </button>

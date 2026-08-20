@@ -409,8 +409,8 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
           <div className="order-first lg:order-last lg:col-span-5 flex justify-center lg:justify-end w-full">
             <div className="relative w-full max-w-[240px] sm:max-w-[280px] lg:max-w-[380px]">
               <div className="relative aspect-[4/5] w-full group cursor-pointer">
-                <AnimatedTiles 
-                  imageUrl={initialProfile?.avatar_url || "/image/gambar galang 2.jpg"} 
+                <AnimatedTiles
+                  imageUrl={initialProfile?.avatar_url || "/image/gambar galang 2.jpg"}
                 />
               </div>
               <div className="absolute -bottom-3 -right-3 w-full h-full rounded-2xl border border-white/[0.04] -z-10"></div>
@@ -591,7 +591,7 @@ export default function HomeClient({ initialSkills, initialProjects, initialCert
                         )}
                       </div>
                     </div>
-                    
+
                     <p className="text-gray-400 text-sm leading-relaxed mb-6 flex-1">
                       {skill.desc}
                     </p>

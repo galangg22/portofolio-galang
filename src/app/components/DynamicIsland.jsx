@@ -57,17 +57,15 @@ export const DynamicIsland = memo(function DynamicIsland({ activeSection }) {
           }
         }}
         style={{ willChange: isExpanded ? "width, height" : "auto" }}
-        className={`bg-[#0a0a0a]/95 backdrop-blur-2xl pointer-events-auto cursor-pointer relative flex items-center justify-center transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-transparent ${
-          isExpanded
+        className={`bg-[#0a0a0a]/95 backdrop-blur-2xl pointer-events-auto cursor-pointer relative flex items-center justify-center transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-transparent ${isExpanded
             ? "w-[340px] sm:w-[400px] md:w-[520px] h-16 sm:h-[68px] md:h-20 rounded-full border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.7),inset_0_1px_1px_rgba(255,255,255,0.15)] bg-gradient-to-b from-white/[0.06] to-transparent"
             : "w-28 sm:w-32 h-10 sm:h-11 rounded-full border border-white/15 shadow-[0_10px_30px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.15)] bg-gradient-to-b from-white/[0.04] to-transparent hover:border-white/30 hover:shadow-[0_10px_30px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.25)]"
-        }`}
+          }`}
       >
         {/* Collapsed state - pill */}
         <div
-          className={`absolute inset-0 flex items-center justify-center gap-3 transition-all duration-400 ease-[cubic-bezier(0.32,0.72,0,1)] ${
-            isExpanded ? "opacity-0 scale-90 pointer-events-none" : "opacity-100 scale-100 delay-150"
-          }`}
+          className={`absolute inset-0 flex items-center justify-center gap-3 transition-all duration-400 ease-[cubic-bezier(0.32,0.72,0,1)] ${isExpanded ? "opacity-0 scale-90 pointer-events-none" : "opacity-100 scale-100 delay-150"
+            }`}
         >
           <div className="flex flex-row items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)] animate-pulse" />
@@ -78,9 +76,8 @@ export const DynamicIsland = memo(function DynamicIsland({ activeSection }) {
 
         {/* Expanded state - nav items */}
         <div
-          className={`absolute inset-0 flex items-center justify-between px-3 sm:px-4 md:px-5 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${
-            isExpanded ? "opacity-100 scale-100 delay-100 visible" : "opacity-0 scale-95 invisible pointer-events-none"
-          }`}
+          className={`absolute inset-0 flex items-center justify-between px-3 sm:px-4 md:px-5 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${isExpanded ? "opacity-100 scale-100 delay-100 visible" : "opacity-0 scale-95 invisible pointer-events-none"
+            }`}
         >
           {navItems.map((item, idx) => (
             <a
@@ -94,23 +91,20 @@ export const DynamicIsland = memo(function DynamicIsland({ activeSection }) {
             >
               {/* Active Background Pill */}
               <div
-                className={`absolute inset-0.5 sm:inset-1 rounded-[20px] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${
-                  activeSection === item.id ? "bg-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]" : "bg-transparent group-hover:bg-white/[0.06]"
-                }`}
+                className={`absolute inset-0.5 sm:inset-1 rounded-[20px] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${activeSection === item.id ? "bg-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]" : "bg-transparent group-hover:bg-white/[0.06]"
+                  }`}
               />
-              
+
               {/* Active underline indicator */}
               <div
-                className={`absolute bottom-[6px] sm:bottom-2 left-1/2 -translate-x-1/2 h-0.5 sm:h-[3px] rounded-full bg-white transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${
-                  activeSection === item.id ? "w-4 shadow-[0_0_8px_rgba(255,255,255,0.8)]" : "w-0 group-hover:w-2 bg-white/40"
-                }`}
+                className={`absolute bottom-[6px] sm:bottom-2 left-1/2 -translate-x-1/2 h-0.5 sm:h-[3px] rounded-full bg-white transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${activeSection === item.id ? "w-4 shadow-[0_0_8px_rgba(255,255,255,0.8)]" : "w-0 group-hover:w-2 bg-white/40"
+                  }`}
               />
-              
+
               {/* Icon */}
               <div
-                className={`relative z-10 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] mb-1 ${
-                  activeSection === item.id ? "text-white scale-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]" : "text-gray-400 group-hover:text-white"
-                }`}
+                className={`relative z-10 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] mb-1 ${activeSection === item.id ? "text-white scale-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]" : "text-gray-400 group-hover:text-white"
+                  }`}
                 aria-hidden="true"
               >
                 {item.svg}

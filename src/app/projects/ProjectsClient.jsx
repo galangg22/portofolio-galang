@@ -68,9 +68,9 @@ function ProjectsClientContent({ initialProjects }) {
     filter === "all"
       ? projects
       : projects.filter(
-          (p) =>
-            (p.project_type || "website").toLowerCase() === filter
-        );
+        (p) =>
+          (p.project_type || "website").toLowerCase() === filter
+      );
 
   return (
     <main className="min-h-[100dvh] bg-bg-dark p-4 sm:p-8 md:p-16 relative overflow-x-hidden">
@@ -97,11 +97,10 @@ function ProjectsClientContent({ initialProjects }) {
           <button
             key={f.key}
             onClick={() => setFilter(f.key)}
-            className={`shrink-0 px-5 md:px-6 py-2.5 rounded-full border text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all duration-300 whitespace-nowrap flex items-center gap-2 ${
-              filter === f.key
+            className={`shrink-0 px-5 md:px-6 py-2.5 rounded-full border text-[10px] md:text-[11px] font-bold uppercase tracking-widest transition-all duration-300 whitespace-nowrap flex items-center gap-2 ${filter === f.key
                 ? "bg-accent text-bg-dark border-accent shadow-xl scale-105"
                 : "border-white/10 text-gray-500 hover:border-white/30 hover:text-white bg-white/5"
-            }`}
+              }`}
           >
             <i className={f.icon} /> {f.label}
             <span className="ml-1 text-[10px] opacity-60">
